@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-canvas="paper">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lesson-Deck-Builder — a Claude skill for hand-drawn HTML lesson decks</title>
+<meta name="description" content="A Claude skill that turns any topic into a calm, hand-drawn, self-contained HTML lesson deck: slide engine, paper or chalkboard canvas, Arabic or English, 43 components, a research-based teaching method and a validator." />
+<meta property="og:title" content="Lesson-Deck-Builder" />
+<meta property="og:description" content="A Claude skill that turns any topic into a calm, hand-drawn HTML lesson deck — one file, any browser." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C4553B' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E" />
+<script>
+  /* pick the canvas before first paint: a saved choice, else the reader's light/dark preference */
+  (function(){var v=null;try{v=localStorage.getItem('ldb-docs-canvas');}catch(e){}
+    if(!v&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)v='slate-reinked';
+    if(v&&v!=='paper'){document.documentElement.setAttribute('data-canvas','chalkboard');document.documentElement.setAttribute('data-board',v);}})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Karla:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playpen+Sans+Arabic:wght@800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="site/style.css" />
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+
+<!-- shared icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><polyline points="14 3 14 9 20 9"/><path d="m9 14 2 2 4-4"/></symbol>
+    <symbol id="i-slides" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="m10 8 4 2.5-4 2.5Z"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="1.5"/><path d="M7 21l2-4M17 21l-2-4M6 9h6M6 12h9"/></symbol>
+    <symbol id="i-loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2Z"/><path d="M9 4v14M15 6v14"/></symbol>
+    <symbol id="i-gh" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.3 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <a class="brand" href="#top" aria-label="Lesson-Deck-Builder, top of page"><svg><use href="#i-pen"/></svg><span>Lesson-Deck-Builder</span></a>
+  <nav aria-label="Main">
+    <a href="#install">Install</a>
+    <a href="#workflow" class="hide-sm">How it works</a>
+    <a href="#components" class="hide-sm">Components</a>
+    <a href="#rulebooks" class="hide-sm">Rulebooks</a>
+    <a href="https://github.com/MstrPxl/lesson-deck-builder" aria-label="GitHub repository"><svg width="20" height="20" style="vertical-align:-4px"><use href="#i-gh"/></svg></a>
+  </nav>
+  <div class="canvas-pick" role="group" aria-label="Page canvas: paper or a chalkboard">
+    <button data-set-canvas="paper" style="--sw:#FBF6EA" title="Paper" aria-label="Paper"></button>
+    <button data-set-canvas="slate-reinked" style="--sw:#19211B" title="Chalkboard · Slate re-inked" aria-label="Slate re-inked"></button>
+    <button data-set-canvas="midnight-blue" style="--sw:#131D2A" title="Chalkboard · Midnight blue" aria-label="Midnight blue"></button>
+    <button data-set-canvas="olive-gold" style="--sw:#1F1E13" title="Chalkboard · Olive gold" aria-label="Olive gold"></button>
+    <button data-set-canvas="dusk-indigo" style="--sw:#1A1A28" title="Chalkboard · Dusk indigo" aria-label="Dusk indigo"></button>
+    <button data-set-canvas="deep-teal" style="--sw:#0E2224" title="Chalkboard · Deep teal" aria-label="Deep teal"></button>
+    <button data-set-canvas="red-graphite" style="--sw:#281717" title="Chalkboard · Red graphite" aria-label="Red graphite"></button>
+  </div>
+</header>
+
+<div class="wrap" id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div>
+      <span class="eyebrow">A Claude skill · v1.3</span>
+      <h1 id="hero-title">Lesson-<span class="u">Deck<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 13 C 50 6, 120 5, 197 11" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></span>-Builder</h1>
+      <p class="tagline">Ask Claude for a lesson on <em>any</em> topic and get back <strong>one HTML file</strong>: a calm, hand-drawn slide deck that teaches, opens in any browser, and works on a phone.</p>
+      <ul class="chips">
+        <li>One self-contained .html</li><li>Paper or 6 chalkboards</li><li>Arabic (RTL) or English</li>
+        <li>43 slide components</li><li>Challenge-first teaching</li><li>Built-in validator</li>
+      </ul>
+      <div class="cta">
+        <a class="btn primary" href="#install"><svg><use href="#i-down"/></svg>Install the skill</a>
+        <a class="btn" href="#first-deck">Make your first deck</a>
+        <a class="btn" href="https://github.com/MstrPxl/lesson-deck-builder"><svg><use href="#i-gh"/></svg>GitHub</a>
+      </div>
+    </div>
+
+    <div data-frame>
+      <div class="frame-tabs" role="tablist" aria-label="Live decks">
+        <button role="tab" aria-selected="true" data-src="lesson-deck-builder/assets/style-samples/sketchbook.html" data-cap="Exemplar deck on the paper canvas.">Paper</button>
+        <button role="tab" aria-selected="false" data-src="lesson-deck-builder/assets/style-samples/sketchbook-chalkboard.html" data-cap="Exemplar deck on the chalkboard. Its top-bar dots switch between paper and all six boards.">Chalkboard</button>
+        <button role="tab" aria-selected="false" data-src="lesson-deck-builder/assets/style-samples/sketchbook-kit.html" data-cap="The mechanics kit: steppers, lab widget, tray, duo panes, token journey, spotlight…">Mechanics kit</button>
+        <button role="tab" aria-selected="false" data-src="examples/isy-05-cryptography.html" data-cap="A real lesson: a university lecture on cryptography, built with both rulebooks.">Real lesson</button>
+      </div>
+      <div class="frame"><div class="vp"><iframe title="Live lesson deck" loading="lazy"></iframe></div></div>
+      <div class="frame-foot"><span data-caption>Exemplar deck on the paper canvas.</span><span>Click inside, then use <kbd>←</kbd> <kbd>→</kbd> · <a data-open href="lesson-deck-builder/assets/style-samples/sketchbook.html" target="_blank" rel="noopener">open full screen ↗</a></span></div>
+    </div>
+  </section>
+
+  <details class="toc-sm">
+    <summary>Contents</summary>
+    <ol>
+      <li><a href="#overview">What it is</a></li><li><a href="#install">Install</a></li><li><a href="#first-deck">Your first deck</a></li>
+      <li><a href="#workflow">How a session goes</a></li><li><a href="#deck-kinds">Two kinds of deck</a></li><li><a href="#canvases">Canvases &amp; boards</a></li>
+      <li><a href="#language">Language &amp; direction</a></li><li><a href="#teaching">The teaching method</a></li><li><a href="#questions">Questions &amp; adaptive loop</a></li>
+      <li><a href="#modes">Chat mode, repo mode, roadmaps</a></li><li><a href="#engine">The slide engine</a></li><li><a href="#components">Component library</a></li>
+      <li><a href="#use-cases">Teaching jobs</a></li><li><a href="#style">Style laws</a></li><li><a href="#length">Length budget</a></li>
+      <li><a href="#validate">Validator &amp; scripts</a></li><li><a href="#rules">Hard rules</a></li><li><a href="#rulebooks">The rulebooks</a></li>
+      <li><a href="#example">Worked example</a></li><li><a href="#repo">Repository layout</a></li><li><a href="#faq">FAQ</a></li><li><a href="#credits">Contributors &amp; license</a></li>
+    </ol>
+  </details>
+
+  <div class="layout">
+    <aside class="toc" aria-label="On this page">
+      <h3>On this page</h3>
+      <ol>
+        <li><a href="#overview">What it is</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#first-deck">Your first deck</a></li>
+        <li><a href="#workflow">How a session goes</a></li>
+        <li><a href="#deck-kinds">Two kinds of deck</a></li>
+        <li><a href="#canvases">Canvases &amp; boards</a></li>
+        <li><a href="#language">Language &amp; direction</a></li>
+        <li><a href="#teaching">The teaching method</a></li>
+        <li><a href="#questions">Questions &amp; adaptive loop</a></li>
+        <li><a href="#modes">Chat mode, repo mode, roadmaps</a></li>
+        <li><a href="#engine">The slide engine</a></li>
+        <li><a href="#components">Component library</a></li>
+        <li><a href="#use-cases">Teaching jobs</a></li>
+        <li><a href="#style">Style laws</a></li>
+        <li><a href="#length">Length budget</a></li>
+        <li><a href="#validate">Validator &amp; scripts</a></li>
+        <li><a href="#rules">Hard rules</a></li>
+        <li><a href="#rulebooks">The rulebooks</a></li>
+        <li><a href="#example">Worked example</a></li>
+        <li><a href="#repo">Repository layout</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#credits">Contributors &amp; license</a></li>
+      </ol>
+    </aside>
+
+    <main>
+
+<!-- ============ OVERVIEW ============ -->
+<section class="doc" id="overview">
+  <span class="eyebrow">Start here</span>
+  <h2>What it is</h2>
+  <p class="lead">A <strong>skill</strong> is a folder of instructions and files that Claude reads when a task needs it. This one teaches Claude to build <strong>lesson decks</strong>: slide-style web pages that explain a topic step by step, like a good teacher at a notebook or a blackboard.</p>
+  <p class="measure">You describe what you want to learn or present. Claude asks a few short questions, plans the lesson, fills slides from a ready-made library, checks the file, and hands you <strong>one <code>.html</code> file</strong>. Double-click it and it opens in your browser. Send it to anyone; it needs nothing else installed.</p>
+
+  <div class="grid g3">
+    <div class="card"><div class="ico"><svg><use href="#i-file"/></svg></div><h3>One file, any device</h3><p>All styles, scripts and drawings live inside the file. It runs in any modern browser, on a laptop or a phone, with keyboard, mouse or swipe.</p></div>
+    <div class="card b"><div class="ico"><svg><use href="#i-pen"/></svg></div><h3>Hand-drawn and calm</h3><p>The <strong>Sketchbook</strong> look: ruled paper or a chalkboard, wobbly ink frames, sticky notes and drawings that draw themselves. No neon, no clutter.</p></div>
+    <div class="card c"><div class="ico"><svg><use href="#i-bulb"/></svg></div><h3>Built to teach</h3><p>Teaching decks open with a challenge, explain each idea with a picture, its "why" and a real use, then return to the challenge and end with questions.</p></div>
+    <div class="card c"><div class="ico"><svg><use href="#i-globe"/></svg></div><h3>Arabic or English</h3><p>Right-to-left Arabic or left-to-right English. Fonts, layout, arrow keys and swipes all follow the language you choose.</p></div>
+    <div class="card"><div class="ico"><svg><use href="#i-grid"/></svg></div><h3>43 components</h3><p>Covers, maps, timelines, comparisons, code windows, charts, steppers, sliders, quizzes and more, each matched to a "teaching job".</p></div>
+    <div class="card b"><div class="ico"><svg><use href="#i-check"/></svg></div><h3>Checked before delivery</h3><p>A small Python validator catches broken decks: two active slides, a missing engine, a wrong board, a widget that would flip slides while you drag it.</p></div>
+  </div>
+
+  <div class="note"><span class="nt">What it is not</span>It does not make PowerPoint files (use a <code>.pptx</code> skill for that). It makes web pages. The decks look like slides, but they are HTML: you can host them anywhere, including GitHub Pages.</div>
+</section>
+
+<!-- ============ INSTALL ============ -->
+<section class="doc" id="install">
+  <span class="eyebrow">Setup · 2 minutes</span>
+  <h2>Install</h2>
+  <p class="lead">The skill is the folder <code>lesson-deck-builder/</code> inside this repository. Put that folder where Claude looks for skills.</p>
+
+  <h3>Option A — Claude Code (all your projects)</h3>
+  <p>Clone the repository, then copy the skill folder into your personal skills folder, <code>~/.claude/skills/</code>.</p>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">macOS · Linux · Git Bash</span><button class="copy">Copy</button></div>
+<pre><code>git clone https://github.com/MstrPxl/lesson-deck-builder.git
+mkdir -p ~/.claude/skills
+cp -r lesson-deck-builder/lesson-deck-builder ~/.claude/skills/</code></pre></div>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">Windows · PowerShell</span><button class="copy">Copy</button></div>
+<pre><code>git clone https://github.com/MstrPxl/lesson-deck-builder.git
+New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
+Copy-Item -Recurse lesson-deck-builder\lesson-deck-builder "$HOME\.claude\skills\"</code></pre></div>
+  <p>You should now have <code>~/.claude/skills/lesson-deck-builder/SKILL.md</code>. Start a new Claude Code session and the skill is ready.</p>
+
+  <h3>Option B — Claude Code (one project only)</h3>
+  <p>Copy the same folder into the project instead: <code>&lt;your-project&gt;/.claude/skills/lesson-deck-builder/</code>. Anyone who clones that project gets the skill too.</p>
+
+  <h3>Option C — Claude apps (claude.ai, desktop)</h3>
+  <ol>
+    <li>Download <strong><code>lesson-deck-builder.zip</code></strong> from the <a href="https://github.com/MstrPxl/lesson-deck-builder/releases/latest">latest release</a>. (Or zip the <code>lesson-deck-builder/</code> folder yourself: the zip must contain that folder, with <code>SKILL.md</code> inside it.)</li>
+    <li>In Claude, open <strong>Settings → Capabilities</strong>, make sure code execution is on, and upload the zip under <strong>Skills</strong>.</li>
+    <li>Start a new chat and ask for a lesson. In the apps the skill runs in <a href="#modes">chat mode</a>: one complete deck per request.</li>
+  </ol>
+
+  <h3>Check that it works</h3>
+  <p>In Claude Code, type <code>/lesson-deck-builder</code> (the skill also starts by itself when you ask for "slides", "a deck", "a lesson" or "a visual walkthrough"). Claude should answer with questions about your topic, not with a deck. That is correct: <a href="#workflow">the questions come first</a>.</p>
+
+  <div class="grid g3">
+    <div class="card soft"><h4 class="mt0">You need</h4><ul><li>Claude Code, or a Claude app with skills enabled</li><li>A modern browser to open decks</li></ul></div>
+    <div class="card soft"><h4 class="mt0">Recommended</h4><ul><li><strong>Python 3</strong>, so Claude can run the validator</li><li>Git, for <a href="#modes">repo mode</a> (Claude commits each lesson)</li></ul></div>
+    <div class="card soft"><h4 class="mt0">To update</h4><ul><li><code>git pull</code> in your clone, then copy the folder again (replace the old one)</li></ul></div>
+  </div>
+</section>
+
+<!-- ============ FIRST DECK ============ -->
+<section class="doc" id="first-deck">
+  <span class="eyebrow">Quick start</span>
+  <h2>Your first deck</h2>
+  <p class="lead">Just ask in plain words. Any of these works:</p>
+  <div class="grid g3">
+    <div class="card soft"><span class="tag">Teaching deck</span><p class="mt0">"Make me slides explaining how vaccines work, for someone with no science background."</p></div>
+    <div class="card soft"><span class="tag">Presentation</span><p class="mt0">"Build a short deck that introduces our new note-taking app to the team."</p></div>
+    <div class="card soft"><span class="tag">Learning journey</span><p class="mt0">"I want to learn machine learning from zero. Start a learning path for me." (best in Claude Code, inside a folder)</p></div>
+  </div>
+
+  <h3>A typical conversation</h3>
+  <ol class="steps">
+    <li data-n="1"><h4>You ask</h4><span class="say"><b>You</b>/lesson-deck-builder Make slides explaining how vaccines work.</span></li>
+    <li data-n="2"><h4>Claude maps the topic and asks you to confirm it</h4><span class="say"><b>Claude</b>Here are the nearby topics: how a vaccine trains your immune system · the main vaccine types · how vaccines are tested · herd immunity. I'll restate your aim: "understand how one shot teaches the body to fight a germ it has never met". Is that right?</span></li>
+    <li data-n="3"><h4>Claude asks the canvas and the language</h4><span class="say"><b>Claude</b>Canvas? I suggest <strong>Paper</strong> (bright, good for daytime reading) · or <strong>Chalkboard</strong>. And: Arabic or English?</span></li>
+    <li data-n="4"><h4>A short intake</h4><span class="say"><b>Claude</b>Who is it for (complete beginner · generally informed · expert), and how long (≈10 · 20 · 30 min)?</span></li>
+    <li data-n="5"><h4>Claude plans, builds and checks</h4><p>It sketches the slide list, fills slides from the component library, and runs <code>validate.py</code>.</p></li>
+    <li data-n="6"><h4>You get one file</h4><p><code>vaccines.html</code>. Open it in a browser; use the arrow keys, the Prev/Next buttons, or swipe. Ask for changes any time: "make it chalkboard", "shorter", "add a slide on boosters".</p></li>
+  </ol>
+  <div class="aside ok"><strong>Save time:</strong> anything you say up front is not asked again. "An English teaching deck on vaccines, paper canvas, beginners, 15 minutes" skips the language, canvas and intake questions. The topic is still confirmed in one line, because a wrong topic spoils every slide after it.</div>
+
+  <h3 id="prompt-builder">Prompt builder</h3>
+  <p>Pick your options and copy a ready prompt.</p>
+  <div class="builder">
+    <form id="pb" class="card" onsubmit="return false">
+      <fieldset class="field"><legend>Kind</legend><div class="seg">
+        <label><input type="radio" name="mode" value="teach" checked><span>Teaching deck</span></label>
+        <label><input type="radio" name="mode" value="present"><span>Presentation</span></label>
+        <label><input type="radio" name="mode" value="journey"><span>Learning journey</span></label>
+        <label><input type="radio" name="mode" value="rulebook"><span>From lecture slides</span></label>
+      </div></fieldset>
+      <div class="field" data-teach-only><label for="pb-topic">Topic</label><input type="text" id="pb-topic" placeholder="e.g. how DNS finds a website" /></div>
+      <fieldset class="field" data-teach-only><legend>Language</legend><div class="seg">
+        <label><input type="radio" name="lang" value="ask" checked><span>Ask me</span></label>
+        <label><input type="radio" name="lang" value="English"><span>English</span></label>
+        <label><input type="radio" name="lang" value="Arabic"><span>Arabic</span></label>
+      </div></fieldset>
+      <fieldset class="field"><legend>Canvas</legend><div class="seg">
+        <label><input type="radio" name="canvas" value="ask" checked><span>Ask me</span></label>
+        <label><input type="radio" name="canvas" value="paper"><span>Paper</span></label>
+        <label><input type="radio" name="canvas" value="chalkboard"><span>Chalkboard</span></label>
+      </div></fieldset>
+      <fieldset class="field hidden" id="pb-board-row"><legend>Board</legend><div class="seg">
+        <label><input type="radio" name="board" value="slate-reinked" checked><span>Slate re-inked</span></label>
+        <label><input type="radio" name="board" value="midnight-blue"><span>Midnight blue</span></label>
+        <label><input type="radio" name="board" value="olive-gold"><span>Olive gold</span></label>
+        <label><input type="radio" name="board" value="dusk-indigo"><span>Dusk indigo</span></label>
+        <label><input type="radio" name="board" value="deep-teal"><span>Deep teal</span></label>
+        <label><input type="radio" name="board" value="red-graphite"><span>Red graphite</span></label>
+      </div></fieldset>
+      <fieldset class="field" data-teach-only><legend>Audience</legend><div class="seg">
+        <label><input type="radio" name="level" value="ask" checked><span>Ask me</span></label>
+        <label><input type="radio" name="level" value="complete beginners"><span>Beginners</span></label>
+        <label><input type="radio" name="level" value="generally informed readers"><span>Informed</span></label>
+        <label><input type="radio" name="level" value="experts"><span>Experts</span></label>
+      </div></fieldset>
+      <fieldset class="field" data-teach-only><legend>Length</legend><div class="seg">
+        <label><input type="radio" name="len" value="ask" checked><span>Ask me</span></label>
+        <label><input type="radio" name="len" value="10"><span>≈10 min</span></label>
+        <label><input type="radio" name="len" value="20"><span>≈20 min</span></label>
+        <label><input type="radio" name="len" value="30"><span>≈30 min</span></label>
+      </div></fieldset>
+    </form>
+    <div>
+      <div class="code" style="margin-top:0"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">your prompt</span><button class="copy" id="pb-copy" type="button">Copy</button></div>
+<pre id="pb-out" aria-live="polite"></pre></div>
+      <p class="muted"><small>"From lecture slides" uses the two <a href="#rulebooks">rulebooks</a>: attach them, your lecture PDF or PPTX and any notes. For a later deck of the same course, also attach the newest earlier deck.</small></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WORKFLOW ============ -->
+<section class="doc" id="workflow">
+  <span class="eyebrow">Under the hood</span>
+  <h2>How a session goes</h2>
+  <p class="lead">Claude follows the same steps every time. Knowing them helps you answer quickly and know what to expect.</p>
+  <ol class="steps">
+    <li data-n="0"><h4>Detect the environment</h4><p><strong>Repo mode</strong> (Claude Code, inside a folder) or <strong>chat mode</strong> (the Claude apps). It changes where lessons and notes are kept. <a href="#modes">More below.</a></p></li>
+    <li data-n="1"><h4>The topic conversation (required)</h4><p>Every new learning journey starts here. Claude assumes you know nothing, lists the topics near what you said (with one plain line each), and asks you to confirm <strong>one</strong> topic or one exact learning aim. Even a precise request gets restated and confirmed. Nothing is built before you say yes.</p></li>
+    <li data-n="1b"><h4>The canvas gate (required)</h4><p>Paper or chalkboard; on the chalkboard, which of the six boards. Claude suggests one with a one-line reason, always shows the full menu, and never picks for you. <a href="#canvases">See the boards.</a></p></li>
+    <li data-n="2"><h4>The language (required)</h4><p>"Arabic or English?" Asked every time unless you already said it. It sets direction, fonts, button labels and arrow keys.</p></li>
+    <li data-n="3"><h4>Scope (broad subjects only)</h4><p>If you could spend weeks on the subject ("DevOps", "personal finance"), Claude offers three ways in: an <strong>Overview</strong> deck (at most ~30 minutes), a <strong>Roadmap + Lesson 1</strong>, or a <strong>Deep dive</strong> on one subtopic. Narrow topics skip this.</p></li>
+    <li data-n="4"><h4>Intake</h4><p>One quick round: the angle, the audience level (default: "a newcomer gains real understanding"), and the length (default ≈20 minutes).</p></li>
+    <li data-n="5"><h4>Plan the outline</h4><p>Claude chooses the arc (teaching or presentation), turns the time budget into a slide count, and names each slide's <a href="#use-cases">teaching job</a> before choosing its <a href="#components">component</a>.</p></li>
+    <li data-n="6"><h4>Set up from the template</h4><p>Copies <code>assets/template.html</code>, sets <code>dir</code>/<code>lang</code>, fonts, nav labels and the canvas attributes. The engine script is never edited.</p></li>
+    <li data-n="7"><h4>Build the slides</h4><p>A visual on every slide that earns one, text in HTML and shapes in SVG, staggered entrances, logical CSS properties so both directions mirror correctly, one idea per slide.</p></li>
+    <li data-n="8"><h4>Validate, then present</h4><p>Runs <code>scripts/validate.py</code>, fixes what it flags, and delivers the file with a short note: what was made, how to move through it, and what you can ask to change.</p></li>
+  </ol>
+</section>
+
+<!-- ============ DECK KINDS ============ -->
+<section class="doc" id="deck-kinds">
+  <span class="eyebrow">Decided once, early</span>
+  <h2>Two kinds of deck</h2>
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag">Teaching deck</span>
+      <h3>So you can <em>do</em> or <em>understand</em> something new</h3>
+      <p>Lessons, explainers, tutorials, every lesson of a learning path. Uses the <strong>teaching arc</strong>:</p>
+      <div class="flow"><span class="a">Cover</span><i>›</i><span class="a">Opening challenge</span><i>›</i><span>Ground the newcomer</span><i>›</i><span>Map</span><i>›</i><span class="b">One idea per slide</span><i>›</i><span class="a">Challenge revisited</span><i>›</i><span class="c">Recap as "you can now…"</span><i>›</i><span class="c">Questions + answer box</span><i>›</i><span>Closing</span></div>
+    </div>
+    <div class="card">
+      <span class="tag">Presentation deck</span>
+      <h3>To <em>inform</em> or <em>persuade</em></h3>
+      <p>A pitch, a product intro, a showcase, a report. Uses the classic arc, with no challenge and no questions:</p>
+      <div class="flow"><span class="a">Cover</span><i>›</i><span>Ground</span><i>›</i><span>Map</span><i>›</i><span class="b">One idea per slide</span><i>›</i><span>Transitions</span><i>›</i><span class="c">Recap flow</span><i>›</i><span>Closing</span></div>
+    </div>
+  </div>
+  <p>If your request could be either, Claude asks one question. When a deck explains a concept and nobody said otherwise, it is treated as a teaching deck.</p>
+</section>
+
+<!-- ============ CANVASES ============ -->
+<section class="doc" id="canvases">
+  <span class="eyebrow">The look</span>
+  <h2>Canvases &amp; boards</h2>
+  <p class="lead">There is one style, <strong>Sketchbook</strong>, on two canvases: bright <strong>paper</strong>, or a <strong>chalkboard</strong> in one of six boards. Click a card to repaint this whole page with it (the dots in the top bar do the same).</p>
+
+  <div class="boards" role="group" aria-label="Try a canvas on this page">
+    <button class="board" data-set-canvas="paper" style="--bb:#FBF6EA;--bi:#29241B;--br:rgba(154,146,128,.18)"><span class="nm">Paper</span><span class="id">bright ruled notebook</span><span class="pens"><i style="--p:#C4553B"></i><i style="--p:#3E6B8C"></i><i style="--p:#A8741A"></i></span><span class="key">paper</span></button>
+    <button class="board" data-set-canvas="slate-reinked" style="--bb:#19211B;--bi:#F3EFE3;--br:rgba(243,239,227,.06)"><span class="def">default</span><span class="nm">Slate re-inked</span><span class="id">green-black slate</span><span class="pens"><i style="--p:#FF9E8F"></i><i style="--p:#98CCF6"></i><i style="--p:#F5D870"></i></span><span class="key">slate-reinked</span></button>
+    <button class="board" data-set-canvas="midnight-blue" style="--bb:#131D2A;--bi:#F3EFE3;--br:rgba(243,239,227,.06)"><span class="nm">Midnight blue</span><span class="id">deep blue, the calmest hue</span><span class="pens"><i style="--p:#FEA684"></i><i style="--p:#83E2BF"></i><i style="--p:#FAD980"></i></span><span class="key">midnight-blue</span></button>
+    <button class="board" data-set-canvas="olive-gold" style="--bb:#1F1E13;--bi:#F3EFE3;--br:rgba(243,239,227,.06)"><span class="nm">Olive gold</span><span class="id">dark olive, leans yellow</span><span class="pens"><i style="--p:#FDA19E"></i><i style="--p:#A5C9FF"></i><i style="--p:#F3E685"></i></span><span class="key">olive-gold</span></button>
+    <button class="board" data-set-canvas="dusk-indigo" style="--bb:#1A1A28;--bi:#F3EFE3;--br:rgba(243,239,227,.06)"><span class="nm">Dusk indigo</span><span class="id">muted blue-violet</span><span class="pens"><i style="--p:#FBA59A"></i><i style="--p:#7DDBE0"></i><i style="--p:#F9DA7B"></i></span><span class="key">dusk-indigo</span></button>
+    <button class="board" data-set-canvas="deep-teal" style="--bb:#0E2224;--bi:#F3EFE3;--br:rgba(243,239,227,.06)"><span class="nm">Deep teal</span><span class="id">blue-green</span><span class="pens"><i style="--p:#FEAA7A"></i><i style="--p:#B9BCF9"></i><i style="--p:#F4DF79"></i></span><span class="key">deep-teal</span></button>
+    <button class="board" data-set-canvas="red-graphite" style="--bb:#281717;--bi:#F4EFE3;--br:rgba(244,239,227,.06)"><span class="nm">Red graphite</span><span class="id">charcoal, oxblood tint</span><span class="pens"><i style="--p:#FDA9B5"></i><i style="--p:#88D9D1"></i><i style="--p:#F6D97E"></i></span><span class="key">red-graphite</span></button>
+  </div>
+
+  <h3>One attribute pair decides it</h3>
+  <p>In a deck, the canvas is set on the <code>&lt;html&gt;</code> tag and every colour follows. This page right now is:</p>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">deck.html</span><button class="copy">Copy</button></div><pre><code id="canvas-attr">&lt;html data-canvas="paper"&gt;</code></pre></div>
+  <p><code>data-canvas="chalkboard"</code> without a <code>data-board</code> gives the default board, Slate re-inked. Never hand-edit a board's colours inside a deck: pick a board.</p>
+
+  <div class="grid g3">
+    <div class="card soft"><h4 class="mt0">Three pens</h4><p>Every canvas has pen <span class="pen-a"><b>a</b></span> (the main emphasis), pen <span class="pen-b"><b>b</b></span> and pen <span class="pen-c"><b>c</b></span> (they link parts of a figure). One dominant pen and quiet supports, never a rainbow.</p></div>
+    <div class="card soft"><h4 class="mt0">Tuned for long reading</h4><p>Boards are dark but coloured, never black. Chalk is warm off-white, never pure white (it blurs on dark grounds). Body text reaches about APCA Lc 80 on all six boards; pens use medium saturation so they don't "vibrate".</p></div>
+    <div class="card soft"><h4 class="mt0">Paper objects stay paper</h4><p>Sticky notes, tape, index cards and gloss cards keep their paper colours on every board, like real paper pinned to a blackboard. Look at the notes on this page in chalkboard mode.</p></div>
+  </div>
+  <div class="aside"><strong>The gate:</strong> Claude always asks the canvas before building, suggests one with a reason (paper by default; chalkboard for night or long screen reading, or if you chose it before), and lists every option. In a lesson series it asks once and remembers. The older looks (Playroom, Nocturne, Terra, Classic) were retired in v1.3; their mechanics live on in components §32.</div>
+</section>
+
+<!-- ============ LANGUAGE ============ -->
+<section class="doc" id="language">
+  <span class="eyebrow">Arabic · English</span>
+  <h2>Language &amp; direction</h2>
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag">Arabic · right to left</span>
+      <p class="ar" style="font-size:1.9rem;margin:.2em 0">كيف تعمل اللقاحات؟</p>
+      <ul>
+        <li><code>&lt;html dir="rtl" lang="ar"&gt;</code></li>
+        <li>Display: <strong>Playpen Sans Arabic</strong>, weight 800, always. Body: <strong>IBM Plex Sans Arabic</strong>.</li>
+        <li>Buttons: <span class="ar">‹ السابق</span> / <span class="ar">التالي ›</span></li>
+        <li><kbd>←</kbd> moves forward (reading goes leftward). Swipe direction flips too.</li>
+        <li>No letter-spacing or uppercase on Arabic; line height about 1.9; display text at 0.95rem or larger.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag">English · left to right</span>
+      <p class="display" style="font-size:2.1rem;margin:.1em 0">How do vaccines work?</p>
+      <ul>
+        <li><code>&lt;html dir="ltr" lang="en"&gt;</code></li>
+        <li>Display: <strong>Caveat</strong> (hand-lettered). Body: <strong>Karla</strong>.</li>
+        <li>Buttons: <code>‹ Prev</code> / <code>Next ›</code></li>
+        <li><kbd>→</kbd> moves forward.</li>
+        <li>The template ships Arabic-ready; Claude switches it for English.</li>
+      </ul>
+    </div>
+  </div>
+  <p>Layouts use CSS <em>logical properties</em> (<code>margin-inline</code>, <code>inset-inline-start</code>…), so everything mirrors by itself, including the notebook's red margin line. <strong>Bilingual lessons</strong> (say, English taught with Arabic support) pick one base language for direction and fonts and mix the other inside the content, using less of the support language as the level rises.</p>
+  <div class="aside warn"><strong>Rule:</strong> text never goes inside <code>&lt;svg&gt;</code>. Arabic shaping and direction break there. Text is HTML; SVG is only for shapes and icons.</div>
+</section>
+
+<!-- ============ TEACHING ============ -->
+<section class="doc" id="teaching">
+  <span class="eyebrow">Pedagogy</span>
+  <h2>The teaching method</h2>
+  <p class="lead">Teaching decks are designed to turn <em>information shown</em> into <em>capability gained</em>. Four ideas do most of the work.</p>
+
+  <h3>1 · Attempt before instruction</h3>
+  <p>Right after the cover, the reader meets a real problem and <strong>commits to an answer</strong> before any teaching. People learn most from the gap between what they expected and what turned out true. The problem is pitched <em>attemptable but uncertain</em>: you should have a guess and not be sure of it. At the end, the deck returns to <strong>the exact same problem</strong> (never a similar one) and solves it with what was just taught.</p>
+
+  <h3>2 · The click trio</h3>
+  <p>Every load-bearing idea gets all three, woven together. Two out of three is a definition, not understanding.</p>
+  <div class="grid g3">
+    <div class="card"><span class="tag">Structure</span><h3>A picture</h3><p>A diagram, flow, cards, mockup or comparison that shows the shape of the idea.</p></div>
+    <div class="card b"><span class="tag" style="color:var(--blue)">Mechanism</span><h3>The why</h3><p>Not what it does: why it works. The mechanism explains the picture.</p></div>
+    <div class="card c"><span class="tag" style="color:var(--yellow)">Application</span><h3>A real use</h3><p>A real scenario where the idea visibly matters. The application proves the mechanism.</p></div>
+  </div>
+
+  <h3>3 · Close every loop inside the deck</h3>
+  <p>Each teaching deck delivers at least one complete, demonstrated capability in one sitting. "More next time" with no win is a failure: the content is split across decks rather than the payoff postponed. The recap is phrased as capabilities: <em>"you can now…"</em>.</p>
+
+  <h3>4 · Feedback is data, never judgment</h3>
+  <p>A wrong answer gets the mechanism-level reason right away and a chance to apply it again. No scolding, no "unfortunately", no padding. And progress is always <strong>visible</strong>: roadmaps mark finished steps, and a concept missed last time and solved now is named on the slide.</p>
+
+  <h3>The calm voice</h3>
+  <div class="grid g2">
+    <ul class="card soft"><li><strong>Calm, not techy, not naive.</strong> Warm, plain, short sentences.</li><li><strong>Zero prior knowledge</strong> unless told otherwise. Define a word before using it.</li><li><strong>What and why before how.</strong></li></ul>
+    <ul class="card soft"><li><strong>One promise per deck.</strong> The cover promises; the closing pays it off.</li><li><strong>Respect the reader's time.</strong> Fit the budget; brevity is part of the calm.</li><li><strong>Visual-first.</strong> A text-only slide is a missed chance.</li></ul>
+  </div>
+</section>
+
+<!-- ============ QUESTIONS ============ -->
+<section class="doc" id="questions">
+  <span class="eyebrow">Teaching decks</span>
+  <h2>Questions &amp; the adaptive loop</h2>
+  <p class="lead">Every teaching deck ends with a short question set and a copyable answer box. In a series, this is how the next lesson knows what to build on.</p>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>In the deck</h3>
+      <ul>
+        <li>A few <strong>multiple-choice questions</strong> plus <strong>1–2 open questions</strong> on the load-bearing ideas.</li>
+        <li><strong>1–2 stretch questions</strong>, tagged <code>[stretch]</code>: one step beyond what was taught. Missing them is expected and useful.</li>
+        <li>A final <strong>answer box</strong>: an editable text area holding every question with space for your answers. Type in it freely: arrow keys and Space don't flip slides while you type.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>After you paste it back</h3>
+      <ol>
+        <li>Claude updates the <strong>notes file</strong> (<code>NOTES.md</code>) with what your answers show, each point tagged with the question that produced it.</li>
+        <li>Claude answers your answers: for each miss, the reason at the mechanism level.</li>
+      </ol>
+      <p>Paste the box into the chat even if you don't want a new lesson yet.</p>
+    </div>
+  </div>
+
+  <h3>How the next lesson adapts</h3>
+  <div class="grid g2">
+    <div class="card soft"><ul>
+      <li><strong>Earlier misses are re-tested early,</strong> in new clothing: same idea, different surface. A gap stays open until a later question closes it.</li>
+      <li><strong>Wins are named:</strong> "missed last lesson — solved now".</li>
+      <li><strong>Content is personalized</strong> (examples, analogies, depth) from the notes.</li>
+    </ul></div>
+    <div class="card soft"><ul>
+      <li><strong>Stretch misses are not gaps.</strong> A missed stretch question becomes the next lesson's opening challenge; repeated misses on core questions mean re-teach.</li>
+      <li><strong>Answers never change the roadmap on their own.</strong> Only a gap seen across two or more lessons may lead to a <em>proposal</em> ("Want a short preparation deck on X?"), applied only after your explicit yes.</li>
+    </ul></div>
+  </div>
+
+  <h3>The notes file</h3>
+  <p><code>NOTES.md</code> is written by Claude and read before every lesson. It stays small: a <strong>header</strong> (subject, roadmap version, date), a <strong>live picture</strong> (active gaps with the question that found them and the lesson that will re-test them, strengths, what kinds of explanation landed), a <strong>per-lesson log</strong> of a few lines each, and <strong>closed gaps</strong>. Single data points only tune tone and examples; only repeated patterns can justify a proposal.</p>
+</section>
+
+<!-- ============ MODES ============ -->
+<section class="doc" id="modes">
+  <span class="eyebrow">Where your lessons live</span>
+  <h2>Chat mode, repo mode, roadmaps</h2>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>Chat mode</th><th>Repo mode</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Where</strong></td><td>Claude apps (claude.ai, desktop, mobile)</td><td>Claude Code, or any session with a working folder</td></tr>
+      <tr><td><strong>Default output</strong></td><td>One complete teaching deck per request</td><td>A learning environment: folders, roadmap, notes, lessons</td></tr>
+      <tr><td><strong>Memory between lessons</strong></td><td>You keep it: the roadmap spec rides inside each deck as an HTML comment, and you save and re-attach <code>NOTES.md</code></td><td>On disk: Claude reads <code>docs/</code> before building and writes back after</td></tr>
+      <tr><td><strong>Series</strong></td><td>Possible as a fallback, but "works best from a folder with Claude Code"</td><td>Native, and committed to git after each artifact</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Repo mode layout</h3>
+  <p>On a new journey Claude creates only what is missing, and never touches files that aren't its own:</p>
+  <div class="tree"><span class="d">docs/</span>
+  TOPIC.md        <span class="m"># confirmed topic + aim (output of the topic conversation)</span>
+  ROADMAP.md      <span class="m"># the living roadmap: readable path + spec JSON + changelog</span>
+  NOTES.md        <span class="m"># cumulative learner notes</span>
+<span class="d">lessons/</span>
+  00-roadmap.html <span class="m"># the roadmap deck</span>
+  01-&lt;step&gt;.html  <span class="m"># one deck per lesson</span>
+<span class="d">answers/</span>
+  lesson-01.txt   <span class="m"># every pasted answer block, saved word for word</span></div>
+  <p>If the folder is a git repository, Claude commits after each artifact ("lesson 03: transformers — attention", "notes: lesson 02 answers").</p>
+
+  <h3>Scope: narrow topic or broad subject?</h3>
+  <p>Rule of thumb: <em>could a person spend weeks learning this?</em> If not, it's narrow: one deck. If yes, you choose:</p>
+  <div class="grid g3">
+    <div class="card soft"><span class="tag">Overview</span><p class="mt0">One thorough deck of the whole subject from above. A complete lesson, not a teaser; 30 minutes at most.</p></div>
+    <div class="card soft"><span class="tag">Roadmap + Lesson 1</span><p class="mt0">A researched learning path as its own deck, then the first lesson. Best in repo mode.</p></div>
+    <div class="card soft"><span class="tag">Deep dive</span><p class="mt0">You narrow to one subtopic, and it becomes the whole deck.</p></div>
+  </div>
+
+  <h3>Roadmap mode, step by step</h3>
+  <ol class="steps">
+    <li data-n="1"><h4>Shape the journey</h4><p>2–3 quick questions: hands-on · theory-first · balanced; with or without a business lens; job-ready · solid mental model · general literacy. These change emphasis and order, never correctness: no load-bearing step is dropped.</p></li>
+    <li data-n="2"><h4>Research the path</h4><p>Real web searches, so the order is right and nothing is outdated or missing. This is research about <em>what to learn and in what order</em>; deep research on each subject waits for its lesson.</p></li>
+    <li data-n="3"><h4>Roadmap deck + spec</h4><p><code>lessons/00-roadmap.html</code> shows every phase, why it's there and how it connects. The machine-readable spec goes in <code>docs/ROADMAP.md</code> (repo mode) or a hidden comment in the deck (chat mode).</p></li>
+    <li data-n="4"><h4>Lesson 1</h4><p>Introduction, big picture and why, with a roadmap slide near the front: current step highlighted, finished steps marked.</p></li>
+    <li data-n="5"><h4>Every later lesson</h4><p>Load the roadmap → read <code>NOTES.md</code> (save any new answer block first) → re-check the roadmap is still current → propose a change only if the notes justify it → research and build the lesson, personalized → write the state back and commit.</p></li>
+  </ol>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">ROADMAP-SPEC (inside docs/ROADMAP.md)</span><button class="copy">Copy</button></div>
+<pre><code>{"subject":"Machine learning","version":2,"updated":"2026-10-16",
+ "shape":{"style":"balanced","business":"no","destination":"working mental model"},
+ "steps":[
+   {"n":1,"title":"What learning from data means","goal":"…","volatility":"solid",
+    "research":"angles, sources and freshness checks to run when building this lesson"},
+   {"n":4,"title":"Tooling: notebooks and libraries","goal":"…","volatility":"fast","research":"…"}],
+ "changelog":[{"v":2,"date":"2026-10-16","cause":"research","change":"library X replaced Y as the common default"}]}</code></pre></div>
+  <p><strong>Why <code>volatility</code>?</strong> Lessons are often taken days or weeks apart, and fields move. Before every lesson Claude re-checks the roadmap: <code>"fast"</code> steps (tools, practices) get re-researched, <code>"solid"</code> steps (fundamentals) a light check. Every change bumps <code>version</code> and adds a changelog entry whose <code>cause</code> is either <code>research</code> (applied by Claude) or <code>approved-proposal</code> (applied only after your yes).</p>
+</section>
+
+<!-- ============ ENGINE ============ -->
+<section class="doc" id="engine">
+  <span class="eyebrow">Engine v2</span>
+  <h2>The slide engine</h2>
+  <p class="lead">Every deck carries the same small script (no libraries). It is copied from the template and never edited; new behaviour goes <em>after</em> it.</p>
+
+  <h3>Moving through a deck</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Action</th><th>English (LTR)</th><th>Arabic (RTL)</th></tr></thead>
+    <tbody>
+      <tr><td>Next (or next build step)</td><td><kbd>→</kbd> <kbd>↓</kbd> <kbd>Space</kbd> <kbd>PageDown</kbd> · swipe left · <code>Next ›</code></td><td><kbd>←</kbd> <kbd>↓</kbd> <kbd>Space</kbd> <kbd>PageDown</kbd> · swipe right · <span class="ar">التالي ›</span></td></tr>
+      <tr><td>Previous (or undo a build step)</td><td><kbd>←</kbd> <kbd>↑</kbd> <kbd>PageUp</kbd> · swipe right · <code>‹ Prev</code></td><td><kbd>→</kbd> <kbd>↑</kbd> <kbd>PageUp</kbd> · swipe left · <span class="ar">‹ السابق</span></td></tr>
+      <tr><td>First / last slide</td><td colspan="2"><kbd>Home</kbd> / <kbd>End</kbd> · or click a dot under the slide</td></tr>
+    </tbody>
+  </table></div>
+  <p>A progress bar and a slide counter show where you are. Keys and swipes are ignored while you type in a field (the answer box) or work a widget marked <code>data-capture</code> (sliders, drag figures).</p>
+
+  <h3>Anatomy of a slide</h3>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">between the BEGIN/END SLIDES markers</span><button class="copy">Copy</button></div>
+<pre><code><span class="c">&lt;!-- the first slide, and only the first, is "slide active" --&gt;</span>
+&lt;<span class="k">section</span> <span class="a">class</span>=<span class="s">"slide active"</span>&gt; … cover … &lt;/<span class="k">section</span>&gt;
+
+&lt;<span class="k">section</span> <span class="a">class</span>=<span class="s">"slide"</span>&gt;
+  <span class="c">&lt;!-- .reveal: animates in when the slide opens; --d staggers it --&gt;</span>
+  &lt;<span class="k">h2</span> <span class="a">class</span>=<span class="s">"reveal"</span> <span class="a">style</span>=<span class="s">"--d:.1s"</span>&gt;How a request finds a server&lt;/<span class="k">h2</span>&gt;
+
+  <span class="c">&lt;!-- data-build: appears one key-press at a time before the page turns --&gt;</span>
+  &lt;<span class="k">div</span> <span class="a">data-build</span>=<span class="s">"1"</span>&gt;1. Your browser asks a resolver.&lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">div</span> <span class="a">data-build</span>=<span class="s">"2"</span>&gt;2. The resolver asks the root.&lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">div</span> <span class="a">data-build</span>=<span class="s">"3"</span>&gt;3. The answer comes back.&lt;/<span class="k">div</span>&gt;
+
+  <span class="c">&lt;!-- data-capture: the engine leaves keys and swipes here alone --&gt;</span>
+  &lt;<span class="k">input</span> <span class="a">type</span>=<span class="s">"range"</span> <span class="a">data-capture</span>&gt;
+&lt;/<span class="k">section</span>&gt;</code></pre></div>
+
+  <div class="grid g2">
+    <div class="card soft"><h4 class="mt0">Builds</h4><ul>
+      <li><code>data-build="0..n"</code> reveals parts one press at a time.</li>
+      <li>Going back un-builds; arriving back at a slide shows it fully built.</li>
+      <li><code>data-builds="n"</code> on a slide declares steps for a widget that listens to builds.</li>
+      <li>Never put <code>data-build</code> and <code>.reveal</code> on the same element.</li>
+    </ul></div>
+    <div class="card soft"><h4 class="mt0">Events for components</h4>
+      <p class="mt0">The engine fires two events on the slide element:</p>
+      <ul><li><code>slideenter</code> — the slide was opened (<code>detail.from</code>)</li><li><code>build</code> — a build step changed (<code>detail.step</code>, <code>detail.of</code>)</li></ul>
+    </div>
+  </div>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">component code goes after the engine, in the same &lt;script&gt;</span><button class="copy">Copy</button></div>
+<pre><code><span class="k">const</span> s = document.querySelector(<span class="s">'#dns-slide'</span>);
+s.addEventListener(<span class="s">'slideenter'</span>, () =&gt; startDrawing(s));
+s.addEventListener(<span class="s">'build'</span>, e =&gt; moveToken(e.detail.step, e.detail.of));</code></pre></div>
+  <div class="aside warn"><strong>No storage.</strong> Decks never use <code>localStorage</code> or <code>sessionStorage</code>; all state lives in memory, so a reload starts fresh.</div>
+</section>
+
+<!-- ============ COMPONENTS ============ -->
+<section class="doc" id="components">
+  <span class="eyebrow">references/components.md</span>
+  <h2>Component library</h2>
+  <p class="lead">43 copy-paste building blocks. Every one follows the canvas, the board and the language automatically, and lists the <a href="#use-cases">teaching jobs</a> it suits, best fit first. These rankings are <strong>suggestions, not rules</strong>: a deck where every slide uses its "rank 1" component looks templated.</p>
+  <p class="legend"><span style="--c:var(--red)">Core slides §1–§21</span><span style="--c:var(--blue)">Figures &amp; interaction §22–§31 (v1.2)</span><span style="--c:var(--yellow)">Skeletons &amp; ported mechanics §32a–l</span></p>
+
+  <h3>Core slides</h3>
+  <div class="cat">
+    <div class="it"><span class="num">1</span><div><b>Cover slide</b><span>Title and a one-line promise.</span></div></div>
+    <div class="it"><span class="num">2</span><div><b>Closing slide</b><span>The message in one line plus a simple next step.</span></div></div>
+    <div class="it"><span class="num">3</span><div><b>Section head + feature cards</b><span>The "map": a preview of what's coming, or any set of parallel items.</span></div></div>
+    <div class="it"><span class="num">4</span><div><b>Two-column: text + figure</b><span>Explanation beside its picture; <code>.rev</code> puts the figure first.</span></div></div>
+    <div class="it"><span class="num">5</span><div><b>Point list</b><span>Short points with hand-drawn ticks.</span></div></div>
+    <div class="it"><span class="num">6</span><div><b>Aside / callout</b><span>A side note, a plain-language gloss or a warning.</span></div></div>
+    <div class="it"><span class="num">7</span><div><b>Window mockup + chat</b><span>A browser or app frame; chat bubbles for dialogues.</span></div></div>
+    <div class="it"><span class="num">8</span><div><b>Source rows</b><span>The look of search results or a list of sources.</span></div></div>
+    <div class="it"><span class="num">9</span><div><b>Bar chart</b><span>Data, or a "generated artifact" look.</span></div></div>
+    <div class="it"><span class="num">10</span><div><b>Linked cards</b><span>A timeline or progression joined by a dashed connector.</span></div></div>
+    <div class="it"><span class="num">11</span><div><b>Step card</b><span>A process or reusable recipe, step by step.</span></div></div>
+    <div class="it"><span class="num">12</span><div><b>Tri-grid</b><span>Three parallel ideas, centered.</span></div></div>
+    <div class="it"><span class="num">13</span><div><b>Tiles</b><span>A labelled list with icons, in two columns.</span></div></div>
+    <div class="it"><span class="num">14</span><div><b>Comparison tiers</b><span>Options or levels side by side, with meters.</span></div></div>
+    <div class="it"><span class="num">15</span><div><b>Flow recap</b><span>Pills joined by arrows; the shape of the lesson.</span></div></div>
+    <div class="it"><span class="num">16</span><div><b>Code window</b><span>A dark code panel for technical topics.</span></div></div>
+    <div class="it"><span class="num">17</span><div><b>Icon set</b><span>Drop-in 24×24 stroke icons that take the pen colour.</span></div></div>
+    <div class="it"><span class="num">18</span><div><b>Roadmap / learning path</b><span>The full path, current step highlighted, finished steps marked, changed steps flagged.</span></div></div>
+    <div class="it"><span class="num">19</span><div><b>Opening challenge</b><span>A problem you commit to before any teaching (teaching decks only).</span></div></div>
+    <div class="it"><span class="num">20</span><div><b>Challenge revisited</b><span>The same problem, solved with what was taught. Mandatory in teaching decks.</span></div></div>
+    <div class="it"><span class="num">21</span><div><b>Question set + answer box</b><span>MCQs, open and stretch questions, and the copyable box.</span></div></div>
+  </div>
+
+  <h3>Figures &amp; interaction (added in v1.2)</h3>
+  <div class="cat">
+    <div class="it new"><span class="num">22</span><div><b>Labels on the figure</b><span>Names sit on the parts they name, pinned in the figure's own units. No numbered legend.</span></div></div>
+    <div class="it new"><span class="num">23</span><div><b>Linked figure</b><span>Same colour, same thing: a word in the text and its part in the picture share a pen.</span></div></div>
+    <div class="it new"><span class="num">24</span><div><b>Anchored gloss</b><span>Tap a word to see its definition right where it stands.</span></div></div>
+    <div class="it new"><span class="num">25</span><div><b>Builds</b><span>One idea per key-press before the page turns (engine v2).</span></div></div>
+    <div class="it new"><span class="num">26</span><div><b>Magic board</b><span>Marks that move between states: algebra steps, a refactor, a sorted list.</span></div></div>
+    <div class="it new"><span class="num">27</span><div><b>Reactive sentence</b><span>A number you can drag; the rest of the sentence recalculates.</span></div></div>
+    <div class="it new"><span class="num">28</span><div><b>Ink marks</b><span>Hand-drawn circles and underlines that appear in order on a passage.</span></div></div>
+    <div class="it new"><span class="num">29</span><div><b>Eraser</b><span>Write the wrong idea, erase it, write the right one. Made for misconceptions.</span></div></div>
+    <div class="it new"><span class="num">30</span><div><b>Sketch chart</b><span>The bar chart, hand-drawn, with the exact values printed.</span></div></div>
+    <div class="it new"><span class="num">31</span><div><b>Live element (line boil)</b><span>A gently "boiling" hand-drawn stroke. At most one per slide, never on text.</span></div></div>
+  </div>
+
+  <h3>Skeletons &amp; ported mechanics (§32)</h3>
+  <p>Behaviour without a fixed picture. The drawing ("skin") is invented fresh for each topic; working code is in <code>assets/style-samples/sketchbook-kit.html</code>.</p>
+  <div class="cat">
+    <div class="it port"><span class="num">32a</span><div><b>Steppable figure</b><span>The stepper skeleton: states with their own buttons, per-state values in <code>data-o</code> / <code>data-sw</code> / <code>data-tf</code> / <code>data-txt</code> / <code>data-w</code>.</span></div></div>
+    <div class="it port"><span class="num">32b</span><div><b>Lab widget</b><span>A slider drives a live readout and one verdict line; includes a decay mode, signal-vs-noise and a fixed-budget lamp.</span></div></div>
+    <div class="it port"><span class="num">32c</span><div><b>Note stack</b><span>Sticky notes that unfold in a reserved space; Sketchbook's default for depth.</span></div></div>
+    <div class="it port"><span class="num">32d</span><div><b>Detail tray</b><span>Index cards; tapping one fills a fixed-size tray. Any length of text, no layout jump.</span></div></div>
+    <div class="it port"><span class="num">32e</span><div><b>Gloss footnotes</b><span>A paragraph carries the argument; numbered footnotes carry the depth.</span></div></div>
+    <div class="it port"><span class="num">32f</span><div><b>Duo panes</b><span>Two panes; the one you focus widens and opens, measured in advance so nothing jumps.</span></div></div>
+    <div class="it port"><span class="num">32g</span><div><b>Sketch quiz</b><span>One question, hand-drawn options, a verdict; a wrong pick gets a red scribble and the reason.</span></div></div>
+    <div class="it port"><span class="num">32h</span><div><b>Token journey</b><span>A token travels a drawn route through 3–6 stops, driven by builds; mirrors in RTL.</span></div></div>
+    <div class="it port"><span class="num">32i</span><div><b>Pointer spotlight cover</b><span>A cover where your pointer lights up words hidden on the board.</span></div></div>
+    <div class="it port"><span class="num">32j</span><div><b>Smudge panels</b><span>Headlines always readable; their depth clears where attention lands (blur, not glow).</span></div></div>
+    <div class="it port"><span class="num">32k</span><div><b>Skins stepper</b><span>One skeleton, swappable drawings, each with its own captions.</span></div></div>
+    <div class="it port"><span class="num">32l</span><div><b>Key passage frame</b><span>A double-ruled frame and drop initial for the one paragraph a slide turns on.</span></div></div>
+  </div>
+  <p>See them live: open the <strong>Mechanics kit</strong> tab in the demo at the <a href="#top">top of this page</a>.</p>
+</section>
+
+<!-- ============ USE CASES ============ -->
+<section class="doc" id="use-cases">
+  <span class="eyebrow">references/use-cases.md</span>
+  <h2>Teaching jobs</h2>
+  <p class="lead">Before choosing a component, Claude names what each slide must <em>do</em>. There are 19 jobs. Each one is explained once in <code>use-cases.md</code> with everyday, lecture and tech examples, a "spot it when" line and a reverse index of components.</p>
+  <ol class="steps">
+    <li data-n="1"><p>For each planned slide, name its job in one phrase from the list.</p></li>
+    <li data-n="2"><p>Open that job's entry and read its reverse index (best fit first).</p></li>
+    <li data-n="3"><p>Choose a component, usually near the top, checked against the content and against what the neighbouring slides already use.</p></li>
+  </ol>
+  <div class="tbl"><table>
+    <thead><tr><th>Job</th><th>What the slide does</th><th>Good first picks</th></tr></thead>
+    <tbody>
+      <tr><td><code>state-thesis</code></td><td>Puts one claim on screen to remember tomorrow</td><td>§1 Cover · §32i Spotlight · §32l Key passage</td></tr>
+      <tr><td><code>orient</code></td><td>Shows where the lesson is going and where you are</td><td>§3 Map · §18 Roadmap</td></tr>
+      <tr><td><code>predict-first</code></td><td>Asks for a commitment before the explanation</td><td>§19 Opening challenge · §20 Revisited</td></tr>
+      <tr><td><code>define-term</code></td><td>Hands over a word, where it is first used</td><td>§24 Anchored gloss · §32c Note stack · §32e Footnotes</td></tr>
+      <tr><td><code>label-parts</code></td><td>Names the parts of a thing, on the thing</td><td>§22 Labels · §13 Tiles · §23 Linked figure</td></tr>
+      <tr><td><code>highlight-passage</code></td><td>Marks the words in a passage that carry the meaning</td><td>§28 Ink marks · §32l Key passage</td></tr>
+      <tr><td><code>explain-mechanism</code></td><td>Reveals the cause-and-effect chain inside</td><td>§4 Text + figure · §23 · §25 Builds · §32a · §32h</td></tr>
+      <tr><td><code>follow-procedure</code></td><td>Lists steps you will do, in order</td><td>§11 Step card · §10 Linked cards · §25 Builds</td></tr>
+      <tr><td><code>show-transformation</code></td><td>Shows one state turning into another</td><td>§26 Magic board · §32k Skins stepper · §29 Eraser</td></tr>
+      <tr><td><code>build-intuition</code></td><td>Lets you push a variable and feel the result</td><td>§27 Reactive sentence · §32b Lab widget</td></tr>
+      <tr><td><code>compare-options</code></td><td>Puts alternatives on the same criteria</td><td>§14 Tiers · §32f Duo panes · §9 Chart</td></tr>
+      <tr><td><code>show-quantity</code></td><td>Shows numbers at a glance, values still readable</td><td>§9 Bar chart · §30 Sketch chart</td></tr>
+      <tr><td><code>correct-misconception</code></td><td>Names a wrong belief, refutes it, gives the better idea</td><td>§6 Aside · §29 Eraser · §19 Challenge</td></tr>
+      <tr><td><code>tell-story</code></td><td>Walks through events in time</td><td>§10 Linked cards · §7 Chat · §18 Roadmap</td></tr>
+      <tr><td><code>walk-code</code></td><td>Explains code a range at a time</td><td>§16 Code window · §11 Step card · §26</td></tr>
+      <tr><td><code>demo-interface</code></td><td>Shows a tool in use</td><td>§7 Window mockup · §8 Source rows</td></tr>
+      <tr><td><code>list-parallel</code></td><td>Presents items of equal weight</td><td>§5 Points · §12 Tri-grid · §13 Tiles</td></tr>
+      <tr><td><code>recap</code></td><td>Reconnects the pieces into a structure</td><td>§2 Closing · §15 Flow recap</td></tr>
+      <tr><td><code>check-recall</code></td><td>Asks you to retrieve and gives a verdict</td><td>§21 Question set · §32g Sketch quiz</td></tr>
+    </tbody>
+  </table></div>
+  <p class="muted"><small>The "Spot it when" lines double as a classifier when converting lecture slides: they describe what a source slide doing that job usually looks like.</small></p>
+</section>
+
+<!-- ============ STYLE ============ -->
+<section class="doc" id="style">
+  <span class="eyebrow">references/style-system.md</span>
+  <h2>Style laws</h2>
+  <p class="lead">Five laws apply to every deck. They keep decks calm, readable and consistent.</p>
+  <div class="grid g2">
+    <div class="card"><span class="tag">Law 1</span><h3>Depth never moves the scene</h3><p>Hover or tap content may appear only in one of four ways, and nothing unrelated may shift:</p><ul><li><strong>Reserved flow</strong> — space is kept for it inside a fixed box.</li><li><strong>Fixed tray</strong> — content swaps inside a constant-size, scrolling area.</li><li><strong>Overlay</strong> — it floats above, out of the layout (anchor positioning).</li><li><strong>Final-geometry</strong> — it grows straight to sizes measured in advance.</li></ul></div>
+    <div class="card"><span class="tag">Law 2</span><h3>Skeleton ≠ skin</h3><p>Behaviours (stepper, lab, journey, spotlight) are reusable. Drawings are not: each topic gets its own picture from a <strong>scene brief</strong> — pick the subject that best <em>embodies the mechanism</em>, draw it in the stroke vocabulary, map lesson states to scene states, write captions for that skin. Never reuse an exemplar's subject.</p></div>
+    <div class="card"><span class="tag">Law 3</span><h3>One coordinate system per figure</h3><p>Everything that moves in a figure lives inside its own SVG. Static labels may be HTML pinned in the figure's units (a label is not an actor), but never HTML floating over an SVG scene.</p></div>
+    <div class="card"><span class="tag">Law 4</span><h3>One motion law</h3><p>Draw-in strokes and slight rotations, easing <code>cubic-bezier(.2,.7,.2,1)</code>, about 0.5 s. One sanctioned exception: line boil (§31), one element per slide.</p></div>
+    <div class="card"><span class="tag">Law 5</span><h3>Little text, louder message</h3><p>The always-visible layer carries one idea in few words. Everything else is depth (Law 1) or a visual.</p></div>
+    <div class="card soft"><span class="tag">The look, in short</span><ul><li>Paper, not white; board, not black. Ink, not black; chalk, not white.</li><li>Wobbly frames, tape, sticky notes, long soft shadows.</li><li>No neon, glow, glass, glossy shadows, gradient surfaces, emoji, or purple-on-white "AI slop".</li><li>Generous whitespace; every slide fits the screen.</li></ul></div>
+  </div>
+  <h3>Drawing vocabularies</h3>
+  <p>Ways to represent a mechanism, kept from the retired styles and drawn in ink or chalk:</p>
+  <div class="grid g3">
+    <div class="card soft"><b>Blocks and flows</b><p class="mt0">Entities as nodes, processes as a token on a route, quantities as chips or a gauge, categories as zones.</p></div>
+    <div class="card soft"><b>Light and energy</b><p class="mt0">Beams, pulses, orbits, signals: decay as a fading pulse, feedback as an orbit, limited capacity as one shared lamp. Matte, never glowing.</p></div>
+    <div class="card soft"><b>Objects that enact it</b><p class="mt0">A path that stays open when walked; a tree that bears more after pruning.</p></div>
+  </div>
+  <p>The style file also maps eight <strong>content categories</strong> (definitional, process, intuition, comparison, narrative, code, thesis, check) to their visible layer, depth mechanic and signature component, and ends with a <strong>pre-ship checklist</strong> every deck is graded against.</p>
+</section>
+
+<!-- ============ LENGTH ============ -->
+<section class="doc" id="length">
+  <span class="eyebrow">references/design-system.md</span>
+  <h2>Length budget</h2>
+  <p>A reader spends about <strong>60–90 seconds</strong> per slide. Claude turns your time budget into a slide count and stops there; if the topic needs more, each slide gets tighter, not the deck longer.</p>
+  <div class="tbl" style="max-width:520px"><table>
+    <thead><tr><th>Reading time</th><th>Slides (with cover and closing)</th></tr></thead>
+    <tbody><tr><td>≈ 10 min</td><td>8–10</td></tr><tr><td>≈ 20 min (default)</td><td>14–16</td></tr><tr><td>≈ 30 min</td><td>16–20</td></tr></tbody>
+  </table></div>
+  <p>In teaching decks, the opening challenge, the challenge revisited and the question set count <strong>inside</strong> this budget: they replace content slides, they are never added on top.</p>
+</section>
+
+<!-- ============ VALIDATE ============ -->
+<section class="doc" id="validate">
+  <span class="eyebrow">scripts/</span>
+  <h2>Validator &amp; scripts</h2>
+  <p class="lead">Two small Python 3 scripts, no packages to install.</p>
+
+  <h3><code>validate.py</code> — check a finished deck</h3>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">terminal</span><button class="copy">Copy</button></div>
+<pre><code>python lesson-deck-builder/scripts/validate.py examples/isy-05-cryptography.html</code></pre></div>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">output</span></div>
+<pre><code>slides: 30   ·   implied reading time ≈ 30–45 min
+⚠ more than 20 slides — likely over a 30-minute calm budget; consider tightening
+✓ clean.</code></pre></div>
+  <p><code>✗</code> lines are problems (exit code 1); <code>⚠</code> lines are notes. It checks:</p>
+  <div class="grid g2">
+    <ul class="card soft">
+      <li>Exactly one <code>&lt;html&gt;</code>, <code>&lt;body&gt;</code> and <code>&lt;script&gt;</code>; balanced <code>&lt;style&gt;</code> tags</li>
+      <li>Exactly one slide with <code>class="slide active"</code></li>
+      <li>No element with a duplicated <code>style=</code> attribute</li>
+      <li>A Google Fonts link is present</li>
+      <li>The engine is present, is v2 (builds + <code>data-capture</code>) and has the typing guard</li>
+      <li>The grain/dust is a tiled image, not a live full-screen SVG filter</li>
+    </ul>
+    <ul class="card soft">
+      <li>Components that read <code>--k-*</code> bridge tokens have them defined</li>
+      <li>No element is both <code>.reveal</code> and <code>data-build</code>; scrubbers have <code>data-capture</code></li>
+      <li>At most one <code>.live</code> element per slide; Arabic uses Playpen Sans Arabic 800</li>
+      <li><code>data-canvas</code> / <code>data-board</code> are valid and their colours exist in the file</li>
+      <li>Fonts from retired styles; slide count and implied reading time</li>
+    </ul>
+  </div>
+  <p>HTML comments are stripped before checking, so notes and records inside comments never cause false alarms.</p>
+
+  <h3><code>use_cases.py</code> — for people editing the skill</h3>
+  <p>Keeps the components' "Suggested for" lists and the use-case catalogue in sync. Run it after changing either file.</p>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">terminal</span><button class="copy">Copy</button></div>
+<pre><code>python lesson-deck-builder/scripts/use_cases.py           # check only
+python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the reverse indexes, then check</code></pre></div>
+  <p class="muted"><small>Windows tip: if the console can't print ✓ or ·, set <code>PYTHONIOENCODING=utf-8</code> first.</small></p>
+</section>
+
+<!-- ============ HARD RULES ============ -->
+<section class="doc" id="rules">
+  <span class="eyebrow">SKILL.md</span>
+  <h2>Hard rules</h2>
+  <p class="lead">Failure modes the skill always avoids. Useful when you edit a deck by hand, or review one.</p>
+  <div class="grid g2">
+    <ul class="card soft">
+      <li>No deck before the topic is confirmed, the canvas (and board) chosen, and the language known.</li>
+      <li>Never edit the engine part of the script; add code after it.</li>
+      <li>One <code>active</code> slide; no duplicated <code>style=</code>.</li>
+      <li>No <code>localStorage</code> / <code>sessionStorage</code>.</li>
+      <li>No text inside SVG; no HTML actors floating over an SVG scene.</li>
+      <li>Draw-in strokes are invisible before they animate (opacity gate, not dash math alone).</li>
+      <li>Every drag, slider or arrow-key widget carries <code>data-capture</code>.</li>
+      <li><code>data-build</code> and <code>.reveal</code> never on the same element.</li>
+    </ul>
+    <ul class="card soft">
+      <li>No hand-edited board colours; no rebuilding a retired look.</li>
+      <li>One motion law; hidden depth never reflows the scene.</li>
+      <li>Never reuse an exemplar's illustration subject.</li>
+      <li>Don't pad slides past the reading-time budget.</li>
+      <li>Teaching decks always have the challenge pair and the question set; presentation decks never do.</li>
+      <li>The revisited challenge is the same problem, never a new one.</li>
+      <li>Roadmaps change only through research, or a proposal you approved. Read <code>NOTES.md</code> before every roadmap lesson.</li>
+      <li>Never touch repo files that aren't the skill's own.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ RULEBOOKS ============ -->
+<section class="doc" id="rulebooks">
+  <span class="eyebrow">rulebooks/</span>
+  <h2>The rulebooks</h2>
+  <p class="lead">Two optional companion files for one specific, demanding job: turning <strong>university lecture slides</strong> (PDF or PPTX) into a deck that a student can study <strong>instead of</strong> the slides, ending with a self-marking quiz. You attach them to your request; they add to the skill and, where they say so, override it.</p>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag">rulebooks/slides-rulebook.md · v1.7</span>
+      <h3>Slides Rulebook</h3>
+      <p>How to turn one lecture into one deck that is <strong>complete</strong>, <strong>shorter to read</strong> than the slides, in <strong>plain English (A2–B1)</strong>, split into <strong>topics that each stand alone</strong>, taught with research-backed methods, and <strong>phone first</strong>. It also keeps every deck of a course consistent, from the first lecture to the last.</p>
+      <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/slides-rulebook.md">Read it on GitHub ↗</a></p>
+    </div>
+    <div class="card">
+      <span class="tag">rulebooks/questions-rulebook.md · v1.2.1</span>
+      <h3>Questions Rulebook</h3>
+      <p>How to add a <strong>final quiz</strong> to a deck: about 10 minutes, several kinds of questions, marked on the page with a reason for every answer, and a score slide that sends you back to the topics you missed. Works with the slides rulebook or on its own, for any subject.</p>
+      <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/questions-rulebook.md">Read it on GitHub ↗</a></p>
+    </div>
+  </div>
+
+  <h3>How to use them</h3>
+  <p><strong>First deck of a course</strong> — attach the two rulebooks and the lecture file, then send:</p>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">prompt · first deck</span><button class="copy">Copy</button></div>
+<pre><code>/lesson-deck-builder
+Follow slides-rulebook.md for the attached lecture, and end the deck with a final quiz following questions-rulebook.md. Read the attached notes before planning.
+This is the first deck of a new course: ask me the canvas and board before building.</code></pre></div>
+  <p><strong>Later decks of the same course</strong> — also attach the newest deck of the course (its code and choices are reused):</p>
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">prompt · later deck</span><button class="copy">Copy</button></div>
+<pre><code>/lesson-deck-builder
+Follow slides-rulebook.md for the attached lecture, and end the deck with a final quiz following questions-rulebook.md. Read the attached notes before planning. The newest deck of this course is attached.</code></pre></div>
+  <p><strong>Quiz only</strong> — for any existing deck: <code>Add a final quiz to the attached deck, following questions-rulebook.md.</code></p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Attach</th><th>When</th><th>In this repo?</th></tr></thead>
+    <tbody>
+      <tr><td><code>slides-rulebook.md</code></td><td>Always</td><td>Yes, <code>rulebooks/</code></td></tr>
+      <tr><td><code>questions-rulebook.md</code></td><td>Always (its quiz ends every deck)</td><td>Yes, <code>rulebooks/</code></td></tr>
+      <tr><td>The lecture (PDF or PPTX)</td><td>Always; one deck per lecture file</td><td>Yours</td></tr>
+      <tr><td>Earlier decks of the course</td><td>From the 2nd deck on (at least the newest)</td><td>Yours (see the <a href="#example">example</a>)</td></tr>
+      <tr><td><code>deck-notes-general.md</code>, <code>&lt;course&gt;-notes.md</code></td><td>Whenever they exist: experience notes, not rules</td><td>No — optional; the first deck of a course creates the course notes</td></tr>
+      <tr><td><code>deck-tools.zip</code></td><td>Whenever it exists: helper scripts</td><td>No — optional; the rulebooks carry the code they need</td></tr>
+    </tbody>
+  </table></div>
+  <p>The attachments decide the case: <strong>A</strong> first deck of a course (asks the canvas gate and exam focus once), <strong>B</strong> a later deck (reuses the newest deck as the "shell" and asks only what's new), <strong>C</strong> decks of another course attached (settings don't carry over).</p>
+
+  <h3>The six goals of the slides rulebook</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Goal</th><th>Meaning</th><th>How it's checked</th></tr></thead>
+    <tbody>
+      <tr><td><strong>G1</strong> Replace the slides</td><td>Every fact taught at full strength; definitions in the slides' own words</td><td>Fact ledger at 100% + a clean independent check</td></tr>
+      <tr><td><strong>G2</strong> English at A2–B1</td><td>Everyday words, short sentences</td><td><code>plain_check.py</code>: ≥98% known words, no sentence over 20 words</td></tr>
+      <tr><td><strong>G3</strong> Independent topics</td><td>Any topic understood alone; no unexplained word</td><td>Gloss and acronym checks; a "cold read"</td></tr>
+      <tr><td><strong>G4</strong> Best ways to teach</td><td>The Concept Pattern and teaching rules TE1–TE10</td><td>Checklist</td></tr>
+      <tr><td><strong>G5</strong> Shorter than the slides</td><td>Fewer slides (≈0.8×) and no more words than the source</td><td>Word budget</td></tr>
+      <tr><td><strong>G6</strong> Phone first</td><td>Works upright on a phone, unchanged on a laptop</td><td>Checks at 390×844, 360, 320 and sideways</td></tr>
+    </tbody>
+  </table></div>
+  <p>When rules conflict: correctness first, then completeness (the word budget gives way to it), then the budget, then understandability, then teaching method, then style.</p>
+
+  <h3>What's inside each file</h3>
+  <div class="grid g2">
+    <div class="card soft"><b>Slides rulebook</b><ul>
+      <li><strong>Workflow W1–W11</strong>: read every page (text and images), measure the source's words, build a fact ledger, research every key concept, order for learning, plan, confirm only real decisions, write a term sheet, draft, build, check, deliver, update notes.</li>
+      <li><strong>Rule families</strong> with IDs you can cite in feedback: L (language), T (terms), TE (teaching), F (fidelity), V (visuals), M (phone), N (navigation), Q (checks).</li>
+      <li><strong>The Concept Pattern</strong>: ask · plain idea + case · name it · picture · why it works · worked example · common mistake · check.</li>
+      <li><strong>Settings</strong> (§11): vocabulary level, Arabic support, deck shape, budget, quiz on/off, glossary, navigation, exact wording…</li>
+      <li><strong>Appendices</strong>: <code>plain_check.py</code> (language/budget checker), topic bar, glossary, phone layer code, and the independent checker's brief.</li>
+    </ul></div>
+    <div class="card soft"><b>Questions rulebook</b><ul>
+      <li><strong>Goals QG1–QG5</strong>: answerable from the deck alone, fair but challenging, ≈10 minutes, covers every topic, marks itself and teaches.</li>
+      <li><strong>Method</strong>: list what the deck teaches by kind of knowledge, match each to the best question kinds, pick 6–9 kinds, about 2 items each.</li>
+      <li><strong>Nine proven kinds</strong>: Choose one · True or false · Fill the gap (word bank) · Match · Put in order · Sort into groups · Find the mistake · Work it out · Label the figure. Plus six ready-to-build kinds and a list of rejected ones (with reasons).</li>
+      <li><strong>Layout</strong>: intro slide, one slide per kind, a live score slide with "Revisit" buttons per missed topic, and "Try the quiz again".</li>
+      <li><strong>Appendices</strong>: markup, CSS and script for every kind, a Playwright browser walk, and a worked example.</li>
+    </ul></div>
+  </div>
+
+  <h3>Records kept inside each deck</h3>
+  <p>Rulebook decks carry their own paper trail as HTML comments (invisible, ignored by the validator):</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Comment</th><th>What it holds</th></tr></thead>
+    <tbody>
+      <tr><td><code>&lt;!-- COURSE --&gt;</code></td><td>The course's standing choices: canvas and board, exam focus, settings, field words, deck number. Later decks copy it, so nothing is asked twice.</td></tr>
+      <tr><td><code>&lt;!-- BUDGET --&gt;</code></td><td>The source's word count (text + words inside figures).</td></tr>
+      <tr><td><code>&lt;!-- FACT-LEDGER --&gt;</code></td><td>Every fact of the lecture, by page, with where the deck teaches it.</td></tr>
+      <tr><td><code>&lt;!-- SOURCES --&gt;</code></td><td>The research behind the deck: fidelity checks, misconceptions, slide errors.</td></tr>
+      <tr><td><code>&lt;!-- QUIZ-MAP --&gt;</code></td><td>Each quiz item: kind, answer, source page, topic.</td></tr>
+      <tr><td><code>&lt;!-- INDEPENDENT-CHECK --&gt;</code></td><td>Each pass of the separate checker agent and what it found, until it found nothing.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note blue"><span class="nt">Tools the rulebooks may use</span>Python 3 for <code>validate.py</code> and <code>plain_check.py</code> (it needs <code>pip install wordfreq</code> and downloads the free CEFR-J word list on first run). Optional: <code>pdftotext</code> and <code>tesseract</code> for counting the source's words, and Playwright for the quiz's browser walk. If code can't run, Claude says so in the report instead of inventing numbers.</div>
+</section>
+
+<!-- ============ EXAMPLE ============ -->
+<section class="doc" id="example">
+  <span class="eyebrow">examples/isy-05-cryptography.html</span>
+  <h2>Worked example: a real lecture deck</h2>
+  <p class="lead">Lecture 5 of an information-security course (<em>Cryptography</em>), built with the skill and both rulebooks. It is the fifth deck of its course, so it reused the newest earlier deck as its shell.</p>
+
+  <div data-frame>
+    <div class="frame-tabs" role="tablist" aria-label="Example deck">
+      <button role="tab" aria-selected="true" data-src="examples/isy-05-cryptography.html" data-cap="Try the topic bar at the bottom, then jump to “Final quiz”.">Cryptography deck</button>
+    </div>
+    <div class="frame"><div class="vp"><iframe title="Cryptography lesson deck" loading="lazy"></iframe></div></div>
+    <div class="frame-foot"><span data-caption></span><span><a data-open href="examples/isy-05-cryptography.html" target="_blank" rel="noopener">open full screen ↗</a></span></div>
+  </div>
+
+  <div class="tbl"><table>
+    <tbody>
+      <tr><th>Canvas</th><td>Chalkboard · Deep teal · English (<code>dir="ltr"</code>)</td></tr>
+      <tr><th>Size</th><td>30 slides: 19 teaching + 11 quiz, from a 26-page lecture PDF</td></tr>
+      <tr><th>Topics</th><td>Start · Techniques and model · Symmetric-key · Review · Final quiz — shown as a topic bar instead of dots</td></tr>
+      <tr><th>Quiz</th><td>16 items in 9 kinds: Choose one, True or false, Fill the gap, Match, Sort, Put in order, Find the mistake, Work it out, Label the figure</td></tr>
+      <tr><th>Extras</th><td>A deck glossary ("Words in this deck"), tap-to-define terms, builds, and the phone layer</td></tr>
+      <tr><th>Checks</th><td><code>validate.py</code> clean; independent check run four times until nothing was missing, weakened, contradicted or misquoted</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Things to try</h3>
+  <div class="grid g3">
+    <div class="card soft"><b>Navigate</b><p class="mt0">Click the deck, press <kbd>→</kbd> or <kbd>Space</kbd>. Some slides build step by step before turning.</p></div>
+    <div class="card soft"><b>Take the quiz</b><p class="mt0">Click "Final quiz" in the topic bar. Answer, check, and watch the score slide send you back to missed topics.</p></div>
+    <div class="card soft"><b>Read the records</b><p class="mt0">Open the file in a text editor and search for <code>COURSE</code>, <code>FACT-LEDGER</code> or <code>QUIZ-MAP</code> near the end.</p></div>
+  </div>
+  <p class="muted"><small>The validator's "more than 20 slides" note is expected here: the slides rulebook makes one deck per lecture and replaces the skill's slide budget with a word budget. The deck quotes the lecture's definitions word for word (rule F2); those quotations belong to their original authors.</small></p>
+</section>
+
+<!-- ============ REPO ============ -->
+<section class="doc" id="repo">
+  <span class="eyebrow">What's in the box</span>
+  <h2>Repository layout</h2>
+  <div class="tree"><span class="d">lesson-deck-builder/</span>               <span class="m"># ← the skill itself: copy this folder to install</span>
+  SKILL.md                         <span class="m"># the instructions Claude reads: workflow, teaching method, hard rules</span>
+  CHANGELOG.md                     <span class="m"># what changed in v1.2, v1.2.1 and v1.3</span>
+  <span class="d">assets/</span>
+    template.html                  <span class="m"># the deck engine + all canvases and boards; every deck starts here</span>
+    <span class="d">style-samples/</span>
+      sketchbook.html              <span class="m"># exemplar deck, paper</span>
+      sketchbook-chalkboard.html   <span class="m"># exemplar deck, chalkboard; top-bar dots preview every board</span>
+      sketchbook-kit.html          <span class="m"># working code for the §32 mechanics</span>
+  <span class="d">references/</span>
+    style-system.md                <span class="m"># authoritative visual rules: laws, canvases, boards, checklist</span>
+    design-system.md               <span class="m"># practical setup: fonts, direction, length budget</span>
+    components.md                  <span class="m"># copy-paste HTML for all 43 components</span>
+    use-cases.md                   <span class="m"># the 19 teaching jobs + which components suit each</span>
+  <span class="d">scripts/</span>
+    validate.py                    <span class="m"># checks a finished deck</span>
+    use_cases.py                   <span class="m"># keeps components.md and use-cases.md in sync</span>
+<span class="d">rulebooks/</span>
+  slides-rulebook.md               <span class="m"># lecture slides → standalone study deck</span>
+  questions-rulebook.md            <span class="m"># the self-marking final quiz</span>
+<span class="d">examples/</span>
+  isy-05-cryptography.html         <span class="m"># a real deck built with the skill and both rulebooks</span>
+index.html, <span class="d">site/</span>                    <span class="m"># this documentation page (GitHub Pages)</span>
+README.md · LICENSE</div>
+  <p>Claude reads <code>SKILL.md</code> first and opens the reference files only when a step needs them, so the large files don't slow small requests down.</p>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="doc" id="faq">
+  <span class="eyebrow">Questions</span>
+  <h2>FAQ</h2>
+  <details class="faq"><summary>Do I need to know HTML or code?</summary><p>No. You talk to Claude; it writes the file. HTML only matters if you want to edit a deck by hand.</p></details>
+  <details class="faq"><summary>Why does Claude ask questions before building?</summary><p>Three answers are required: the confirmed topic (a mis-aimed topic spoils every slide), the canvas, and the language. Say them in your first message to skip the questions; the topic is still confirmed in one line.</p></details>
+  <details class="faq"><summary>Does a deck work offline?</summary><p>Yes, except the fonts, which load from Google Fonts. Offline, the deck falls back to your system fonts and keeps working.</p></details>
+  <details class="faq"><summary>Can I get a PowerPoint file?</summary><p>Not from this skill. It makes HTML decks. Use a PowerPoint (<code>.pptx</code>) skill if you need a native slide file.</p></details>
+  <details class="faq"><summary>How do I share a deck?</summary><p>Send the <code>.html</code> file, or put it on any static host (GitHub Pages, Netlify, a school site). It opens on phones too.</p></details>
+  <details class="faq"><summary>Can I change a deck after it's made?</summary><p>Yes: ask Claude ("switch to the Midnight blue board", "make slide 6 a comparison", "shorter"). By hand, edit only between the <code>BEGIN SLIDES</code> / <code>END SLIDES</code> markers, keep exactly one <code>slide active</code>, never touch the engine script, and run <code>validate.py</code>.</p></details>
+  <details class="faq"><summary>Which languages are supported?</summary><p>Arabic (right to left) and English (left to right), with fonts and layout tuned for each. Bilingual lessons use one as the base and mix in the other.</p></details>
+  <details class="faq"><summary>Where are Playroom, Nocturne, Terra and Classic?</summary><p>Retired in v1.3. Sketchbook is the only look now. Their useful mechanics (tray, footnotes, duo panes, token journey, spotlight, smudge panels…) were redrawn in Sketchbook as components §32.</p></details>
+  <details class="faq"><summary>Arrow keys flip slides while I type in the answer box.</summary><p>That deck has an old engine. Current decks ignore navigation keys inside text fields, and <code>validate.py</code> flags any deck without that guard. Copy a fresh engine from <code>assets/template.html</code>.</p></details>
+  <details class="faq"><summary>The validator says "more than 20 slides". Is that an error?</summary><p>No, it's a note (⚠), not a problem (✗). It warns that a normal deck may be over the 30-minute budget. Rulebook lecture decks are expected to trigger it.</p></details>
+  <details class="faq"><summary>Can I add my own chalkboard board?</summary><p>Yes, as a change to the skill. <code>style-system.md §5</code> lists the tuning rules every board must meet (lightness, chalk colour, contrast, pen saturation) and every file that lists the boards.</p></details>
+  <details class="faq"><summary>Do I have to use the rulebooks?</summary><p>No. They are only for turning lecture slides into study decks. For everything else, the skill alone is enough.</p></details>
+</section>
+
+<!-- ============ CREDITS ============ -->
+<section class="doc" id="credits">
+  <span class="eyebrow">People &amp; terms</span>
+  <h2>Contributors &amp; license</h2>
+  <div class="people">
+    <div class="card person"><span class="av"><img src="https://github.com/MstrPxl.png?size=128" alt="" width="64" height="64" onerror="this.parentNode.textContent='A'" /></span><div><b>Ali AlQahtani</b> · <a href="https://github.com/MstrPxl">@MstrPxl</a><span>Creator and maintainer of the skill and the rulebooks.</span></div></div>
+    <div class="card person claude"><span class="av" aria-hidden="true">✳</span><div><b>Claude</b> · by Anthropic<span>Co-author: worked on the skill, the rulebooks and this documentation with Ali.</span></div></div>
+  </div>
+
+  <h3>Versions</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Version</th><th>Date</th><th>Highlights</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Skill v1.3</strong></td><td>2026-10-09</td><td>Sketchbook only; canvas gate with paper and six chalkboard boards; template rebuilt; retired styles' mechanics ported to §32.</td></tr>
+      <tr><td>Skill v1.2.1</td><td>2026-10-07</td><td>Chalk grain removed; chalkboard text renders clean.</td></tr>
+      <tr><td>Skill v1.2</td><td>2026-10-06</td><td>Use-case system; engine v2 (builds, capture guard, events); components §22–§31; validator upgrades.</td></tr>
+      <tr><td>Slides rulebook 1.7</td><td>2026-10-10</td><td>Fact ledger, required independent check, exact wording for every definition.</td></tr>
+      <tr><td>Questions rulebook 1.2.1</td><td>2026-10-10</td><td>Goals over procedures; "Departures" line in the report.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Full details: <a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/CHANGELOG.md">CHANGELOG.md</a> and the "Changes in…" notes at the top of each rulebook.</p>
+
+  <h3>Contributing</h3>
+  <p>Issues and pull requests are welcome. If you change the skill: keep <code>SKILL.md</code> and the references consistent, run <code>scripts/use_cases.py</code> after touching component lists or use cases, run <code>validate.py</code> on the template and exemplars, and add a <code>CHANGELOG.md</code> entry.</p>
+
+  <h3>License</h3>
+  <p>The skill, rulebooks and this site are released under the <a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/LICENSE">MIT License</a>. The example deck quotes definitions from its source lecture; those quotations remain their authors'.</p>
+</section>
+
+    </main>
+  </div>
+
+  <footer>
+    <p class="display">Made by hand, on paper and chalkboard.</p>
+    <p>Lesson-Deck-Builder · by Ali AlQahtani (<a href="https://github.com/MstrPxl">@MstrPxl</a>) and Claude · <a href="https://github.com/MstrPxl/lesson-deck-builder">Source on GitHub</a> · MIT License</p>
+  </footer>
+</div>
+
+<script src="site/app.js"></script>
+</body>
+</html>

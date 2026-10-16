@@ -1,0 +1,2419 @@
+<!DOCTYPE html>
+<!--
+  ====================================================================
+  Lesson-Deck-Builder · deck engine template · Sketchbook (v1.3)
+  --------------------------------------------------------------------
+  HOW TO USE
+  1. Language: RTL/Arabic → <html dir="rtl" lang="ar"> (default below)
+               LTR/English → <html dir="ltr" lang="en">
+     and swap the font <link> + the three --font-* vars (comments below).
+  2. Canvas (the answer to the canvas gate, SKILL.md §1b) — ONE attribute pair on <html>:
+       paper (bright)  → data-canvas="paper"
+       chalkboard      → data-canvas="chalkboard" data-board="<board>"
+         boards: slate-reinked (DEFAULT) · midnight-blue · olive-gold ·
+                 dusk-indigo · deep-teal · red-graphite   (style-system.md §5)
+     Every token, bridge token and arrowhead colour follows the attributes.
+     Never hand-edit a board's hex values in a deck — pick a board.
+  3. Fill the SLIDES region (between the BEGIN/END SLIDES markers) using
+     references/components.md. Components §22+ read the bridge tokens,
+     which this template already defines for both canvases.
+  4. #total is a fallback; the engine fixes it at runtime.
+  Do not edit the engine part of the <script> (engine v2: builds,
+  data-capture guard, slideenter/build events); component code goes AFTER it.
+  ====================================================================
+-->
+<html lang="en" dir="ltr" data-canvas="chalkboard" data-board="deep-teal">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Cryptography</title>
+
+<!-- FONTS — default = Arabic Sketchbook pairing (Playpen Sans Arabic 800 always + IBM Plex Sans Arabic).
+     English: replace with
+     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet" />
+     and set --font-display:"Caveat", cursive; --font-body:"Karla", sans-serif; --font-eyebrow:"Karla", sans-serif; -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet" />
+
+<style>
+  /* ===== FONT TOKENS ===== */
+  :root{
+    --font-display:"Caveat", cursive;
+    --font-body:"Karla", sans-serif;
+    --font-eyebrow:"Karla", sans-serif;
+    --display-w:700;
+  }
+
+  /* ===== CANVAS TOKENS — paper (bright) ===== */
+  :root{
+    --paper:#FBF6EA; --paper-2:#F4EDDC; --ink:#29241B; --ink-soft:#5E5748; --pencil:#9A9280; --line:#D9CFB8;
+    --red:#C4553B; --blue:#3E6B8C; --ochre:#A8741A; --yellow:var(--ochre);   /* pen a · pen b · pen c (third pen) */
+    --marker:#FFE590;
+    --spill-1:rgba(255,229,144,.25); --spill-2:transparent;
+    --surface:#FFFDF6; --surface-2:#F7F0E1;
+    --rule:rgba(154,146,128,.13); --margin:rgba(196,85,59,.28);
+    --dust-op:0; --dust-blend:multiply;
+    --shadow:0 14px 34px -22px rgba(60,50,30,.5);
+    --er-streak:rgba(41,36,27,.08); --er-wash:rgba(41,36,27,.04); --er-ghost:.2;
+    --code-bg:#2C302A; --code-bar:#23271f; --code-line:#3a3f37;
+  }
+  /* ===== CANVAS TOKENS — chalkboard (shared) ===== */
+  :root[data-canvas="chalkboard"]{
+    --surface:rgba(255,255,255,.06); --surface-2:rgba(255,255,255,.04);
+    --rule:color-mix(in srgb,var(--ink) 4.5%,transparent); --margin:color-mix(in srgb,var(--red) 26%,transparent);
+    --dust-op:.05; --dust-blend:screen;
+    --shadow:0 14px 34px -22px rgba(0,0,0,.6);
+    --er-streak:color-mix(in srgb,var(--ink) 10%,transparent); --er-wash:color-mix(in srgb,var(--ink) 5%,transparent); --er-ghost:.14;
+    --code-bg:color-mix(in srgb,var(--paper-2) 70%,black); --code-bar:color-mix(in srgb,var(--paper-2) 55%,black); --code-line:var(--line);
+  }
+  /* ===== CHALKBOARD BOARDS (style-system.md §5) — pick one with data-board ===== */
+  /* Slate re-inked (DEFAULT board) — pens: rose · chalk-blue · chalk-yellow */
+  :root[data-canvas="chalkboard"],
+  :root[data-canvas="chalkboard"][data-board="slate-reinked"]{
+    --paper:#19211B; --paper-2:#121914; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#97A49A; --line:#38403A;
+    --red:#FF9E8F; --blue:#98CCF6; --yellow:#F5D870; --marker:#595732;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(152,204,246,.045);
+  }
+  /* Midnight blue — pens: coral · mint · butter */
+  :root[data-canvas="chalkboard"][data-board="midnight-blue"]{
+    --paper:#131D2A; --paper-2:#0D1521; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#95A1B2; --line:#323C49;
+    --red:#FEA684; --blue:#83E2BF; --yellow:#FAD980; --marker:#5F5530;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(131,226,191,.045);
+  }
+  /* Olive gold — pens: coral · periwinkle · lemon */
+  :root[data-canvas="chalkboard"][data-board="olive-gold"]{
+    --paper:#1F1E13; --paper-2:#18170C; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#A2A191; --line:#3E3D32;
+    --red:#FDA19E; --blue:#A5C9FF; --yellow:#F3E685; --marker:#5A5732;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(165,201,255,.045);
+  }
+  /* Dusk indigo — pens: peach · aqua · gold */
+  :root[data-canvas="chalkboard"][data-board="dusk-indigo"]{
+    --paper:#1A1A28; --paper-2:#131220; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#9E9EB1; --line:#393847;
+    --red:#FBA59A; --blue:#7DDBE0; --yellow:#F9DA7B; --marker:#5F5530;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(125,219,224,.045);
+  }
+  /* Deep teal — pens: apricot · periwinkle · sun */
+  :root[data-canvas="chalkboard"][data-board="deep-teal"]{
+    --paper:#0E2224; --paper-2:#081A1C; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#8EA5A8; --line:#2F4143;
+    --red:#FEAA7A; --blue:#B9BCF9; --yellow:#F4DF79; --marker:#5C5630;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(185,188,249,.045);
+  }
+  /* Red graphite — pens: pink · sage-teal · butter */
+  :root[data-canvas="chalkboard"][data-board="red-graphite"]{
+    --paper:#281717; --paper-2:#1F1010; --ink:#F4EFE3; --ink-soft:#DDD5C6; --pencil:#B09A99; --line:#473636;
+    --red:#FDA9B5; --blue:#88D9D1; --yellow:#F6D97E; --marker:#62542F;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(136,217,209,.045);
+  }
+
+  /* ===== COMPONENT BRIDGE (style-system.md §7) — components §1–§32 read these ===== */
+  :root{
+    --k-ink:var(--ink); --k-soft:var(--ink-soft); --k-a:var(--red); --k-b:var(--blue); --k-c:var(--yellow);
+    --k-hi:var(--marker); --k-surface:var(--surface); --k-card:#FBF6EA; --k-card-ink:#29241B;   /* paper objects keep the paper palette */
+    --k-line:var(--line); --k-ease:cubic-bezier(.2,.7,.2,1);
+    --wash-a:color-mix(in srgb,var(--k-a) 16%,transparent);
+    --wash-b:color-mix(in srgb,var(--k-b) 16%,transparent);
+    --wash-c:color-mix(in srgb,var(--k-c) 18%,transparent);
+    --wob-r:14px 22px 16px 24px/22px 14px 24px 16px;     /* hand-drawn frame radius */
+    --wob-s:10px 16px 12px 18px/16px 10px 18px 12px;     /* small frame radius */
+  }
+
+  /* ===== BASE ===== */
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{font-family:var(--font-body); background:var(--paper); color:var(--ink);
+    overflow:hidden; line-height:1.7; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
+  :lang(ar) body{line-height:1.9;}
+
+  /* ruled board: faint rules + margin line + two faint light spills; dust is a tiled data-URI (style-system §5) */
+  .bg{position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(70% 60% at 80% 10%, var(--spill-1), transparent 60%),
+      radial-gradient(60% 55% at 6% 100%, var(--spill-2), transparent 62%),
+      repeating-linear-gradient(transparent 0 34px, var(--rule) 34px 35px);}
+  .bg::after{content:""; position:absolute; top:0; bottom:0; inset-inline-start:56px; width:1px; background:var(--margin);}
+  .dust{position:fixed; inset:0; z-index:1; pointer-events:none; opacity:var(--dust-op); mix-blend-mode:var(--dust-blend);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat:repeat;}
+
+  /* ===== DECK / SLIDES ===== */
+  .deck{position:relative; z-index:2; height:100vh; width:100%;}
+  .slide{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    padding:70px 34px 100px; opacity:0; visibility:hidden;
+    transition:opacity .5s ease, visibility .5s ease; overflow-y:auto;}
+  .slide.active{opacity:1; visibility:visible;}
+  .inner{width:100%; max-width:1040px; margin:auto;}
+
+  /* ===== MOTION (one law: draw-in + slight rotations, cubic-bezier(.2,.7,.2,1)) ===== */
+  .reveal{opacity:0; transform:translateY(14px) rotate(-.4deg);
+    transition:opacity .6s ease, transform .7s cubic-bezier(.2,.7,.2,1); transition-delay:var(--d,0s);}
+  .slide.active .reveal{opacity:1; transform:none;}
+  .draw{stroke-dasharray:1; stroke-dashoffset:1; opacity:0; transition:stroke-dashoffset 1.1s ease, opacity .01s linear; transition-delay:var(--d,0s);}
+  .slide.active .draw{stroke-dashoffset:0; opacity:1;}
+  /* ===== BUILDS (engine v2) — [data-build="0..n"] appear one press at a time (components.md §25) ===== */
+  [data-build]{opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .55s var(--k-ease,cubic-bezier(.2,.7,.2,1))}
+  svg [data-build]{transform:none}
+  [data-build].built{opacity:1;transform:none}
+  .slide.active [data-build]:not(.built) .draw{stroke-dashoffset:1;opacity:0}
+
+  /* ===== TYPE ===== */
+  .eyebrow,.tag{font-family:var(--font-eyebrow); font-weight:700; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--red); display:inline-flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .eyebrow .dot{width:7px; height:7px; border-radius:50%; border:1.6px solid currentColor;}
+  :lang(ar) .eyebrow,:lang(ar) .tag{letter-spacing:0; text-transform:none; font-size:.86rem; font-weight:600;}
+  h1,h2,h3{font-family:var(--font-display); font-weight:var(--display-w); line-height:1.1;}
+  :lang(ar) h1,:lang(ar) h2,:lang(ar) h3{line-height:1.35;}
+  h2{font-size:clamp(2rem,4vw,2.8rem); margin-bottom:10px;}
+  :lang(ar) h2{font-size:clamp(1.5rem,3vw,2.1rem);}
+  .lead{font-size:clamp(1rem,1.5vw,1.1rem); color:var(--ink-soft); max-width:62ch;}
+  b,strong{font-weight:700; color:var(--ink);}
+  mark{background:linear-gradient(105deg,transparent 2%,var(--marker) 4%,var(--marker) 94%,transparent 97%); padding:0 .2em; border-radius:2px; color:var(--ink);}
+
+  /* cover / closing */
+  .cover{text-align:center; max-width:760px; margin-inline:auto;}
+  .cover h1{font-size:clamp(3rem,8vw,5.2rem); margin:8px 0 6px;}
+  :lang(ar) .cover h1{font-size:clamp(2rem,5.2vw,3.4rem);}
+  .cover .lead{margin-inline:auto; font-size:clamp(1.02rem,1.8vw,1.18rem);}
+  .spark{width:96px; height:96px; display:block; margin-inline:auto;}
+  .underline-svg{display:block; margin:2px auto 16px; width:min(340px,70%);}
+  .hint{margin-top:28px; display:inline-flex; align-items:center; gap:10px; font-size:.86rem; color:var(--pencil);
+    border:1.6px solid var(--ink); border-radius:14px 18px 15px 17px/17px 14px 18px 15px; padding:8px 16px; background:var(--paper-2); transform:rotate(-.5deg);}
+  kbd{font-family:var(--font-body); font-size:.78rem; border:1.4px solid var(--ink); border-radius:6px 8px 7px 6px; padding:0 7px; background:var(--surface); color:var(--ink);}
+
+  /* two-column */
+  .grid2{display:grid; grid-template-columns:1.05fr .95fr; gap:42px; align-items:center;}
+  .grid2.rev{grid-template-columns:.95fr 1.05fr;}
+  .col-text h2{margin-bottom:12px;}
+  .col-text .lead{margin-bottom:18px;}
+
+  /* point list — hand-drawn tick boxes */
+  ul.points{list-style:none; display:grid; gap:12px; margin-top:4px;}
+  ul.points li{display:flex; gap:12px; align-items:flex-start; font-size:1rem; color:var(--ink);}
+  ul.points li .tick{flex:none; width:23px; height:23px; border:1.6px solid var(--ink); border-radius:5px 8px 6px 9px;
+    color:var(--red); display:grid; place-items:center; margin-top:3px; background:var(--surface);}
+  ul.points li .tick svg{width:15px; height:15px; stroke-width:2.6;}
+
+  /* aside / callout — dashed pen line */
+  .aside{margin-top:20px; background:var(--surface); border:1.6px solid var(--line); border-inline-start:2.4px dashed var(--red);
+    border-radius:var(--wob-s); padding:14px 18px; font-size:.95rem; color:var(--ink-soft);}
+  .aside b{color:var(--ink);}
+
+  /* figure frame — the sketch card */
+  .fig,.sketch{position:relative; background:var(--surface); border:1.8px solid var(--ink); border-radius:var(--wob-r);
+    padding:22px 24px; box-shadow:var(--shadow);}
+  .tilt-l{transform:rotate(-.6deg);} .tilt-r{transform:rotate(.5deg);}
+  .tape{position:absolute; top:-12px; left:50%; width:88px; height:24px; transform:translateX(-50%) rotate(-2deg);
+    background:rgba(255,229,144,.75); border:1px solid rgba(160,140,60,.35);}   /* paper object: paper palette on every board */
+  .num{position:absolute; inset-inline-start:16px; inset-block-start:10px; font-family:var(--font-display); font-weight:var(--display-w);
+    font-size:1.05rem; color:var(--pencil);}
+
+  /* window mockup — sketched window */
+  .win{background:var(--surface); border:1.8px solid var(--ink); border-radius:var(--wob-s); overflow:hidden; box-shadow:var(--shadow);}
+  .win .bar{display:flex; align-items:center; gap:8px; padding:9px 12px; background:var(--surface-2); border-bottom:1.6px solid var(--ink);}
+  .win .bar .dots{display:flex; gap:6px;}
+  .win .bar .dots i{width:10px; height:10px; border-radius:50%; display:block; border:1.2px solid var(--ink);}
+  .win .bar .pill{flex:1; height:24px; background:var(--paper); border:1.4px solid var(--line); border-radius:999px;
+    display:flex; align-items:center; padding:0 12px; font-size:.72rem; color:var(--pencil); font-family:var(--font-body);}
+  .win .body{padding:18px;}
+
+  /* chat bubbles */
+  .chat{display:grid; gap:12px;}
+  .bubble{max-width:82%; padding:11px 15px; border-radius:16px 18px 15px 19px/18px 15px 19px 16px; font-size:.95rem; line-height:1.7; border:1.6px solid var(--ink);}
+  .bubble.user{background:var(--wash-a); margin-inline-start:auto; border-end-end-radius:5px; color:var(--ink);}
+  .bubble.bot{background:var(--surface); border-color:var(--line); border-end-start-radius:5px; color:var(--ink-soft);}
+  .bubble .who{font-size:.72rem; color:var(--pencil); margin-bottom:3px; font-family:var(--font-eyebrow); font-weight:700;}
+
+  /* cards grid */
+  .cards{display:grid; gap:16px;}
+  .cards.c3{grid-template-columns:repeat(3,1fr);}
+  .cards.c2{grid-template-columns:repeat(2,1fr);}
+  .card{background:var(--surface); border:1.6px solid var(--ink-soft); border-radius:var(--wob-s); padding:16px 16px 15px;}
+  .card .ico,.ico{width:42px; height:42px; border-radius:10px 14px 11px 15px/14px 10px 15px 11px; display:grid; place-items:center; margin-bottom:12px;
+    border:1.6px solid currentColor; background:var(--wash-c); color:var(--yellow);}
+  .ico.clay{background:var(--wash-a); color:var(--red);}
+  .ico.blue{background:var(--wash-b); color:var(--blue);}
+  .ico.gold{background:var(--wash-c); color:var(--yellow);}
+  .ico svg{width:21px; height:21px;}
+  .card h3{font-size:1.3rem; margin-bottom:4px;}
+  :lang(ar) .card h3{font-size:1.05rem;}
+  .card p{font-size:.92rem; color:var(--ink-soft); line-height:1.65;}
+
+  /* section heading block */
+  .head{max-width:64ch; margin-bottom:24px;}
+  .head h2{margin-bottom:10px;}
+
+  /* stroke icon defaults */
+  .ic{stroke:currentColor; stroke-width:1.9; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+
+  /* comparison tiers — sketched rows, pen badges, hand-drawn meter ticks */
+  .tier{display:grid; grid-template-columns:auto 1fr auto; gap:18px; align-items:center;
+    background:var(--surface); border:1.6px solid var(--ink-soft); border-radius:var(--wob-s); padding:14px 18px;}
+  .tier .badge{font-family:var(--font-display); font-weight:var(--display-w); font-size:1.35rem; width:96px; text-align:center; padding:4px 0;
+    border:1.6px solid currentColor; border-radius:10px 14px 11px 15px/14px 10px 15px 11px;}
+  :lang(ar) .tier .badge{font-size:1.02rem;}
+  .tier .t-a{background:var(--wash-a); color:var(--red);}
+  .tier .t-b{background:var(--wash-b); color:var(--blue);}
+  .tier .t-c{background:var(--wash-c); color:var(--yellow);}
+  .tier p{font-size:.95rem; color:var(--ink-soft);}
+  .tier .meter{display:flex; gap:5px; align-items:center;}
+  .tier .meter span{width:8px; height:22px; border-radius:3px 4px 3px 5px; border:1.4px solid var(--line);}
+  .tier .meter span.on{background:var(--red); border-color:var(--red);}
+  .meter-label{font-size:.72rem; color:var(--pencil); font-family:var(--font-eyebrow); font-weight:700; margin-bottom:4px; display:block;}
+
+  /* flow recap — sketched pills, pen arrows */
+  .flow{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; margin-top:8px;}
+  .flow .pill{background:var(--surface); border:1.6px solid var(--ink); border-radius:16px 20px 15px 21px/20px 15px 21px 16px; padding:8px 18px;
+    font-family:var(--font-display); font-weight:var(--display-w); font-size:1.25rem;}
+  :lang(ar) .flow .pill{font-size:1rem;}
+  .flow .arrow{color:var(--red); font-family:var(--font-display); font-size:1.6rem; line-height:1;}
+
+  /* source rows + barchart */
+  .src{display:grid; gap:9px; margin-top:14px;}
+  .src .row{display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1.4px solid var(--line); border-radius:var(--wob-s); padding:8px 12px;}
+  .src .row .fav{width:18px; height:18px; border-radius:5px 7px 5px 8px; flex:none;}
+  .src .row .ln{height:8px; border-radius:4px; background:var(--line);}
+  .barchart{display:flex; align-items:flex-end; gap:12px; height:120px; padding-top:6px; border-bottom:1.8px solid var(--ink);}
+  .barchart .b{flex:1; border-radius:6px 9px 0 0; background:var(--red); opacity:.85; border:1.4px solid var(--ink); border-bottom:none;}
+
+  /* code window (always a dark pane) */
+  .win.code{background:var(--code-bg); border-color:var(--code-line);}
+  .win.code .bar{background:var(--code-bar); border-color:var(--code-line);}
+  .codeline{display:flex; gap:9px; align-items:center; margin-bottom:9px; font-family:var(--font-body); direction:ltr;}
+  .codeline .ln{height:9px; border-radius:5px;}
+  @keyframes blink{50%{opacity:0}}
+
+  /* checklist / step card */
+  .checklist{display:grid; gap:10px;}
+  .checklist .ci{display:flex; align-items:center; gap:11px; font-size:.92rem; color:var(--ink-soft);}
+  .checklist .cb{width:20px; height:20px; border:1.6px solid var(--ink); border-radius:5px 7px 5px 8px; color:var(--red); display:grid; place-items:center; flex:none;}
+  .checklist .cb svg{width:13px; height:13px; stroke-width:2.6;}
+  .stepcard{background:var(--surface-2); border:1.8px dashed var(--red); border-radius:var(--wob-s); padding:16px 18px;}
+  .stepcard .tag{margin-bottom:0;}
+  .stepcard .title{font-family:var(--font-display); font-weight:var(--display-w); font-size:1.45rem; margin:2px 0 12px;}
+  :lang(ar) .stepcard .title{font-size:1.1rem;}
+  .stepcard .step{display:flex; gap:10px; align-items:center; margin-bottom:8px; font-size:.9rem; color:var(--ink-soft);}
+  .stepcard .step .n,ol.steps .n{width:24px; height:24px; border:1.6px solid var(--ink); border-radius:50% 46% 52% 48%/48% 52% 46% 52%;
+    color:var(--ink); display:grid; place-items:center; font-family:var(--font-display); font-weight:var(--display-w); font-size:1.02rem; flex:none;}
+  ol.steps{list-style:none; display:grid; gap:9px;}
+  ol.steps li{display:flex; gap:10px; align-items:flex-start; color:var(--ink-soft);}
+
+  /* tri-grid + tiles */
+  .trigrid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  .trigrid .rc{background:var(--surface); border:1.6px solid var(--ink-soft); border-radius:var(--wob-s); padding:14px; text-align:center;}
+  .trigrid .rc .ico{margin:0 auto 10px;}
+  .trigrid .rc small{font-size:.84rem; color:var(--ink-soft); display:block; line-height:1.6;}
+  .tiles{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+  .tile{display:flex; gap:14px; align-items:center; background:var(--surface); border:1.6px solid var(--ink-soft); border-radius:var(--wob-s); padding:13px 15px;}
+  .tile .ico{flex:none; margin:0;}
+  .tile .tx h4{font-family:var(--font-display); font-weight:var(--display-w); font-size:1.25rem; margin-bottom:0;}
+  :lang(ar) .tile .tx h4{font-size:1rem;}
+  .tile .tx p{font-size:.86rem; color:var(--ink-soft); line-height:1.6;}
+
+  /* ===== FIGURE STROKES (hand-drawn: filter="url(#wob)") ===== */
+  .s{fill:none; stroke:var(--ink); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .s.t{stroke-width:1.4;} .s.k{stroke-width:2.6;}
+  .s.soft{stroke:var(--ink-soft);} .s.r{stroke:var(--red);} .s.b{stroke:var(--blue);} .s.y{stroke:var(--yellow);}
+  .s.dash{stroke-dasharray:6 6;}
+  .fl{fill:var(--surface);} .fl2{fill:color-mix(in srgb,var(--ink) 16%,transparent);}
+  .fr{fill:color-mix(in srgb,var(--red) 22%,transparent);} .fb{fill:color-mix(in srgb,var(--blue) 22%,transparent);} .fy{fill:color-mix(in srgb,var(--yellow) 24%,transparent);}
+  .fhatch{fill:url(#p-hatch);} .fdots{fill:url(#p-dots);}
+
+  /* ===== CHROME ===== */
+  .topbar{position:fixed; top:0; inset-inline:0; z-index:6; display:flex; align-items:center; justify-content:space-between; padding:14px 26px;}
+  .topbar .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:var(--display-w); font-size:1.25rem; color:var(--ink-soft);}
+  :lang(ar) .topbar .brand{font-size:.98rem;}
+  .topbar .brand .mk{width:22px; height:22px;}
+  .counter{font-size:.85rem; color:var(--pencil);}
+  .nav{position:fixed; bottom:14px; inset-inline:0; z-index:6; display:flex; align-items:center; justify-content:center; gap:14px;}
+  .nav button{font-family:var(--font-display); font-weight:var(--display-w); font-size:1.15rem; color:var(--ink);
+    background:color-mix(in srgb,var(--paper) 85%,transparent); cursor:pointer;
+    border:1.8px solid var(--ink); border-radius:12px 18px 14px 20px/18px 12px 20px 14px; padding:7px 20px; transition:transform .2s, background .2s;}
+  :lang(ar) .nav button{font-size:.95rem;}
+  .nav button:hover:not(:disabled){transform:rotate(-1deg) translateY(-2px); background:var(--marker);}
+  .nav button:disabled{opacity:.3; cursor:default;}
+  .nav .dots{display:flex; gap:7px; flex-wrap:wrap; max-width:46vw; justify-content:center;}
+  .nav .dots i{width:10px; height:10px; border:1.5px solid var(--ink); border-radius:50%; cursor:pointer; transition:background .3s;}
+  .nav .dots i.on{background:var(--red);}
+  .progress{position:fixed; bottom:0; inset-inline:0; height:4px; background:var(--line); z-index:6;}
+  .progress .fill{height:100%; width:0; background:var(--red); transition:width .5s ease;}
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:880px){
+    .grid2,.grid2.rev{grid-template-columns:1fr; gap:24px;}
+    .grid2 .fig{order:2;}
+    .cards.c3,.cards.c2,.tiles,.trigrid{grid-template-columns:1fr;}
+    .tier{grid-template-columns:auto 1fr; gap:12px;}
+    .tier .meter{grid-column:1 / -1;}
+    .slide{padding:60px 18px 96px; align-items:flex-start;}
+    .bg::after{inset-inline-start:12px;}
+    .nav .dots{display:none;}
+  }
+  @media (max-width:520px){
+    .nav button{padding:7px 14px;}
+    .topbar{padding:12px 16px;}
+    .bubble{max-width:92%;}
+  }
+
+  /* ================= DECK CSS (210 ISY · lecture 1) ================= */
+  /* shared controls for components 22–32 */
+  .k-ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+  .k-btn{font:inherit;font-family:var(--font-display);font-weight:700;color:var(--k-ink);background:var(--k-surface);
+    border:1.6px solid var(--k-line);border-radius:12px;padding:4px 14px;cursor:pointer;transition:background .25s ease}
+  .k-btn:hover:not(:disabled){background:var(--k-hi)}
+  .k-btn:disabled{opacity:.35;cursor:default}
+
+  /* 22 · labels on the figure + B3 sizes (scale with the figure, phone floors) */
+  .lf{position:relative;width:min(560px,100%);margin-inline:auto;container-type:inline-size}
+  .lf > svg{display:block;width:100%;height:auto;overflow:visible}
+  .lf-layer{position:absolute;inset:0}
+  .lf-pin{position:absolute;left:calc(var(--x) / var(--vw) * 100%);top:calc(var(--y) / var(--vh) * 100%);
+    transform:translate(0,-50%);white-space:nowrap;font-family:var(--font-display);font-weight:600;line-height:1.08;color:var(--k-ink);
+    font-size:min(1.3rem,max(12px,calc(20 * 100cqi / var(--vw))))}
+  .lf-pin.s{font-size:min(1.16rem,max(11.5px,calc(17.5 * 100cqi / var(--vw))))}
+  .lf-pin.xs{font-size:min(1.04rem,max(11px,calc(15.5 * 100cqi / var(--vw))))}
+  .lf-pin.end{transform:translate(-100%,-50%);text-align:end}
+  .lf-pin.mid{transform:translate(-50%,-50%);text-align:center}
+  .lf-pin.a{color:var(--k-a)} .lf-pin.b{color:var(--k-b)} .lf-pin.c{color:var(--k-c)} .lf-pin.p{color:var(--pencil)}
+  .lf-pin.lay{font-weight:700;color:var(--k-ink)}
+  .lf-lead{fill:none;stroke:var(--k-a);stroke-width:2;stroke-linecap:round}
+
+  /* 23 · linked figure */
+  .lk-a{--lk:var(--k-a)} .lk-b{--lk:var(--k-b)} .lk-c{--lk:var(--k-c)}
+  .lk-t{color:var(--lk);font-weight:700;cursor:pointer;border-radius:4px;padding:0 .12em;
+    text-decoration:underline dotted;text-underline-offset:4px;transition:background .3s ease,opacity .3s ease}
+  .lk-part{stroke:var(--lk);fill:var(--lk);fill-opacity:.1;transition:opacity .3s ease,fill-opacity .3s ease}
+  .lk-line{stroke:var(--lk);fill:none;transition:opacity .3s ease}
+  [data-linkbox][data-hot] [data-link]{opacity:.3}
+  [data-linkbox][data-hot="a"] [data-link="a"],[data-linkbox][data-hot="b"] [data-link="b"],
+  [data-linkbox][data-hot="c"] [data-link="c"]{opacity:1}
+  [data-linkbox][data-hot="a"] .lk-t[data-link="a"],[data-linkbox][data-hot="b"] .lk-t[data-link="b"],
+  [data-linkbox][data-hot="c"] .lk-t[data-link="c"]{background:var(--k-hi)}
+  [data-linkbox][data-hot="a"] .lk-part[data-link="a"],[data-linkbox][data-hot="b"] .lk-part[data-link="b"],
+  [data-linkbox][data-hot="c"] .lk-part[data-link="c"]{fill-opacity:.32}
+
+  /* 24 · anchored gloss (deck glossary cards use it) + Sketchbook index-card skin */
+  .gl-t{text-decoration:underline dotted var(--k-a);text-underline-offset:5px;cursor:help;border-radius:3px;transition:background .25s ease}
+  .gl-t:hover,.gl-t:focus-visible{background:var(--k-hi);outline:none}
+  .gl-card{position:absolute;position-area:top;position-try-fallbacks:flip-block;margin:8px 0;width:max-content;max-width:240px;z-index:20;
+    background:var(--k-card);color:var(--k-card-ink);border:1.5px solid #29241B;border-radius:3px 7px 4px 8px;padding:8px 13px 10px;
+    font-family:var(--font-body);font-weight:400;font-size:.84rem;line-height:1.5;text-align:start;letter-spacing:0;text-transform:none;
+    background-image:linear-gradient(#C4553B,#C4553B);background-size:100% 1.5px;background-repeat:no-repeat;background-position:0 2.35em;
+    box-shadow:0 14px 34px -20px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .3s ease}
+  .gl-card b{display:block;font-family:var(--font-display);font-size:1.12rem;line-height:1.15;margin-bottom:5px;color:var(--k-card-ink)}
+  .gl-t:hover + .gl-card,.gl-t:focus + .gl-card{opacity:1}
+  @supports not (anchor-name: --a){
+    .gl-w{position:relative}
+    .gl-card{bottom:calc(100% + 6px);left:50%;transform:translateX(-50%)}
+  }
+
+  /* 28 · ink marks */
+  .inkbox{position:relative}
+  .inkbox .ink-text{position:relative;z-index:1}
+  [data-ink]{white-space:nowrap}
+  .ink-text[data-ink]{white-space:normal}
+  .ink-layer{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+  .ink-layer.under{z-index:0} .ink-layer.over{z-index:2}
+  .ink-layer path{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;opacity:0}
+  .ink-layer path.go{stroke-dashoffset:0;opacity:1;transition:stroke-dashoffset .45s var(--k-ease) var(--d,0s),opacity .01s linear var(--d,0s)}
+
+  /* 29 · eraser */
+  .er-line{position:relative;width:fit-content}
+  .er [data-beat]:not(.wo){opacity:0;transition:opacity .5s ease}
+  .er [data-beat].on:not(.wo){opacity:1}
+  .wo{-webkit-mask-image:linear-gradient(90deg,#000 40%,transparent 60%);mask-image:linear-gradient(90deg,#000 40%,transparent 60%);
+    -webkit-mask-size:250% 100%;mask-size:250% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+    -webkit-mask-position:100% 0;mask-position:100% 0;transition:-webkit-mask-position 1.3s var(--k-ease),mask-position 1.3s var(--k-ease)}
+  .wo.on{-webkit-mask-position:0 0;mask-position:0 0}
+  .er-txt{display:inline-block;transition:-webkit-mask-position 1.3s var(--k-ease),mask-position 1.3s var(--k-ease),opacity .9s var(--k-ease) .2s}
+  .er-line.erased .er-txt{opacity:var(--er-ghost)}
+  .er-smear{position:absolute;inset:-6px -16px;pointer-events:none;border-radius:40% 30% 45% 35%/50% 40% 60% 50%;
+    background:repeating-linear-gradient(177deg,var(--er-streak) 0 4px,transparent 4px 9px),var(--er-wash)}
+  .er-stamp{position:absolute;inset-inline-end:-14px;top:-20px;font-family:var(--font-display);color:var(--k-a);font-weight:700;
+    font-size:1.3rem;transform:rotate(-7deg);opacity:0;transition:opacity .4s ease .8s;white-space:nowrap}
+  .er-line.erased .er-stamp{opacity:1}
+  .er-lab{display:block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--k-soft);margin-top:14px}
+  .er.noanim,.er.noanim *{transition:none!important}
+  .er .er-txt{font-family:var(--font-display);font-weight:700;font-size:clamp(1.45rem,3vw,2rem);line-height:1.2;color:var(--k-ink)}
+  .er p{font-size:1.02rem;color:var(--k-soft);max-width:60ch;margin-top:4px}
+
+  /* sketch quiz base (the final quiz reuses .opts/.opt/.verdict) */
+  .opts{display:grid;gap:14px;margin-top:22px;max-width:640px}
+  .opt{display:flex;gap:14px;align-items:center;background:var(--surface);border:1.8px solid var(--ink);cursor:pointer;text-align:left;
+    border-radius:10px 16px 12px 18px/16px 10px 18px 12px;padding:14px 18px;font-family:var(--font-body);font-size:.98rem;color:var(--ink);
+    transition:transform .25s ease, background .3s ease}
+  .opt:hover{transform:rotate(-.5deg) translateX(4px)}
+  .opt .box{flex:none;width:24px;height:24px;border:1.8px solid var(--ink);border-radius:5px 8px 6px 9px;position:relative;background:var(--surface)}
+  .opt .box svg{position:absolute;inset:-4px;width:30px;height:30px;overflow:visible}
+  .opt .tick,.opt .scrib{stroke-dasharray:1;stroke-dashoffset:1}
+  .opt.correct{background:var(--marker)}
+  .opt.correct .tick{stroke-dashoffset:0;transition:stroke-dashoffset .5s ease}
+  .opt.wrong .scrib{stroke-dashoffset:0;transition:stroke-dashoffset .5s ease}
+  .verdict{margin-top:16px;font-family:var(--font-display);font-size:1.5rem;font-weight:600;opacity:0;transition:opacity .5s ease;color:var(--ink)}
+  .verdict.show{opacity:1}
+
+  /* V3 · signalling: defined terms, glosses, exact course wording */
+  dfn{font-style:normal;font-weight:700;color:var(--k-ink);background:var(--k-hi);border-radius:3px;padding:0 .12em}
+  .gloss{color:var(--k-soft)}
+  .formal{font-style:italic}
+
+  /* ===== deck layout helpers ===== */
+  .tag.exam{color:var(--k-c);border:1.4px solid var(--k-c);border-radius:999px;padding:2px 10px;letter-spacing:.06em;text-transform:none;font-size:.78rem;margin-inline-start:8px}
+  .tagrow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin-bottom:6px}
+  .tagrow .tag{margin-bottom:0}
+  .soft{color:var(--k-soft)}
+  .note{font-size:.88rem;color:var(--pencil);margin-top:8px}
+  .note b{color:var(--k-soft)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  .row4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+  .g2.lean{grid-template-columns:.85fr 1.15fr}
+  .g2.heavy{grid-template-columns:1.15fr .85fr}
+  .g2 .lead,.stack .lead{margin-bottom:12px}
+  .stack{display:grid;gap:14px}
+  .fig.nopad{padding:14px 16px}
+  .cap{font-family:var(--font-display);font-weight:600;font-size:1.25rem;color:var(--k-soft);margin-top:8px}
+  .cap b{color:var(--k-c);font-weight:700}
+  .icon24{width:22px;height:22px}
+
+  /* formal box + how to read it */
+  .aside.formal-box{border-inline-start-color:var(--k-c);margin-top:12px;color:var(--ink-soft)}
+  .aside.formal-box .lbl{display:block;font-family:var(--font-eyebrow);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--k-c);margin-bottom:4px}
+  .aside.formal-box .formal{color:var(--ink)}
+  ol.read{list-style:none;display:grid;gap:6px;margin-top:10px;counter-reset:rd}
+  ol.read li{display:flex;gap:10px;align-items:baseline;color:var(--ink-soft);font-size:.98rem}
+  ol.read li::before{counter-increment:rd;content:counter(rd);flex:none;width:24px;height:24px;display:grid;place-items:center;
+    border:1.6px solid var(--k-c);border-radius:50% 46% 52% 48%/48% 52% 46% 52%;font-family:var(--font-display);font-weight:700;color:var(--k-c);font-size:1.05rem}
+  ol.read li b{color:var(--ink)}
+
+  /* timeline (linked cards) */
+  .tl{display:grid;gap:0;max-width:760px}
+  .tl-row{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+  .tl-ico{width:44px;height:44px;border-radius:12px 15px 11px 16px/15px 11px 16px 12px;display:grid;place-items:center;border:1.6px solid currentColor}
+  .tl-ico svg{width:22px;height:22px}
+  .tl-row h3{font-size:1.45rem;line-height:1.1;margin-top:2px}
+  .tl-row p{font-size:.98rem;color:var(--k-soft)}
+  .tl-gap{margin-inline-start:21px;height:16px;border-inline-start:2px dashed var(--k-c)}
+
+  /* methods tree (HTML labels, CSS connectors) */
+  .tree{display:grid;justify-items:center;gap:0;margin:6px 0 14px}
+  .tree .root{font-family:var(--font-display);font-weight:700;font-size:1.25rem;border:1.6px solid var(--k-ink);border-radius:var(--wob-s);padding:3px 16px;background:var(--surface)}
+  .tree .stem{width:2px;height:14px;background:var(--k-soft)}
+  .tree .kids{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;position:relative;padding-top:14px}
+  .tree .kids::before{content:"";position:absolute;top:0;left:12.5%;right:12.5%;height:2px;background:var(--k-soft)}
+  .tree .kid{position:relative;text-align:center;font-family:var(--font-display);font-weight:600;font-size:1.12rem;line-height:1.1;
+    border:1.6px solid var(--k-soft);border-radius:var(--wob-s);padding:6px 6px;background:var(--surface);color:var(--k-soft)}
+  .tree .kid::before{content:"";position:absolute;top:-16px;left:50%;width:2px;height:14px;background:var(--k-soft)}
+  .tree .kid.on{border-color:var(--k-a);color:var(--k-ink);background:var(--wash-a)}
+  .tree .kid .n{display:block;font-size:.95rem;color:var(--k-a)}
+
+  /* log / settings window rows */
+  .logrow{display:grid;grid-template-columns:4.2em 1fr;gap:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.84rem;padding:4px 0;border-bottom:1px dashed var(--line);color:var(--ink-soft)}
+  .logrow:last-child{border-bottom:none}
+  .logrow .t{color:var(--pencil)}
+  .logrow b{color:var(--k-c);font-weight:700}
+  .setrow{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .setrow:last-child{border-bottom:none}
+  .setrow .warn{width:24px;height:24px;flex:none;display:grid;place-items:center;border:1.6px solid var(--k-a);border-radius:50% 46% 52% 48%/48% 52% 46% 52%;
+    color:var(--k-a);font-family:var(--font-display);font-weight:700;font-size:1.05rem;margin-top:1px}
+  .setrow .k{font-weight:700;color:var(--ink);font-size:.95rem}
+  .setrow .v{display:block;color:var(--ink-soft);font-size:.92rem}
+
+  /* checklist with missing items */
+  .chk{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;margin-top:6px}
+  .chk li{list-style:none;display:flex;gap:11px;align-items:flex-start;font-size:.98rem;color:var(--ink)}
+  .chk .x{flex:none;width:24px;height:24px;border:1.6px solid var(--ink);border-radius:5px 8px 6px 9px;display:grid;place-items:center;margin-top:1px}
+  .chk .x svg{width:16px;height:16px;stroke:var(--k-a);stroke-width:2.6;fill:none;stroke-linecap:round}
+  .chk small{display:block;color:var(--k-soft);font-size:.86rem}
+
+  /* static duo (two definitions side by side, nothing hidden) */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px}
+  .duo .pane{background:var(--surface);border:1.8px solid var(--k-soft);border-radius:var(--wob-r);padding:16px 18px}
+  .duo .pane.pa{border-color:var(--k-a)} .duo .pane.pb{border-color:var(--k-b)} .duo .pane.pc{border-color:var(--k-c)}
+  .duo .pane h3{font-size:1.5rem;line-height:1.1;margin-bottom:6px}
+  .duo .pane.pa h3{color:var(--k-a)} .duo .pane.pb h3{color:var(--k-b)} .duo .pane.pc h3{color:var(--k-c)}
+  .duo .pane p{font-size:.96rem;color:var(--ink-soft);margin-top:6px}
+  .duo .pane p b{color:var(--ink)}
+  .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+  .chips span{font-size:.84rem;border:1.2px dashed var(--k-c);border-radius:999px;padding:0 9px;color:var(--ink)}
+
+  /* weakness tiles row (5) */
+  .five{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:10px}
+  .five .w{background:var(--surface);border:1.6px solid var(--ink-soft);border-radius:var(--wob-s);padding:14px 12px;text-align:center}
+  .five .w .ico{margin:0 auto 8px}
+  .five .w h3{font-size:1.35rem;line-height:1.05}
+  .five .w p{font-size:.86rem;color:var(--k-soft);line-height:1.4;margin-top:4px}
+  .five .w.on{border-color:var(--k-a);background:var(--wash-a)}
+
+  /* key passage frame (32l) */
+  .keypara{position:relative;border:1.8px solid var(--k-ink);border-radius:var(--wob-r);padding:18px 24px;background:var(--k-surface);text-align:start}
+  .keypara::before{content:"";position:absolute;inset:6px;border:1px solid var(--k-soft);border-radius:var(--wob-s);opacity:.55;pointer-events:none}
+  .keypara p{color:var(--k-ink);font-size:1.12rem}
+  .keypara p:first-of-type::first-letter{font-family:var(--font-display);font-weight:var(--display-w);font-size:3.1em;line-height:.8;
+    float:inline-start;margin-inline-end:.08em;margin-top:.06em;color:var(--k-a)}
+
+  /* challenge revisited: three verdict rows */
+  .vrows{display:grid;gap:10px;margin-top:6px}
+  .vrow{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;background:var(--surface);border:1.6px solid var(--ink-soft);border-radius:var(--wob-s);padding:10px 14px}
+  .vrow .L{font-family:var(--font-display);font-weight:700;font-size:1.5rem;line-height:1;width:30px;height:30px;display:grid;place-items:center;
+    border:1.6px solid var(--k-soft);border-radius:50% 46% 52% 48%/48% 52% 46% 52%;color:var(--k-soft)}
+  .vrow h4{font-size:1rem;color:var(--ink)}
+  .vrow p{font-size:.95rem;color:var(--ink-soft)}
+  .vrow.win{border-color:var(--k-c);background:var(--wash-c)}
+  .vrow.win .L{border-color:var(--k-c);color:var(--k-c)}
+  .vrow.no h4{text-decoration:line-through;text-decoration-color:var(--k-a);text-decoration-thickness:2px}
+
+  /* glossary slide */
+  .glossary{display:grid;grid-template-columns:auto 1fr;gap:5px 18px;font-size:.95rem}
+  .glossary dt{font-weight:700;color:var(--k-c)}
+  .glossary dd{color:var(--k-soft)}
+  .gl-cols{columns:2;column-gap:34px}
+  .gl-cols .glossary{display:block}
+  .gl-cols .glossary dt{break-after:avoid;margin-top:6px}
+  .gl-cols .glossary dd{break-before:avoid;line-height:1.45}
+
+  @media(max-width:880px){
+    .row2,.g2,.g2.lean,.g2.heavy,.duo,.chk{grid-template-columns:1fr}
+    .g2 .fig,.g2 .lf{order:2}
+    .row4{grid-template-columns:repeat(2,1fr)}
+    .five{grid-template-columns:repeat(2,1fr)}
+    .five .w:last-child{grid-column:1/-1}
+    .tree .kids{grid-template-columns:repeat(2,1fr);row-gap:22px}
+    .tree .kids::before{display:none}
+    .gl-cols{columns:1}
+  }
+  .fq-kinds .card .n{font-family:var(--font-display);font-weight:700;font-size:1.35rem;color:var(--k-c);line-height:1}
+  /* phone variants of wide figures (M4): one set of HTML labels, two drawings; pins move by --px/--py on phones */
+  .lf > svg.sv-ph{display:none}
+  @media(max-width:880px){
+    .lf.pv{--vw:var(--pvw)!important;--vh:var(--pvh)!important;width:100%!important}
+    .lf.pv > svg.sv-dk{display:none} .lf.pv > svg.sv-ph{display:block}
+    .lf.pv .lf-pin{left:calc(var(--px) / var(--vw) * 100%);top:calc(var(--py) / var(--vh) * 100%)}
+    .lf.pv .lf-pin.p-start{transform:translate(0,-50%);text-align:start}
+    .lf.pv .lf-pin.p-mid{transform:translate(-50%,-50%);text-align:center}
+    .lf.pv .lf-pin.p-end{transform:translate(-100%,-50%);text-align:end}
+  }
+  ul.points li > span.t{flex:1;min-width:0}
+  .gl-card{position-try-fallbacks:flip-block, top span-left, top span-right, bottom span-left, bottom span-right}
+  .keypara p:first-of-type::first-letter{font:inherit;font-weight:700;float:none;margin:0;color:var(--k-a)}
+  .fq[data-type="sort"] .fq-row{grid-template-columns:1fr;gap:4px;padding:3px 6px}
+
+/* N1 · topic bar — replaces the slide dots; reads only bridge tokens (style-system.md §7) */
+.nav .dots,.progress{display:none}                     /* the topic bar is the only position cue */
+.secbar{display:flex;gap:6px;align-items:stretch;flex:1;max-width:min(980px,calc(100vw - 290px));height:34px}
+.nav .sec{flex:var(--n) 1 0;min-width:0;padding:0;margin:0;border:1.6px solid var(--k-line);border-radius:10px;
+  background:var(--k-surface);color:var(--k-soft);opacity:.75;font-family:var(--font-body);font-weight:700;font-size:.66rem;
+  line-height:1.1;letter-spacing:0;text-transform:none;display:grid;place-items:center;text-align:center;overflow:hidden;
+  cursor:pointer;box-shadow:none;transform:none;transition:background .4s ease,border-color .4s ease,opacity .4s ease}
+.nav .sec span{display:block;padding:0 4px;overflow-wrap:anywhere}
+.nav .sec:hover{transform:none;opacity:1;background:var(--k-surface)}
+.nav .sec.done{opacity:1;border-color:var(--k-soft);background:color-mix(in srgb,var(--k-ink) 10%,transparent)}  /* passed topics: light fill */
+.nav .sec.now{opacity:1;background:var(--k-hi);border:2px solid var(--k-c);color:var(--k-ink)}
+.secname{display:none}
+@media(max-width:880px){
+  .secbar{height:12px;max-width:none;gap:4px}
+  .nav .sec{border-radius:6px} .nav .sec span{display:none}
+  .secname{display:block;position:fixed;bottom:58px;inset-inline:0;text-align:center;z-index:5;pointer-events:none;
+    font-family:var(--font-display);font-weight:700;font-size:1.05rem;color:var(--k-soft)}
+}
+
+/* Sketchbook: the hand-drawn look of the Applied OS decks (checked on the chalkboard; on paper it reads the paper tokens). */
+.nav .sec{border-radius:10px 13px 10px 12px/12px 10px 13px 10px;background:color-mix(in srgb,var(--paper) 88%,transparent);color:var(--pencil);opacity:1}
+.nav .sec:hover{background:color-mix(in srgb,var(--paper) 88%,transparent);color:var(--ink-soft);border-color:var(--ink-soft)}
+.nav .sec.done{color:var(--ink-soft)}
+.nav .sec.now{color:var(--ink)}
+@media(max-width:880px){.nav .sec{border-radius:6px}}
+
+/* ===== FINAL QUIZ (9 question kinds) — reads only canvas and bridge tokens ===== */
+.fq-pair{align-items:start;gap:26px;margin-top:6px}
+.fq{background:var(--surface);border:1.6px solid var(--ink-soft);border-radius:var(--wob-r,14px 22px 16px 24px/22px 14px 24px 16px);padding:14px 16px}
+.fq .stem{font-weight:700;line-height:1.45}
+.fq .opts.fq-col{grid-template-columns:1fr;gap:8px}
+.fq .opts.fq-tf{grid-template-columns:1fr 1fr}
+.fq .opt{font-size:.92rem;padding:8px 12px}
+.fq .verdict{font-size:1.2rem;line-height:1.25}
+.fq.locked .opt,.fq.locked .fq-it,.fq.locked .fq-ch{cursor:default}
+.fq.locked .opt:hover{transform:none}
+.fq-kinds{margin-top:14px}
+.fq-kinds .card{padding:10px 12px} .fq-kinds .card p{font-size:.86rem;line-height:1.35}
+input.gap{font:inherit;font-weight:700;color:var(--ink);background:var(--surface-2);border:none;border-bottom:2px dashed var(--yellow);
+  width:9.5em;padding:0 6px;margin:0 2px;border-radius:4px 4px 0 0;outline:none}
+input.gap:focus{border-bottom-style:solid;background:var(--marker)}
+input.gap.num{width:8em;border:1.6px solid var(--ink-soft);border-radius:8px 12px 9px 13px;padding:4px 10px}
+input.gap.ok{background:var(--marker);border-bottom:2px solid var(--yellow)}
+input.gap.no{border-bottom:2px solid var(--red);text-decoration:line-through;text-decoration-color:var(--red)}
+.fq-rows{display:grid;gap:7px;margin-top:10px}
+.fq-row{display:grid;grid-template-columns:minmax(7.5em,auto) 1fr;gap:10px;align-items:center;font-size:.92rem;
+  padding:4px 6px;border-radius:8px 12px 9px 13px;transition:background .3s ease}
+.fq-term{font-weight:700}
+.fq-row select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--paper-2);border:1.4px solid var(--ink-soft);border-radius:8px;padding:4px 6px;min-width:0;width:100%}
+.fq-row.ok{background:var(--marker)}
+.fq-row.no{box-shadow:inset 3px 0 0 var(--red)}
+.fq-row .fix{grid-column:1/-1;font-size:.82rem;color:var(--red);padding-inline-start:4px}
+.fq-grp{display:flex;flex-wrap:wrap;gap:6px}
+.fq-grp button{font:inherit;font-size:.82rem;font-weight:700;color:var(--ink-soft);background:transparent;border:1.4px dashed var(--ink-soft);
+  border-radius:999px;padding:2px 11px;cursor:pointer;transition:background .25s ease,color .25s ease}
+.fq-grp button.on{color:var(--ink);background:var(--marker);border-style:solid;border-color:var(--yellow)}
+.fq-items{display:grid;gap:7px;margin-top:10px}
+.fq-it{display:flex;gap:10px;align-items:center;font:inherit;font-size:.92rem;text-align:start;color:var(--ink);background:var(--surface);
+  border:1.6px solid var(--ink-soft);border-radius:10px 16px 12px 18px/16px 10px 18px 12px;padding:7px 12px;cursor:pointer;transition:background .25s ease}
+.fq-num{flex:none;width:26px;height:26px;display:grid;place-items:center;border:1.6px dashed var(--ink-soft);border-radius:50%;
+  font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:var(--yellow)}
+.fq-it.picked .fq-num{border-style:solid;border-color:var(--yellow)}
+.fq-it.ok{background:var(--marker)}
+.fq-it.no{box-shadow:inset 3px 0 0 var(--red)}
+.fq-it .fix{margin-inline-start:auto;font-size:.8rem;color:var(--red);white-space:nowrap}
+.fq-sent{margin-top:10px;line-height:2.1;font-size:1rem}
+.fq-ch{font:inherit;color:var(--ink);background:transparent;border:none;border-bottom:2px dotted var(--ink-soft);padding:0 2px;cursor:pointer;
+  border-radius:3px;transition:background .25s ease}
+.fq-ch:hover{background:var(--surface)}
+.fq-ch.ok{background:var(--marker);border-bottom:2px solid var(--yellow);text-decoration:line-through;text-decoration-color:var(--red)}   /* found the mistake */
+.fq-ch.no{border-bottom:2px dashed var(--red)}                                                                                          /* your pick: this part was fine */
+.fq-ch.ans{background:color-mix(in srgb,var(--red) 18%,transparent);border-bottom:2px solid var(--red);text-decoration:line-through;text-decoration-color:var(--red)} /* the real mistake */
+.fq .k-ctrls{margin-top:10px}
+.k-btn:disabled{opacity:.45;cursor:default}
+.fq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.fq-cell{background:var(--surface);border:1.6px solid var(--ink-soft);border-radius:10px 16px 12px 18px/16px 10px 18px 12px;padding:8px 10px;font-size:.84rem}
+.fq-cell b{display:block;font-size:.8rem;color:var(--ink-soft);font-weight:700}
+.fq-cell .marks{font-family:var(--font-display);font-weight:700;font-size:1.35rem;letter-spacing:.06em}
+.fq-cell .m-ok{color:var(--yellow)} .fq-cell .m-no{color:var(--red)} .fq-cell .m-skip{color:var(--pencil)}
+#fq-review{margin-top:14px;font-size:.92rem}
+/* fill the gap: word bank + drop gap */
+.drop{display:inline-flex;align-items:center;justify-content:center;min-width:7.5em;min-height:1.9em;vertical-align:middle;margin:0 3px;padding:1px 4px;
+  border:1.8px dashed var(--yellow);border-radius:8px 12px 9px 13px;background:var(--surface-2);cursor:pointer;transition:background .2s ease}
+.drop.over{background:var(--marker);border-style:solid}
+.drop.full{border-style:solid;border-color:var(--ink-soft);padding:0}
+.drop.full .chip{margin:0;box-shadow:none;transform:none}
+.drop.ok{background:var(--marker);border-color:var(--yellow)}
+.drop.no{border-color:var(--red)} .drop.no .chip{text-decoration:line-through;text-decoration-color:var(--red)}
+.bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;min-height:2.2em}
+.chip{font:inherit;font-weight:700;font-size:.92rem;color:var(--k-card-ink);background:var(--k-card);border:1.4px solid var(--k-card-ink);
+  border-radius:6px 10px 7px 11px;padding:3px 12px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+  box-shadow:var(--shadow);transform:rotate(-1deg);transition:opacity .2s ease,transform .2s ease}
+.chip:nth-child(even){transform:rotate(1deg)}
+.chip:hover{transform:translateY(-2px) rotate(-1deg)}
+.chip.lifted{opacity:.3}
+.chip.ghost{position:fixed;z-index:50;pointer-events:none;cursor:grabbing;transform:rotate(-3deg) scale(1.06);opacity:.95}
+.chip:disabled{cursor:default;opacity:.55}
+.chip.ans{opacity:1;outline:2px solid var(--yellow);outline-offset:2px}
+@media(min-width:881px){.nav .sec{min-width:80px}}   /* keeps short topics legible now the quiz topic is long */
+#fq-review .k-btn{font-size:1.05rem;margin:4px 6px 0 0}
+@media(max-width:880px){
+  .fq-kinds{grid-template-columns:repeat(2,1fr)}
+  .fq-grid{grid-template-columns:repeat(2,1fr)}
+  .fq-row{grid-template-columns:1fr}
+  .fq .opts.fq-tf{grid-template-columns:1fr 1fr}
+}
+/* label the figure (new kind, deck 2): numbered marks on the figure, one drop per number below it */
+.fq-fig{margin-top:8px}
+.fq-mark{display:inline-grid;place-items:center;flex:none;width:1.6em;height:1.6em;border:1.6px solid var(--yellow);border-radius:50%;
+  background:var(--paper);color:var(--yellow);font-family:var(--font-display);font-weight:700;font-size:1.05rem;line-height:1}
+.lf-pin.fq-mark{font-size:min(1.05rem,max(11px,calc(17 * 100cqi / var(--vw))))}
+.fq-slots{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:8px}
+.fq-slot{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.fq-slot .drop{flex:1;min-width:0;margin:0}
+.fq-slot .fix{flex-basis:100%;font-size:.8rem;color:var(--red);padding-inline-start:2.2em}
+.drop.sel{border-style:solid;background:var(--marker)}
+@media(max-width:880px){.fq-slots{grid-template-columns:1fr}}
+/* figure labels with a backing (.lf-pin.chip) are not quiz word chips: undo the quiz .chip look on them */
+.lf-layer .lf-pin.chip{color:var(--k-ink);background:var(--paper);font-family:var(--font-display);font-weight:600;line-height:1.02;border:none;border-radius:5px;
+  padding:0 5px;cursor:auto;touch-action:auto;user-select:auto;-webkit-user-select:auto;box-shadow:none;transition:none;transform:translate(0,-50%)}
+.lf-layer .lf-pin.chip.mid{transform:translate(-50%,-50%)} .lf-layer .lf-pin.chip.end{transform:translate(-100%,-50%)}
+
+/* ===== B4 · phone layer (slides-rulebook M1–M8): every rule is phone-only, or does nothing on a laptop ===== */
+@supports (height:100dvh){ .deck{height:100dvh} }          /* the visible height: browser bars no longer hide the nav */
+.nav{bottom:calc(14px + env(safe-area-inset-bottom,0px))}  /* above the home bar on notched phones */
+pre,.code,.tbl-wrap{overscroll-behavior-x:contain}
+@media (max-width:880px){
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  .slide{padding:58px 16px calc(118px + env(safe-area-inset-bottom,0px))}   /* content ends above the nav and the topic name */
+  .inner{max-width:100%}
+  p,li,dd,td,th,.opt,.fq-row{font-size:max(1em,15px)}                        /* body text never below 15 px (M4) */
+  .lead{font-size:16px}
+  .nav button{min-height:44px;min-width:72px}                                 /* thumb-size controls (M5) */
+  .secbar{height:24px} .nav .sec{min-height:24px}                             /* topic blocks are tap targets too */
+  .secname{bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+  .opt,.k-btn,.fq-it{min-height:44px}
+  .chip,.fq-grp button,.fq-ch{min-height:34px}
+  pre,.code{font-size:.8rem}
+  /* tables with 3+ columns: one block per row; put data-m="column name" on each <td> */
+  .tbl.stack thead{display:none} .tbl.stack tr{display:grid;grid-template-columns:1fr;padding:6px 0;border-bottom:1px dashed var(--line)}
+  .tbl.stack th,.tbl.stack td{border:0;padding:1px 0;text-align:start}
+  .tbl.stack td[data-m]::before{content:attr(data-m) ": ";font-family:var(--font-display);font-weight:700;color:var(--yellow)}
+}
+@media (max-width:880px) and (orientation:landscape){ .slide{padding-top:48px} .topbar{padding-block:6px} }
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+
+  /* ===== added in deck 02 (inherited by later decks) ===== */
+  .fp{fill:var(--paper)}                                    /* opaque figure fill: lines never show through */
+  svg.mini{display:block;width:100%;max-width:230px;height:auto;margin:2px 0 6px;overflow:visible}
+  .note{font-size:.9rem;color:var(--k-soft);font-style:italic;margin-top:10px}
+  .eg{font-family:var(--font-display);font-size:1.12rem;color:var(--k-c)!important;line-height:1.3}
+  .flow.sm{justify-content:flex-start;gap:6px;margin:6px 0 8px}
+  .flow.sm .pill{font-size:.9rem;padding:4px 10px}
+  .flow.sm .arrow{font-size:1.2rem}
+  .setrow .warn.ok{border-color:var(--k-c);color:var(--k-c)}
+  .logrow.wide{grid-template-columns:5.6em 1fr}               /* log rows with longer keys */
+  /* added in deck 02 v2: exact slide wording and the deck's own framing (slides-rulebook v1.7 F2, F3) */
+  .formal{font-style:italic;color:var(--ink)}
+  .ours{display:inline-block;font-family:var(--font-body);font-style:normal;font-weight:700;font-size:.72rem;letter-spacing:.04em;
+    color:var(--pencil);border:1.2px dashed var(--pencil);border-radius:999px;padding:0 9px;vertical-align:middle}
+  /* lane grid: when each item acts (phone first: the name sits above its bars) */
+  .lane{display:grid;gap:8px;margin-top:12px}
+  .lrow{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 6px;align-items:center}
+  .lrow .nm{grid-column:1/-1;font-weight:700;font-size:.95rem}
+  .lrow.hd{font-family:var(--font-display);font-weight:700;color:var(--k-soft);text-align:center;font-size:1.1rem}
+  .lrow.hd span:first-child{display:none}
+  .lrow .bar{border:1.6px solid var(--k-c);background:var(--wash-c);border-radius:8px 12px 9px 13px;padding:3px 8px;font-size:.9rem;text-align:center;line-height:1.3}
+  .lrow .bar.dash{border-style:dashed;background:transparent}
+  .lrow .b1{grid-column:1} .lrow .b2{grid-column:2} .lrow .b23{grid-column:2/4} .lrow .b3{grid-column:3}
+  @media(min-width:881px){
+    .lrow{grid-template-columns:14em repeat(3,1fr)}
+    .lrow .nm{grid-column:1}
+    .lrow.hd span:first-child{display:block}
+    .lrow .b1{grid-column:2} .lrow .b2{grid-column:3} .lrow .b23{grid-column:3/5} .lrow .b3{grid-column:4}
+  }
+
+  /* ===== added in deck 03 (inherited by later decks) ===== */
+  /* 26 · magic board (components.md §26): the same marks glide between states */
+  .mb{display:flex;justify-content:center;align-items:baseline;flex-wrap:wrap;gap:.08em;min-height:1.5em;
+    font-family:var(--font-display);font-size:clamp(2.2rem,6vw,3.4rem);line-height:1.2;color:var(--k-ink);letter-spacing:.02em}
+  .mb .tk{display:inline-block;min-width:.32em;text-align:center}
+  .mb .tk.hot{color:var(--k-a)}
+  .mb .tk.sp{width:.5em}
+  ::view-transition-group(*){animation-duration:.55s;animation-timing-function:cubic-bezier(.2,.7,.2,1)}
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+  .mb-box{background:var(--surface);border:1.6px solid var(--ink-soft);border-radius:var(--wob-r);padding:10px 14px 8px;margin:8px 0 10px;text-align:center}
+  .mb-box .mb-st{font-family:var(--font-eyebrow);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--k-c)}
+  .caps{display:grid;gap:7px}
+  .caps p{font-size:.98rem;color:var(--ink-soft)}
+  .caps p b{color:var(--ink)}
+  /* comparison table: laptop grid; phones stack each row (B4 .tbl.stack, data-m on each td) */
+  .tbl{width:100%;border-collapse:collapse;margin-top:8px}
+  .tbl th,.tbl td{text-align:start;vertical-align:top;padding:7px 10px;border-bottom:1px dashed var(--line);font-size:.95rem;color:var(--ink-soft)}
+  .tbl th{font-family:var(--font-display);font-weight:700;font-size:1.2rem;color:var(--k-c);border-bottom:1.6px solid var(--k-soft)}
+  .tbl td.tm{font-family:var(--font-display);font-weight:700;font-size:1.25rem;color:var(--k-a);white-space:nowrap}
+  .tbl td .formal{color:var(--ink)}
+  .tbl tr:last-child td{border-bottom:none}
+  /* three-branch tree: root, three bases, two kids each (phone first: branches stack) */
+  .tree3{display:grid;justify-items:center;margin:6px 0 10px}
+  .tree3 .root{font-family:var(--font-display);font-weight:700;font-size:1.25rem;border:1.6px solid var(--k-ink);border-radius:var(--wob-s);padding:3px 16px;background:var(--surface)}
+  .tree3 > .stem{width:2px;height:14px;background:var(--k-soft)}
+  .tree3 .br3{display:grid;grid-template-columns:1fr;gap:14px;width:100%}
+  .tree3 .br{display:grid;justify-items:stretch;position:relative}
+  .tree3 .base{position:relative;text-align:center;font-family:var(--font-display);font-weight:700;font-size:1.12rem;line-height:1.1;
+    border:1.6px solid var(--k-a);border-radius:var(--wob-s);padding:5px 8px;background:var(--wash-a);color:var(--k-ink)}
+  .tree3 .kids2{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:relative;padding-top:14px}
+  .tree3 .kids2::before{content:"";position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--k-soft)}
+  .tree3 .kids2::after{content:"";position:absolute;top:-8px;left:50%;width:2px;height:8px;background:var(--k-soft)}
+  .tree3 .kid{position:relative;text-align:center;font-family:var(--font-display);font-weight:600;font-size:1.08rem;line-height:1.1;
+    border:1.6px solid var(--k-soft);border-radius:var(--wob-s);padding:5px 6px;background:var(--surface);color:var(--k-ink)}
+  .tree3 .kid::before{content:"";position:absolute;top:-14px;left:50%;width:2px;height:14px;background:var(--k-soft)}
+  .tree3 .kid .n{display:block;font-family:var(--font-body);font-weight:400;font-size:.84rem;line-height:1.3;color:var(--k-soft);margin-top:3px}
+  .tree3 .base .fq-mark{margin-inline-end:6px;vertical-align:middle}
+  @media(min-width:881px){
+    .tree3 .br3{grid-template-columns:repeat(3,1fr);gap:16px;position:relative;padding-top:14px}
+    .tree3 .br3::before{content:"";position:absolute;top:0;left:16.67%;right:16.67%;height:2px;background:var(--k-soft)}
+    .tree3 .br::before{content:"";position:absolute;top:-14px;left:50%;width:2px;height:14px;background:var(--k-soft)}
+  }
+  .pane .q{font-size:.96rem;color:var(--ink);margin-top:6px}
+  .gl-line{font-size:.9rem!important;color:var(--k-soft)!important;margin-top:4px}
+  .gl-line b{color:var(--ink-soft)!important;font-weight:700}
+  .lk-t dfn{color:inherit;background:none;padding:0}
+  .tblbox{margin-top:4px}
+  .gl-card{white-space:normal}                 /* a card inside a nowrap cell or label must still wrap (deck 03) */
+  table.tbl{display:table;gap:0}               /* .stack (layout helper) must not turn a .tbl.stack table into a grid (deck 03) */
+  @media(max-width:880px){ table.tbl.stack,table.tbl.stack tbody{display:block} }
+
+  /* ---- deck 04: flow figures, two-branch tree, chain rows, message chips (phone first) ---- */
+  .flowfig{margin-top:4px}
+  .tree .kid svg.flowmini{max-width:150px;margin:6px auto 0}
+  .tree .kid .formal{display:block}
+  .tree3.t2 .br3{gap:18px}
+  .tree3 .kidsN{display:grid;grid-template-columns:1fr 1fr;gap:18px 8px;position:relative;padding-top:14px}
+  .tree3 .kidsN::before{content:"";position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--k-soft)}
+  .tree3 .kidsN::after{content:"";position:absolute;top:-8px;left:50%;width:2px;height:8px;background:var(--k-soft)}
+  .tree3.t2 .base.pb{border-color:var(--k-b);background:var(--wash-b)}
+  @media(min-width:881px){
+    .tree3.t2 .br3{grid-template-columns:1fr 2.2fr;gap:18px}
+    .tree3.t2 .br3::before{left:15.6%;right:34.4%}
+    .tree3 .kidsN{grid-template-columns:repeat(4,1fr)}
+    .tree3 .kidsN::before{left:12.5%;right:12.5%}
+  }
+  .chain{display:grid;gap:8px;margin-top:6px}
+  .chain .ln{display:grid;grid-template-columns:1fr;gap:4px;background:var(--surface);border:1.6px solid var(--k-soft);border-radius:var(--wob-s);padding:9px 14px}
+  .chain .ln .w{font-family:var(--font-display);font-weight:700;font-size:1.35rem;line-height:1;color:var(--k-a)}
+  .chain .ln.b{border-color:var(--k-b)} .chain .ln.b .w{color:var(--k-b)}
+  .chain .ln.c{border-color:var(--k-c)} .chain .ln.c .w{color:var(--k-c)}
+  .chain .dn{justify-self:center;font-family:var(--font-display);font-size:1.3rem;line-height:.6;color:var(--k-soft)}
+  @media(min-width:881px){ .chain .ln{grid-template-columns:9.5em 1fr;align-items:baseline;gap:12px} }
+  ol.fl{margin:4px 0 0;padding-inline-start:1.5em;display:grid;gap:2px}
+  ol.fl li{font-size:.96rem;color:var(--ink)}
+  .msgs{display:grid;gap:8px;margin-top:8px}
+  .msgs .mrow{display:grid;grid-template-columns:1fr;gap:6px;align-items:center}
+  .msgs .mrow .k{font-family:var(--font-display);font-weight:700;font-size:1.2rem;color:var(--k-c)}
+  .msgs .chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .msg{display:inline-block;font-family:var(--font-display);font-weight:600;font-size:1.08rem;line-height:1.1;color:#2b2b2b;background:#f6f1e3;
+       border-radius:4px 7px 5px 8px;padding:4px 10px;box-shadow:1px 2px 0 rgba(0,0,0,.25)}
+  .msgs .msg{color:#2b2b2b!important} .msgs .msg.bad{color:#9c2f22!important}
+  .msgs .ar{font-family:var(--font-display);font-size:1.3rem;color:var(--k-soft)}
+  @media(min-width:881px){ .msgs .mrow{grid-template-columns:7.5em 1fr} }
+  .pane svg.mini{max-width:200px}
+  .fl4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
+  .fl4 .c{position:relative;border:1.4px solid var(--k-soft);border-radius:var(--wob-s);padding:8px 8px 4px;background:var(--surface)}
+  .fl4 .c .fq-mark{position:absolute;top:6px;inset-inline-start:6px}
+  .fl4 svg.flowmini{max-width:170px;margin:4px auto 0}
+  @media(min-width:881px){ .fl4{grid-template-columns:repeat(4,1fr)} }
+  @media(max-width:880px){   /* deck 04: 29 entries; one line per entry on phones keeps the sheet near 1.5 screens */
+    .gl-cols .glossary dt{display:inline;margin-top:0}
+    .gl-cols .glossary dt::after{content:":\00a0";color:var(--k-soft)}
+    .gl-cols .glossary dd{display:inline;margin:0;line-height:1.4}
+    .gl-cols .glossary{font-size:.9rem}
+    .gl-cols .glossary dd::after{content:"";display:block;margin-bottom:5px}
+  }
+
+  /* ---- deck 05: text cover strip, byte rows, pipe flow, two-branch tree (left leaves), tiles of components ---- */
+  .tc{display:flex;flex-wrap:wrap;align-items:flex-start;row-gap:6px;font-family:var(--font-display);font-weight:600;font-size:1.28rem;line-height:1.05;color:var(--k-ink);margin:8px 0 6px}
+  .tc .gp{display:inline-flex;flex-direction:column;align-items:center;min-width:1.15em;padding:0 2px;color:var(--k-a)}
+  .tc .gp i{font-style:normal;font-family:var(--font-body);font-size:.72rem;line-height:1.3;letter-spacing:-.04em}
+  .tc .gp b{font-family:var(--font-body);font-size:.92rem;line-height:1.1;color:var(--k-c);font-weight:700}
+  .bits{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--k-c);letter-spacing:.06em}
+  .px{display:grid;gap:7px;margin:8px 0}
+  .px .pr{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .px .pn{font-family:var(--font-display);font-weight:700;color:var(--k-soft);font-size:1.08rem;min-width:4.1em}
+  .px code.by{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9rem;background:var(--surface);border:1.4px solid var(--ink-soft);border-radius:6px 8px 6px 9px;padding:2px 6px;color:var(--ink)}
+  .px code.by .l{background:var(--k-hi);color:var(--k-c);border-radius:3px;padding:0 1px;font-weight:700}
+  .px code.by.off{opacity:.55}
+  .pipe{display:grid;grid-template-columns:1fr;justify-items:center;gap:2px;margin:8px 0 6px}
+  .pipe .nd{font-family:var(--font-display);font-weight:700;font-size:1.15rem;line-height:1.1;text-align:center;border:1.6px solid var(--k-ink);border-radius:var(--wob-s);padding:5px 12px;background:var(--surface);color:var(--k-ink);min-width:10em}
+  .pipe .nd.alg{border-color:var(--k-a);background:var(--wash-a)}
+  .pipe .nd.net{border-style:dashed}
+  .pipe .nd .ky{display:block;font-family:var(--font-body);font-size:.86rem;font-weight:700;color:var(--k-c);margin-top:2px}
+  .pipe .ar{display:flex;align-items:center;gap:8px;font-size:.92rem;color:var(--k-soft);min-height:30px}
+  .pipe .ar::before{content:"↓";font-family:var(--font-display);font-size:1.45rem;line-height:1;color:var(--k-soft)}
+  .pipe .ar .dt{font-weight:700;color:var(--k-c);font-style:normal}
+  .pipe .nd.formal,.pipe .nd .formal{font-style:normal}
+  @media(min-width:881px){
+    .pipe{grid-template-columns:repeat(9,auto);justify-content:center;align-items:center;gap:4px}
+    .pipe .nd{min-width:0;max-width:8.5em}
+    .pipe .ar{flex-direction:column;gap:0;min-height:0}
+    .pipe .ar::before{content:"→";order:2}
+  }
+  .tree3.t2.tl .br3{gap:18px}
+  @media(min-width:881px){
+    .tree3.t2.tl .br3{grid-template-columns:2fr 1fr}
+    .tree3.t2.tl .br3::before{left:33.33%;right:16.67%}
+  }
+  .tree3 .base .formal,.tree3 .kid .formal{color:inherit}
+  .comp{display:grid;gap:10px;margin-top:8px}
+  .comp .tile{align-items:flex-start}
+  .comp .tile .n{font-family:var(--font-display);font-weight:700;font-size:1.4rem;color:var(--k-c);line-height:1;margin-inline-end:2px}
+  .comp .tile p{font-size:.96rem;color:var(--ink);line-height:1.5}
+  .comp .tile ul{margin:4px 0 0;padding-inline-start:1.2em}
+  .comp .tile li{font-size:.94rem;color:var(--ink)}
+  .lf-pin .fq-mark{transform:scale(.9)}
+  .stepcard .step{align-items:flex-start;font-size:.96rem;color:var(--ink)}
+  .stepcard .step .to{display:block;font-family:var(--font-body);font-style:normal;font-size:.84rem;color:var(--k-soft);margin-top:2px}
+  .mapc .card ul{margin:4px 0 0;padding-inline-start:1.1em}
+  .mapc .card li{font-size:.94rem;color:var(--ink)}
+  .mapc .card h3 .formal{font-style:italic}
+  .fx{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin-top:6px}
+  .fx .formal{font-size:1.25rem}
+  @media(min-width:1100px){ .gl-cols{columns:3;column-gap:26px} }
+  .fq-fig .lf{margin-bottom:4px}
+  input.gap.num{position:static;inset:auto;font-family:var(--font-body);font-size:1rem;color:var(--ink)}   /* the template's .num badge rule made the Work it out input absolute (deck 05) */
+  .g2.ing{grid-template-columns:1.05fr .95fr;gap:26px;align-items:start}
+  .g2.ing .lf{order:0}
+  @media(max-width:880px){ .g2.ing{grid-template-columns:1fr} .tc{font-size:1.15rem} .px .pn{min-width:100%} }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="dust"></div>
+
+<!-- shared defs: wobble filter, arrowheads (colours follow the canvas through style=), fill patterns -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="wob"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahY" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--yellow);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <pattern id="p-hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="1" y1="0" x2="1" y2="7" style="stroke:var(--blue);stroke-width:1.6"/></pattern>
+    <pattern id="p-dots" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.5" style="fill:var(--yellow)"/></pattern>
+    <filter id="boil0"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="2" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="3.6"/></filter>
+    <filter id="boil1"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="9" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="3.6"/></filter>
+    <filter id="boil2"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="15" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="3.6"/></filter>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <div class="brand">
+    <svg class="mk" viewBox="0 0 24 24" style="filter:url(#wob)" aria-hidden="true"><path d="M4 18 C7 6, 15 4, 20 8" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"/><path d="M4 20 C9 12, 16 10, 20 13" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/></svg>
+    <span>210 ISY · Lecture 5</span>
+  </div>
+  <div class="counter"><span id="cur">1</span> / <span id="total">30</span></div>
+</div>
+
+<div class="deck" id="deck">
+  <!-- ================= BEGIN SLIDES ================= -->
+  <section class="slide active" data-sec="Start">
+    <div class="inner cover">
+      <svg class="spark reveal" style="--d:.05s" viewBox="0 0 120 120" aria-hidden="true">
+        <g filter="url(#wob)">
+          <circle class="draw" pathLength="1" cx="36" cy="60" r="20" fill="none" stroke="var(--ink)" stroke-width="3.4"/>
+          <path class="draw" style="--d:.3s" pathLength="1" d="M56 60 H106" fill="none" stroke="var(--ink)" stroke-width="3.4" stroke-linecap="round"/>
+          <path class="draw" style="--d:.55s" pathLength="1" d="M92 60 V76 M80 60 V72" fill="none" stroke="var(--k-c)" stroke-width="4" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <span class="eyebrow reveal" style="--d:.12s"><span class="dot"></span> 210 ISY · Lecture 5</span>
+      <h1 class="reveal" style="--d:.2s">Cryptography</h1>
+      <p class="lead reveal" style="--d:.3s">Two data security techniques, a model of a cryptosystem, and symmetric-key encryption with block and stream ciphers.</p>
+      <div class="hint reveal" style="--d:.42s">Use <kbd>←</kbd> <kbd>→</kbd> to move. Tap dotted words for meanings. “Quoted” lines are your slides’ exact words.</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner">
+      <div class="head">
+        <span class="eyebrow reveal"><span class="dot"></span> A question first</span>
+        <h2 class="reveal" style="--d:.08s">The class group chat</h2>
+        <p class="lead reveal" style="--d:.16s">Ali sends Sara a door code in a group chat that others read. Plan 1 mixes up the code with a secret rule. Plan 2 hides it in a normal sentence. Which plan can hide that a secret exists?</p>
+      </div>
+      <div class="cards c3" onclick="if(event.target.closest('.card')){for(const c of this.children){c.style.borderColor='';c.style.background=''}const p=event.target.closest('.card');p.style.borderColor='var(--k-a)';p.style.background='var(--wash-a)'}">
+        <div class="card reveal" style="--d:.22s;cursor:pointer"><h3>A</h3><p>Plan 1, the mixed-up code.</p></div>
+        <div class="card reveal" style="--d:.28s;cursor:pointer"><h3>B</h3><p>Plan 2, the normal sentence.</p></div>
+        <div class="card reveal" style="--d:.34s;cursor:pointer"><h3>C</h3><p>No plan. People always notice a secret.</p></div>
+      </div>
+      <div class="aside reveal" style="--d:.44s"><b>Pick one now.</b> We return to it at the end.</div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:1000px">
+      <span class="eyebrow reveal"><span class="dot"></span> The map</span>
+      <h2 class="reveal" style="--d:.08s">Your slides’ map of cryptography</h2>
+      <div class="cards c3 mapc">
+        <div class="card reveal" style="--d:.16s"><h3 class="formal">Cryptography system</h3>
+          <ul class="formal"><li>Data security techniques</li><li>Steganography</li><li>Security model</li><li>Types of Cryptography</li><li>Crypt analysis</li></ul></div>
+        <div class="card reveal" style="--d:.22s"><h3 class="formal">Symmetric-key Cryptography</h3>
+          <ul class="formal"><li>Character-level encryption</li><li>Bit-level encryption</li><li>Symmetric-key algorithms</li></ul></div>
+        <div class="card reveal" style="--d:.28s"><h3 class="formal">Public-key cryptography</h3>
+          <ul class="formal"><li>RSA</li><li>Hash function</li></ul></div>
+      </div>
+      <p class="reveal" style="--d:.34s;margin-top:12px">This deck has two parts. <b>Techniques and model:</b> data security techniques, steganography and the security model. <b>Symmetric-key:</b> the types of cryptography and symmetric-key encryption.</p>
+      <p class="note reveal" style="--d:.4s">Your slides name <span class="formal">Crypt analysis</span>, <span class="formal">Symmetric-key algorithms</span>, <span class="formal">RSA</span> and <span class="formal">Hash function</span> here, but do not teach them in this lecture.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-sec="Techniques and model">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Techniques and model</span>
+      <h2 class="reveal" style="--d:.08s">Two ways to protect data</h2>
+      <p class="lead reveal" style="--d:.12s">You can transform a message to make it secure. Or you can hide the message inside something else.</p>
+      <div class="tree reveal" style="--d:.16s;margin:0"><div class="root formal">Data security techniques</div><div class="stem"></div></div>
+      <div class="duo" style="margin-top:0">
+        <div class="pane pa reveal" style="--d:.2s"><h3><dfn>Cryptography</dfn></h3>
+          <svg class="mini" viewBox="0 0 220 64" aria-hidden="true"><g filter="url(#wob)">
+            <rect class="s k fp" x="20" y="8" width="70" height="48" rx="3"/><path class="s t r" d="M30 20 l6 4 l6 -4 l6 4 l6 -4 l6 4 l6 -4 M30 32 l8 -4 l8 4 l8 -4 l8 4 l8 -4 M30 44 l6 4 l6 -4 l6 4 l6 -4"/>
+            <rect class="s k fp" x="130" y="26" width="36" height="28" rx="3"/><path class="s k" d="M136 26 V18 C136 6 160 6 160 18 V26"/><circle class="s" cx="148" cy="40" r="3"/></g></svg>
+          <p class="q formal">“Cryptography means secrete writing.”</p>
+          <p class="q formal">“It refers to the art of transforming messages to make them secure and immune to attacks.”</p>
+          <p class="q formal">“It involves three distinct mechanisms: symmetric-key encipherment, asymmetric-key encipherment, and hashing.”</p>
+          <p class="gl-line"><b>Secrete:</b> secret. <b>Immune to:</b> safe from. <b>Distinct mechanisms:</b> separate tools. <b>Encipherment:</b> turning a message into secret code.</p></div>
+        <div class="pane pb reveal" style="--d:.26s"><h3><dfn>Steganography</dfn></h3>
+          <svg class="mini" viewBox="0 0 220 64" aria-hidden="true"><g filter="url(#wob)">
+            <rect class="s k fp dash" x="44" y="16" width="44" height="34" rx="3"/><path class="s t" d="M52 26h28M52 34h20"/>
+            <rect class="s k fp" x="20" y="6" width="80" height="52" rx="3"/><path class="s" d="M26 50 L50 28 L66 42 L78 32 L96 50"/><circle class="s y" cx="82" cy="18" r="5"/>
+            <path class="s b dash" d="M106 32 H150"/><rect class="s soft fp dash" x="156" y="18" width="36" height="28" rx="3"/><path class="s t" d="M162 28h24M162 36h16"/></g></svg>
+          <p class="q formal">“Steganography means covered writing.”</p>
+          <p class="q formal">“It refers to concealing the message itself by covering it with something else.”</p>
+          <p class="q formal">“It is possible to insert secrete binary information into data during digitization process.”</p>
+          <p class="gl-line"><b>Concealing:</b> hiding. <b>Binary:</b> made of 0s and 1s. <b>Digitization:</b> turning something into digital data.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Steganography · text cover</span>
+      <h2 class="reveal" style="--d:.08s">Hiding bits in spaces</h2>
+      <div class="g2">
+        <div class="reveal" style="--d:.14s">
+          <p><b>Objective:</b> <span class="formal">“It hides information either for secrecy or to protect copyright, prevent tampering or add extra information.”</span></p>
+          <p class="gl-line"><b>Secrecy:</b> keeping something secret. <b>Copyright:</b> the owner’s right over a work. <b>Tampering:</b> changing something without permission.</p>
+          <p style="margin-top:10px"><b>Text cover:</b> <span class="formal">“We can use single space between words to represent bit 0 and double space to represent bit 1.”</span></p>
+          <p class="gl-line"><b>Represent:</b> stand for.</p>
+        </div>
+        <div class="reveal" style="--d:.2s">
+          <p><b>Example:</b> <span class="formal">“Consider the ASCII code of letter A: <span class="bits">01000001</span>.”</span></p>
+          <div class="tc" aria-label="This course is intended to provide data security basics, with one or two spaces after each word">
+            <span>This</span><span class="gp"><i>▽</i><b data-build="1">0</b></span><span>course</span><span class="gp"><i>▽▽</i><b data-build="1">1</b></span><span>is</span><span class="gp"><i>▽</i><b data-build="1">0</b></span><span>intended</span><span class="gp"><i>▽</i><b data-build="1">0</b></span><span>to</span><span class="gp"><i>▽</i><b data-build="1">0</b></span><span>provide</span><span class="gp"><i>▽</i><b data-build="1">0</b></span><span>data</span><span class="gp"><i>▽</i><b data-build="1">0</b></span><span>security</span><span class="gp"><i>▽▽</i><b data-build="1">1</b></span><span>basics.</span>
+          </div>
+          <div class="caps">
+            <p data-build="0">Your slides’ sentence. Each ▽ is one space.</p>
+            <p data-build="1"><b>Step 1:</b> read each gap. One space gives 0. Two spaces give 1.</p>
+            <p data-build="2"><b>Step 2:</b> the 8 gaps give <span class="bits">01000001</span>: the code of A.</p>
+            <p data-build="3"><b>Try:</b> which bits does “Meet▽▽me▽at▽▽noon” hide?</p>
+            <p data-build="4"><b>Answer:</b> two, one, two spaces: <span class="bits">101</span>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Steganography · image cover</span>
+      <h2 class="reveal" style="--d:.08s">Hiding bits in an image</h2>
+      <div class="g2">
+        <div class="reveal" style="--d:.14s">
+          <p class="formal">“Secrete data can be covered under a color image.”</p>
+          <p class="formal">“Images are made of pixels, each of 3 bytes.”</p>
+          <p class="formal">“In LSB method, LSBs are set to 0s.”</p>
+          <p class="formal">“The ASCII code of the character is inserted in LSBs.”</p>
+          <p class="gl-line"><b><dfn data-forms="LSBs">LSB</dfn>:</b> least significant bit, the last bit on the right of a byte. <b>Inserted:</b> put in.</p>
+          <p style="margin-top:10px"><b>Example:</b> <span class="formal">“Consider the ASCII code of letter M: <span class="bits">01001101</span>.” “This can be hide in 3 pixels.”</span></p>
+          <p class="gl-line"><b>Be hide:</b> be hidden.</p>
+        </div>
+        <div class="reveal" style="--d:.2s">
+          <div class="px" aria-label="the nine bytes of three pixels from your slides">
+            <div class="pr"><span class="pn">Pixel 1</span><code class="by">0101001<span class="l">1</span></code><code class="by">1011110<span class="l">0</span></code><code class="by">0101010<span class="l">1</span></code></div>
+            <div class="pr"><span class="pn">Pixel 2</span><code class="by">0110010<span class="l">1</span></code><code class="by">1011110<span class="l">0</span></code><code class="by">0101111<span class="l">0</span></code></div>
+            <div class="pr"><span class="pn">Pixel 3</span><code class="by">0001010<span class="l">1</span></code><code class="by">0100101<span class="l">0</span></code><code class="by">0111111<span class="l">0</span></code></div>
+          </div>
+          <div class="caps">
+            <p data-build="0">Your slides’ 9 bytes, in the order the slide lists them. The marked last bit of each byte is its LSB. <span class="ours">our grouping</span> Three bytes per pixel.</p>
+            <p data-build="1"><b>Step 1:</b> 3 pixels × 3 bytes = 9 LSBs. The 8 bits of M need 8 of them.</p>
+            <p data-build="2"><b>Step 2:</b> the first 8 LSBs read <span class="bits">10110010</span>: M’s code <span class="bits">01001101</span> from its last bit to its first.</p>
+            <p data-build="3"><b>Step 3:</b> the last of the 9 LSBs stays 0.</p>
+          </div>
+          <p class="note" data-build="3">Note: your slides do not say this order. Ask your instructor which order your exam uses.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:1040px">
+      <span class="tag reveal">Security model</span>
+      <h2 class="reveal" style="--d:.08s">Model of a cryptosystem</h2>
+      <div class="g2">
+        <div class="reveal" style="--d:.14s">
+          <p class="tag" style="margin-bottom:2px">Security system</p>
+          <p class="formal">“The two parties (<dfn data-forms="principal">principals</dfn>) must cooperate for the exchange of the message.”</p>
+          <p class="formal">“A <dfn>channel</dfn> is established by the two principals.”</p>
+          <p class="formal">“It is desirable to protect the information transmission from an <dfn>opponent</dfn> who may present a threat.”</p>
+          <p class="formal">“All the techniques for providing security have three components.”</p>
+          <p class="gl-line"><b>Parties:</b> sides. <b>Cooperate:</b> work together. <b>Established:</b> set up. <b>Desirable:</b> wanted. <b>Transmission:</b> sending. <b>Opponent:</b> the enemy side.</p>
+          <p class="cap">Notice: in your slides’ picture, the trusted third party is linked to both principals and to the channel. The opponent is linked to the channel.</p>
+        </div>
+        <div class="lf reveal" style="--d:.22s;--vw:440;--vh:420;width:min(470px,100%)">
+          <svg viewBox="0 0 440 420" aria-hidden="true">
+            <g filter="url(#wob)">
+              <path class="s" d="M126 34 L76 90" marker-start="url(#ah)" marker-end="url(#ah)"/>
+              <path class="s" d="M314 34 L364 90" marker-start="url(#ah)" marker-end="url(#ah)"/>
+              <path class="s" d="M220 100 V222" marker-start="url(#ah)" marker-end="url(#ah)"/>
+              <path class="s" d="M220 258 V338" marker-start="url(#ah)" marker-end="url(#ah)"/>
+              <path class="s k" d="M150 240 H176" marker-end="url(#ah)"/>
+              <path class="s k" d="M264 240 H286" marker-end="url(#ah)"/>
+              <path class="s b" d="M52 190 L62 206" marker-end="url(#ahB)"/>
+              <path class="s b" d="M378 206 L388 190" marker-end="url(#ahB)"/>
+              <path class="s b" d="M95 288 V274" marker-end="url(#ahB)"/>
+              <path class="s b" d="M345 288 V274" marker-end="url(#ahB)"/>
+              <rect class="s k fp" x="130" y="12" width="180" height="40" rx="6"/>
+              <circle class="s k fp" cx="60" cy="102" r="12"/><path class="s k" d="M38 134 C38 112 82 112 82 134"/>
+              <circle class="s k fp" cx="380" cy="102" r="12"/><path class="s k" d="M358 134 C358 112 402 112 402 134"/>
+              <rect class="s fp" x="38" y="160" width="24" height="30" rx="2"/><path class="s t" d="M43 168h14M43 175h14M43 182h9"/>
+              <rect class="s fp" x="378" y="160" width="24" height="30" rx="2"/><path class="s t" d="M383 168h14M383 175h14M383 182h9"/>
+              <rect class="s k fp" x="40" y="210" width="110" height="62" rx="5"/>
+              <rect class="s k fp" x="290" y="210" width="110" height="62" rx="5"/>
+              <rect class="s k fp" x="180" y="224" width="80" height="32" rx="16"/>
+              <circle class="s r k fp" cx="220" cy="350" r="12"/><path class="s r k" d="M198 382 C198 360 242 360 242 382"/>
+            </g>
+          </svg>
+          <div class="lf-layer">
+            <span class="lf-pin mid s formal" style="--x:220;--y:32">Trusted Third Party</span>
+            <span class="lf-pin mid xs formal" style="--x:220;--y:76">e.g., Distributor<br>of secret information</span>
+            <span class="lf-pin mid s formal" style="--x:60;--y:150">Principal</span>
+            <span class="lf-pin mid s formal" style="--x:380;--y:150">Principal</span>
+            <span class="lf-pin xs formal" style="--x:68;--y:176">Message</span>
+            <span class="lf-pin end xs formal" style="--x:372;--y:176">Message</span>
+            <span class="lf-pin mid xs formal" style="--x:95;--y:241">Security<br>related<br>transformation</span>
+            <span class="lf-pin mid xs formal" style="--x:345;--y:241">Security<br>related<br>transformation</span>
+            <span class="lf-pin mid s formal" style="--x:220;--y:240">Channel</span>
+            <span class="lf-pin mid xs formal" style="--x:95;--y:304">Secret<br>information</span>
+            <span class="lf-pin mid xs formal" style="--x:345;--y:304">Secret<br>information</span>
+            <span class="lf-pin mid s a formal" style="--x:220;--y:404">Opponent</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:940px">
+      <div class="tagrow reveal"><span class="tag">Security model</span> <span class="tag exam">Asked in your slides</span></div>
+      <h2 class="reveal" style="--d:.08s">Three components</h2>
+      <p class="lead reveal" style="--d:.12s">Your slides ask: <span class="formal">“List the three components of the Security System?”</span> Their answer:</p>
+      <div class="comp">
+        <div class="tile reveal" style="--d:.18s"><div class="ico clay"><svg class="ic" viewBox="0 0 24 24"><path d="M4 7 H15 L12 4 M20 17 H9 L12 20"/></svg></div>
+          <div class="tx"><p class="formal"><span class="n">1</span> “A security-related transformation of information to be sent. Examples include:</p>
+            <ul class="formal"><li>Encryption of message to be unreadable by opponent.</li><li>Addition of a code to verify the identity of the sender.”</li></ul></div></div>
+        <div class="tile reveal" style="--d:.24s"><div class="ico gold"><svg class="ic" viewBox="0 0 24 24"><circle cx="7" cy="12" r="4"/><path d="M11 12 H21 M18 12 V15 M15 12 V14"/></svg></div>
+          <div class="tx"><p class="formal"><span class="n">2</span> “Some secret information shared by the two principals and unknown to the opponent. An example is an encryption key.”</p></div></div>
+        <div class="tile reveal" style="--d:.3s"><div class="ico blue"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.5"/><path d="M5 21 C5 14 19 14 19 21 M12 14 V18"/></svg></div>
+          <div class="tx"><p class="formal"><span class="n">3</span> “A trusted third party for distributing secret information to the two principals.”</p></div></div>
+      </div>
+      <p class="gl-line reveal" style="--d:.36s"><b>Unreadable:</b> cannot be read. <b>Verify the identity:</b> check who it really is. <b>Trusted:</b> relied on. <b>Distributing:</b> giving out.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:900px">
+      <span class="tag reveal">Security model</span>
+      <h2 class="reveal" style="--d:.08s">Four basic security tasks</h2>
+      <div class="stepcard reveal" style="--d:.14s">
+        <div class="title formal">Four Basic Security Tasks</div>
+        <div class="step"><span class="n">1</span><span><span class="formal">“Design an algorithm for performing the security-related transformation.</span><span class="to">→ component 1</span></span></div>
+        <div class="step"><span class="n">2</span><span><span class="formal">Generate the secret information to be used with the algorithm.</span><span class="to">→ component 2</span></span></div>
+        <div class="step"><span class="n">3</span><span><span class="formal">Develop methods for the distribution and sharing of the secret information.</span><span class="to">→ component 3</span></span></div>
+        <div class="step"><span class="n">4</span><span><span class="formal">Specify a protocol for principals to use security algorithm and secret information to achieve security service.”</span><span class="to">→ all three</span></span></div>
+      </div>
+      <p class="gl-line reveal" style="--d:.2s"><b>Generate:</b> make. <b>Distribution:</b> giving out. <b>Specify:</b> state exactly. <b>Protocol:</b> a set of rules the parties follow. <b>Achieve:</b> reach.</p>
+      <p class="note reveal" style="--d:.24s"><span class="ours">our links</span> The arrows to the three components are our links, not your slides’.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-sec="Symmetric-key">
+    <div class="inner" style="max-width:1040px">
+      <span class="tag reveal">Symmetric-key</span>
+      <h2 class="reveal" style="--d:.08s">Cryptography arrangement</h2>
+      <p class="lead reveal" style="--d:.12s">Your slides’ picture of a message on its way.</p>
+      <div class="pipe">
+        <div class="nd formal" data-build="0">Sender</div>
+        <div class="ar" data-build="0"><span class="dt formal">Plaintext</span></div>
+        <div class="nd alg" data-build="1"><span class="formal">Encryption Algorithm</span> <span class="ky">key Ke</span></div>
+        <div class="ar" data-build="1"><span class="dt formal">Ciphertext</span></div>
+        <div class="nd net formal" data-build="2">Network</div>
+        <div class="ar" data-build="2"></div>
+        <div class="nd alg" data-build="3"><span class="formal">Decryption Algorithm</span> <span class="ky">key Kd</span></div>
+        <div class="ar" data-build="3"><span class="dt formal">Plaintext</span></div>
+        <div class="nd formal" data-build="3">Receiver</div>
+      </div>
+      <div class="caps">
+        <p data-build="0">The sender starts with plaintext, the message you can read.</p>
+        <p data-build="1">The encryption algorithm uses the key Ke. It gives ciphertext, the mixed-up message.</p>
+        <p data-build="2">The ciphertext crosses the network.</p>
+        <p data-build="3">The decryption algorithm uses the key Kd. The receiver gets the plaintext again.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:1000px">
+      <div class="tagrow reveal"><span class="tag">Symmetric-key</span> <span class="tag exam">Asked in your slides</span></div>
+      <h2 class="reveal" style="--d:.08s">Categories of cryptography</h2>
+      <p class="lead reveal" style="--d:.12s">Your slides ask: <span class="formal">“Differentiate between categories of cryptography Techniques?”</span> Their categories:</p>
+      <div class="tree3 t2 tl reveal" style="--d:.18s">
+        <div class="root formal">Encryption/Decryption</div>
+        <div class="stem"></div>
+        <div class="br3">
+          <div class="br"><div class="base formal">Conventional (symmetric-key) methods</div>
+            <div class="kids2"><div class="kid"><span class="formal">Character-level encryption</span></div><div class="kid"><span class="formal">Bit-level encryption</span></div></div></div>
+          <div class="br"><div class="base pb"><span class="formal">(Asymmetric-key) Public-key methods</span></div></div>
+        </div>
+      </div>
+      <p class="gl-line reveal" style="--d:.24s"><b>Conventional:</b> traditional. <b>Symmetric:</b> the same on both sides. <b>Asymmetric:</b> not the same on both sides. <b>Character:</b> a letter, number or sign.</p>
+      <p class="note reveal" style="--d:.28s"><span class="ours">our link</span> Cryptography’s three mechanisms on your slides name both kinds too: symmetric-key encipherment and asymmetric-key encipherment, with hashing.</p>
+      <p class="reveal" style="--d:.3s;margin-top:8px">For public-key methods, your slides give only the name <span class="gl-w"><span class="gl-t" tabindex="0" style="anchor-name:--ex1">(Extra)</span><span class="gl-card" role="tooltip" style="position-anchor:--ex1"><b>Extra: not in your slides</b>In public-key methods, the encryption key and the decryption key are different.</span></span>.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:1040px">
+      <span class="tag reveal">Symmetric-key</span>
+      <h2 class="reveal" style="--d:.08s">Five ingredients</h2>
+      <div class="g2 ing">
+      <div class="lf reveal" style="--d:.14s;--vw:540;--vh:300;width:min(640px,100%)">
+        <svg viewBox="0 0 540 300" aria-hidden="true">
+          <g filter="url(#wob)">
+            <path class="s b dash" d="M246 24 H151 V112" marker-end="url(#ahB)"/>
+            <path class="s b dash" d="M294 24 H389 V112" marker-end="url(#ahB)"/>
+            <path class="s k" d="M78 153 H102" marker-end="url(#ah)"/>
+            <path class="s k" d="M198 153 H232" marker-end="url(#ah)"/>
+            <path class="s k" d="M306 153 H338" marker-end="url(#ah)"/>
+            <path class="s k" d="M436 153 H460" marker-end="url(#ah)"/>
+            <path class="s soft dash" d="M90 204 V162" marker-end="url(#ah)"/>
+            <path class="s soft dash" d="M270 204 V190" marker-end="url(#ah)"/>
+            <path class="s soft dash" d="M448 204 V162" marker-end="url(#ah)"/>
+            <circle class="s k fp" cx="262" cy="24" r="10"/><path class="s k" d="M272 24 H292 M286 24 V31 M280 24 V29"/>
+            <rect class="s k fp" x="6" y="136" width="72" height="34" rx="6"/>
+            <rect class="s k fp" x="104" y="126" width="94" height="54" rx="4"/>
+            <path class="s b k fp" d="M270 116 L280 132 L298 124 L292 142 L308 153 L292 164 L298 182 L280 174 L270 190 L260 174 L242 182 L248 164 L232 153 L248 142 L242 124 L260 132 Z"/>
+            <rect class="s k fp" x="342" y="126" width="94" height="54" rx="4"/>
+            <rect class="s k fp" x="462" y="136" width="72" height="34" rx="6"/>
+            <rect class="s fp" x="78" y="206" width="24" height="30" rx="2"/><path class="s t" d="M83 214h14M83 221h14M83 228h9"/>
+            <rect class="s r fp" x="258" y="206" width="24" height="30" rx="2"/><path class="s t r" d="M262 213l4 3l4-3l4 3l4-3M262 221l4 3l4-3l4 3l4-3M262 229l4 3l4-3"/>
+            <rect class="s fp" x="436" y="206" width="24" height="30" rx="2"/><path class="s t" d="M441 214h14M441 221h14M441 228h9"/>
+          </g>
+        </svg>
+        <div class="lf-layer">
+          <span class="lf-pin mid xs formal" style="--x:270;--y:58">Secrete key shared by<br>sender and recipient</span>
+          <span class="lf-pin mid xs formal" style="--x:42;--y:153">Sender</span>
+          <span class="lf-pin mid xs formal" style="--x:151;--y:153">Encryption<br>Algorithm</span>
+          <span class="lf-pin mid xs formal" style="--x:270;--y:153">Network</span>
+          <span class="lf-pin mid xs formal" style="--x:389;--y:153">Decryption<br>Algorithm</span>
+          <span class="lf-pin mid xs formal" style="--x:498;--y:153">Receiver</span>
+          <span class="lf-pin mid xs formal" style="--x:90;--y:266">Plaintext<br>Input</span>
+          <span class="lf-pin mid xs formal" style="--x:270;--y:266">Transmitted<br>Ciphertext</span>
+          <span class="lf-pin mid xs formal" style="--x:448;--y:266">Plaintext<br>Output</span>
+          <span class="lf-pin mid fq-mark" style="--x:62;--y:222">1</span>
+          <span class="lf-pin mid fq-mark" style="--x:112;--y:118">2</span>
+          <span class="lf-pin mid fq-mark" style="--x:236;--y:24">3</span>
+          <span class="lf-pin mid fq-mark" style="--x:300;--y:222">4</span>
+          <span class="lf-pin mid fq-mark" style="--x:350;--y:118">5</span>
+        </div>
+      </div>
+      <div>
+      <p class="reveal formal" style="--d:.2s;margin-top:6px;font-weight:700">“Ingredients of Symmetric-key Cryptography</p>
+      <ol class="read reveal" style="--d:.24s;margin-top:4px">
+        <li><span><b><dfn>Plaintext</dfn></b> <span class="formal">The original message that is fed into the algorithm as input.</span></span></li>
+        <li><span><b><dfn>Encryption algorithm</dfn></b> <span class="formal">It transforms the plaintext to a ciphertext.</span></span></li>
+        <li><span><b><dfn>Secret key</dfn></b> <span class="formal">Transformations performed depend on that key.</span></span></li>
+        <li><span><b><dfn>Ciphertext</dfn></b> <span class="formal">It is the scrambled message produced as output.</span></span></li>
+        <li><span><b><dfn>Decryption algorithm</dfn></b> <span class="formal">It is the encryption algorithm run in reverse to produce plaintext from the ciphertext.”</span></span></li>
+      </ol>
+      <p class="gl-line reveal" style="--d:.3s"><b>Fed into:</b> given to. <b>Scrambled:</b> mixed up so it cannot be read. <b>In reverse:</b> the other way round. <b>Recipient:</b> receiver.</p>
+      <p class="cap reveal" style="--d:.34s">Notice: one secret key feeds both algorithms.</p>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:980px">
+      <span class="tag reveal">Symmetric-key</span>
+      <h2 class="reveal" style="--d:.08s">Six properties</h2>
+      <div class="g2 heavy">
+        <div class="reveal" style="--d:.14s">
+          <p class="formal" style="font-weight:700">“Properties</p>
+          <ol class="fl formal">
+            <li>It was the only type of encryption in use till the late 1970s.</li>
+            <li>The encryption and decryption keys (Ke), (Kd) are the same and should be kept secrete.</li>
+            <li>It is also referred to as conventional encryption, secret-key, or single-key encryption.</li>
+            <li>The Decryption algorithm is the inverse of the Encryption algorithm.</li>
+            <li>Any one who knows the encryption algorithm and key can deduce the decryption algorithm.</li>
+            <li>For m users, the number of required keys is <span style="white-space:nowrap">[m×(m-1)]/2</span>.”</li>
+          </ol>
+          <p class="gl-line"><b>Till:</b> until. <b>Referred to as:</b> called. <b>Inverse:</b> the opposite. <b>Deduce:</b> work out.</p>
+        </div>
+        <div class="reveal" style="--d:.22s">
+          <div class="lf" style="--vw:240;--vh:90;width:min(260px,100%)">
+            <svg viewBox="0 0 240 90" aria-hidden="true"><g filter="url(#wob)">
+              <circle class="s k fp" cx="30" cy="40" r="12"/><path class="s k" d="M42 40 H86 M80 40 V48 M72 40 V46"/>
+              <path class="s r k" d="M110 34 H130 M110 46 H130"/>
+              <circle class="s k fp" cx="156" cy="40" r="12"/><path class="s k" d="M168 40 H212 M206 40 V48 M198 40 V46"/></g></svg>
+            <div class="lf-layer"><span class="lf-pin mid s" style="--x:58;--y:76">Ke</span><span class="lf-pin mid s" style="--x:184;--y:76">Kd</span></div>
+          </div>
+          <div class="aside" style="margin-top:12px"><b>Common mistake:</b> thinking Ke and Kd differ. In symmetric-key encryption they are the same.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:960px">
+      <span class="tag reveal">Symmetric-key</span>
+      <h2 class="reveal" style="--d:.08s">How many keys?</h2>
+      <div class="g2 lean">
+        <div class="lf reveal" style="--d:.14s;--vw:260;--vh:220;width:min(300px,100%)">
+          <svg viewBox="0 0 260 220" aria-hidden="true"><g filter="url(#wob)">
+            <path class="s b" d="M66 44 H194 M216 66 V164 M194 186 H66 M44 164 V66 M62 62 L198 168 M198 62 L62 168"/>
+            <circle class="s k fp" cx="44" cy="44" r="20"/><circle class="s k fp" cx="216" cy="44" r="20"/>
+            <circle class="s k fp" cx="216" cy="186" r="20"/><circle class="s k fp" cx="44" cy="186" r="20"/>
+            <circle class="s y k fp" cx="130" cy="44" r="5"/><circle class="s y k fp" cx="216" cy="115" r="5"/><circle class="s y k fp" cx="130" cy="186" r="5"/>
+            <circle class="s y k fp" cx="44" cy="115" r="5"/><circle class="s y k fp" cx="104" cy="94" r="5"/><circle class="s y k fp" cx="156" cy="94" r="5"/></g></svg>
+          <div class="lf-layer">
+            <span class="lf-pin" style="--x:0;--y:-6"><span class="ours">our picture</span></span>
+            <span class="lf-pin mid s" style="--x:44;--y:44">A</span><span class="lf-pin mid s" style="--x:216;--y:44">B</span>
+            <span class="lf-pin mid s" style="--x:216;--y:186">C</span><span class="lf-pin mid s" style="--x:44;--y:186">D</span>
+          </div>
+        </div>
+        <div class="reveal" style="--d:.2s">
+          <div class="fx"><span class="formal">[m×(m-1)]/2</span><span class="soft">m = the number of users</span></div>
+          <p class="gl-line">How to read it: m times (m minus 1), then divided by 2.</p>
+          <p style="margin-top:8px"><b>Worked example:</b> 4 users, A to D.</p>
+          <ol class="steps" style="margin-top:6px">
+            <li><span class="n">1</span><span>4 × (4 − 1) = 4 × 3 = 12.</span></li>
+            <li><span class="n">2</span><span>12 ÷ 2 = <b>6 keys</b>.</span></li>
+          </ol>
+          <p class="gl-line" style="margin-top:8px">Why it works (our reading): each pair of users shares one key. Each user pairs with m − 1 others. Each pair is counted twice, so we divide by 2.</p>
+          <div class="caps" style="margin-top:8px">
+            <p data-build="1"><b>Try:</b> 5 users?</p>
+            <p data-build="2"><b>Answer:</b> 5 × 4 = 20. 20 ÷ 2 = 10 keys.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Block and stream ciphers</span>
+      <h2 class="reveal" style="--d:.08s"><dfn data-forms="block ciphers">Block cipher</dfn></h2>
+      <div class="g2 heavy">
+        <div class="reveal" style="--d:.14s">
+          <p class="formal">“A block of plaintext symbols of size m (m &gt; 1) are encrypted at a time creating a block of ciphertext of the same size.”</p>
+          <p class="formal">“The block size is usually a multiple of 64 bits.”</p>
+          <p class="formal">“A single key is used to encrypt the whole block even if the key is made of multiple values.”</p>
+          <p class="gl-line"><b>Symbols:</b> characters or bits. <b>m &gt; 1:</b> m is more than 1. <b>A multiple of 64:</b> 64, 128, 192 and so on. <b>Multiple values:</b> several parts.</p>
+          <p class="cap">Notice: m bits in, m bits out, one key.</p>
+        </div>
+        <div class="lf reveal" style="--d:.22s;--vw:380;--vh:300;width:min(400px,100%)">
+          <svg viewBox="0 0 380 300" aria-hidden="true"><g filter="url(#wob)">
+            <path class="s r k" d="M240 72 V116" marker-end="url(#ahR)"/>
+            <path class="s k" d="M96 150 H186" marker-end="url(#ah)"/>
+            <path class="s r k" d="M240 182 V226" marker-end="url(#ahR)"/>
+            <rect class="s k fp" x="90" y="42" width="100" height="30" rx="2"/>
+            <rect class="s r k fp" x="190" y="42" width="100" height="30" rx="2"/>
+            <rect class="s k fp" x="190" y="118" width="100" height="64" rx="4"/>
+            <rect class="s k fp" x="24" y="136" width="72" height="28" rx="8"/>
+            <rect class="s r k fp" x="190" y="228" width="100" height="30" rx="2"/>
+            <rect class="s k fp" x="290" y="228" width="60" height="30" rx="2"/>
+          </g></svg>
+          <div class="lf-layer">
+            <span class="lf-pin mid s formal" style="--x:240;--y:22">Plaintext blocks</span>
+            <span class="lf-pin mid xs formal" style="--x:140;--y:57">m-bits</span>
+            <span class="lf-pin mid xs formal" style="--x:240;--y:57">m-bits</span>
+            <span class="lf-pin mid s formal" style="--x:240;--y:150">Block<br>cipher</span>
+            <span class="lf-pin mid xs formal" style="--x:60;--y:120">Key</span>
+            <span class="lf-pin mid xs formal" style="--x:60;--y:150">k bits</span>
+            <span class="lf-pin mid xs formal" style="--x:240;--y:243">m-bits</span>
+            <span class="lf-pin mid s formal" style="--x:240;--y:282">Ciphertext blocks</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Block and stream ciphers</span>
+      <h2 class="reveal" style="--d:.08s"><dfn data-forms="stream ciphers">Stream cipher</dfn></h2>
+      <div class="g2 heavy">
+        <div class="reveal" style="--d:.14s">
+          <p class="formal">“It processes the input elements continuously, producing one symbol (a character or a bit) at a time, as it goes along.”</p>
+          <p class="formal">“There are plaintext stream, cipher stream, and key stream.”</p>
+          <p class="formal">“Stream ciphers are more immune to the corruption of bits during transmission.”</p>
+          <p class="formal">“They are faster than block ciphers.”</p>
+          <p class="formal">“Their hardware implementation is easier.”</p>
+          <p class="gl-line"><b>Input elements:</b> the pieces that go in. <b>Continuously:</b> without stopping. <b>Corruption of bits:</b> bits damaged. <b>Hardware implementation:</b> building it in hardware.</p>
+          <p class="cap">Notice: a block cipher takes m symbols at a time. A stream cipher gives one symbol at a time.</p>
+        </div>
+        <div class="lf reveal" style="--d:.22s;--vw:380;--vh:280;width:min(400px,100%)">
+          <svg viewBox="0 0 380 280" aria-hidden="true"><g filter="url(#wob)">
+            <path class="s k" d="M160 40 H320"/>
+            <path class="s r k" d="M240 44 V96" marker-end="url(#ahR)"/>
+            <path class="s k" d="M126 129 H186" marker-end="url(#ah)"/>
+            <path class="s r k" d="M240 160 V212" marker-end="url(#ahR)"/>
+            <path class="s k" d="M160 218 H320"/>
+            <rect class="s k fp" x="190" y="98" width="100" height="62" rx="4"/>
+            <rect class="s k fp" x="20" y="114" width="106" height="30" rx="8"/>
+            <rect class="s r fp" x="232" y="62" width="16" height="16" rx="2"/>
+            <rect class="s r fp" x="232" y="180" width="16" height="16" rx="2"/>
+          </g></svg>
+          <div class="lf-layer">
+            <span class="lf-pin mid s formal" style="--x:240;--y:22">Plaintext stream</span>
+            <span class="lf-pin mid s formal" style="--x:240;--y:129">Stream<br>cipher</span>
+            <span class="lf-pin mid xs formal" style="--x:73;--y:129">Key stream</span>
+            <span class="lf-pin mid s formal" style="--x:240;--y:240">Ciphertext stream</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-sec="Review">
+    <div class="inner" style="max-width:900px">
+      <span class="eyebrow reveal"><span class="dot"></span> Back to the question</span>
+      <h2 class="reveal" style="--d:.08s">The class group chat</h2>
+      <p class="lead reveal" style="--d:.14s">Ali sends Sara a door code in a group chat that others read. Plan 1 mixes up the code with a secret rule. Plan 2 hides it in a normal sentence. Which plan can hide that a secret exists?</p>
+      <div class="vrows">
+        <div class="vrow no" data-build="1"><span class="L">A</span><div><h4>Plan 1, the mixed-up code.</h4><p>Plan 1 is cryptography: <span class="formal">“the art of transforming messages to make them secure and immune to attacks.”</span> The others still see the mixed-up code.</p></div></div>
+        <div class="vrow win" data-build="2"><span class="L">B</span><div><h4>Plan 2, the normal sentence.</h4><p>Plan 2 is steganography: <span class="formal">“concealing the message itself by covering it with something else”</span>, like single and double spaces.</p></div></div>
+        <div class="vrow no" data-build="3"><span class="L">C</span><div><h4>No plan. People always notice a secret.</h4><p>Steganography hides the message itself, so others can miss it.</p></div></div>
+      </div>
+      <p class="cap" data-build="3">If Plan 1 uses symmetric-key encryption, Ali and Sara share the same secret key.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:860px">
+      <span class="tag reveal">Review</span>
+      <h2 class="reveal" style="--d:.08s">You can now</h2>
+      <ul class="points" style="margin-top:10px">
+        <li class="reveal" style="--d:.16s"><span class="tick"><svg class="ic" viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></span> <span class="t">Tell cryptography from steganography, and hide bits with a text cover or the LSB method.</span></li>
+        <li class="reveal" style="--d:.22s"><span class="tick"><svg class="ic" viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></span> <span class="t">Name the parts of the model of a cryptosystem, and list its three components.</span></li>
+        <li class="reveal" style="--d:.28s"><span class="tick"><svg class="ic" viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></span> <span class="t">List the four basic security tasks.</span></li>
+        <li class="reveal" style="--d:.34s"><span class="tick"><svg class="ic" viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></span> <span class="t">Draw the categories of cryptography, and name the five ingredients of symmetric-key cryptography.</span></li>
+        <li class="reveal" style="--d:.4s"><span class="tick"><svg class="ic" viewBox="0 0 24 24"><polyline points="5 12 10 17 19 7"/></svg></span> <span class="t">Work out the number of keys for m users, and tell a block cipher from a stream cipher.</span></li>
+      </ul>
+      <p class="cap reveal" style="--d:.48s">Next: Lecture 6.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="inner" style="max-width:980px">
+      <span class="tag reveal">Review · revision sheet</span>
+      <h2 class="reveal" style="--d:.08s">Words in this deck</h2>
+      <div class="gl-cols reveal" style="--d:.14s">
+      <dl class="glossary" id="glossary">
+        <dt>cryptography</dt><dd>secret writing: transforming messages to make them secure and immune to attacks</dd>
+        <dt>steganography</dt><dd>covered writing: concealing the message itself by covering it with something else</dd>
+        <dt data-forms="LSBs">LSB</dt><dd>least significant bit: the last bit on the right of a byte</dd>
+        <dt>ASCII</dt><dd>American Standard Code for Information Interchange: a code for each character</dd>
+        <dt>cryptosystem</dt><dd>a system that uses cryptography to protect messages</dd>
+        <dt data-forms="components">component</dt><dd>a part of a system</dd>
+        <dt data-forms="principals">principal</dt><dd>one of the two parties who exchange the message</dd>
+        <dt data-forms="opponents">opponent</dt><dd>the other side, who may present a threat</dd>
+        <dt data-forms="symmetric">symmetric-key</dt><dd>encryption and decryption keys are the same and should be kept secret</dd>
+        <dt data-forms="asymmetric-key,public-key methods">public-key</dt><dd>(asymmetric-key) methods: the other category of encryption/decryption</dd>
+        <dt>encryption algorithm</dt><dd>transforms the plaintext to a ciphertext</dd>
+        <dt>decryption algorithm</dt><dd>the encryption algorithm run in reverse to produce plaintext from the ciphertext</dd>
+        <dt>plaintext</dt><dd>the original message fed into the algorithm as input</dd>
+        <dt>ciphertext</dt><dd>the scrambled message produced as output</dd>
+        <dt data-forms="encryption key">secret key</dt><dd>the transformations performed depend on that key</dd>
+        <dt data-forms="block ciphers">block cipher</dt><dd>encrypts a block of m symbols (m &gt; 1) at a time into a ciphertext block of the same size</dd>
+        <dt data-forms="stream ciphers">stream cipher</dt><dd>processes the input continuously, producing one symbol (a character or a bit) at a time</dd>
+        <dt>Ke</dt><dd>the encryption key</dd>
+        <dt>Kd</dt><dd>the decryption key</dd>
+        <dt data-forms="encrypted,encrypt">encryption</dt><dd>changing data into a secret form others cannot read</dd>
+        <dt data-forms="decrypt">decryption</dt><dd>changing ciphertext back into plaintext</dd>
+        <dt data-forms="algorithms">algorithm</dt><dd>a set of steps a computer follows</dd>
+        <dt data-forms="threats">threat</dt><dd>a potential violation of security; it need not actually occur</dd>
+        <dt>hashing</dt><dd>making a short, fixed-size code from data</dd>
+      </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-sec="Final quiz" data-budget="skip">
+    <div class="inner" style="max-width:980px">
+      <span class="tag reveal">Final quiz · about 11 minutes</span>
+      <h2 class="reveal" style="--d:.05s">Sixteen questions, nine kinds</h2>
+      <p class="lead reveal" style="--d:.1s">Everything you need is in this deck. Each question has <b>one check</b>. Your score waits on the final slide.</p>
+      <div class="row4 fq-kinds reveal" style="--d:.16s">
+        <div class="card"><span class="n">1</span><p><b>Choose one</b><br>Pick the best answer.</p></div>
+        <div class="card"><span class="n">2</span><p><b>True or false</b><br>Judge one claim.</p></div>
+        <div class="card"><span class="n">3</span><p><b>Fill the gap</b><br>Drag or tap a word.</p></div>
+        <div class="card"><span class="n">4</span><p><b>Match</b><br>Pick each meaning.</p></div>
+        <div class="card"><span class="n">5</span><p><b>Sort</b><br>Put each item in a group.</p></div>
+        <div class="card"><span class="n">6</span><p><b>Put in order</b><br>Tap the steps in order.</p></div>
+        <div class="card"><span class="n">7</span><p><b>Find the mistake</b><br>Tap the wrong part.</p></div>
+        <div class="card"><span class="n">8</span><p><b>Work it out</b><br>Type a number.</p></div>
+        <div class="card"><span class="n">9</span><p><b>Label the figure</b><br>Put each label on its number.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Kind 1 of 9 · choose one</span>
+      <h2 class="reveal" style="--d:.05s">Choose the best answer</h2>
+      <div class="row2 fq-pair">
+        <div class="fq reveal" style="--d:.1s" data-type="mcq" data-kind="Choose one" data-topic="Techniques and model"
+             data-why="In LSB method, LSBs are set to 0s. Then the ASCII code is inserted in them.">
+          <p class="stem">1 · Ali hides one character in a color image with the LSB method. What happens to the LSBs before the character’s ASCII code goes in?</p>
+          <div class="opts fq-col">
+            <button class="opt"><span class="box"></span>They are set to 1s.</button>
+            <button class="opt"><span class="box"></span>They are encrypted with a secret key.</button>
+            <button class="opt" data-ok="1"><span class="box"></span>They are set to 0s.</button>
+            <button class="opt"><span class="box"></span>They are moved to the first pixel.</button>
+          </div>
+          <p class="verdict"></p>
+        </div>
+        <div class="fq reveal" style="--d:.16s" data-type="mcq" data-kind="Choose one" data-topic="Symmetric-key"
+             data-why="Anyone who knows the encryption algorithm and key can deduce the decryption algorithm.">
+          <p class="stem">2 · An opponent learns the encryption algorithm and the key of a symmetric-key system. What can he deduce?</p>
+          <div class="opts fq-col">
+            <button class="opt" data-ok="1"><span class="box"></span>The decryption algorithm</button>
+            <button class="opt"><span class="box"></span>Only the block size</button>
+            <button class="opt"><span class="box"></span>Only the number of users</button>
+            <button class="opt"><span class="box"></span>Nothing without the trusted third party</button>
+          </div>
+          <p class="verdict"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Kind 2 of 9 · true or false</span>
+      <h2 class="reveal" style="--d:.05s">True or false?</h2>
+      <div class="row2 fq-pair">
+        <div class="fq reveal" style="--d:.1s" data-type="mcq" data-kind="True or false" data-topic="Techniques and model"
+             data-why="Component 3: a trusted third party for distributing secret information to the two principals.">
+          <p class="stem">3 · “In the security system, a trusted third party distributes secret information to the two principals.”</p>
+          <div class="opts fq-tf">
+            <button class="opt" data-ok="1"><span class="box"></span>True</button>
+            <button class="opt"><span class="box"></span>False</button>
+          </div>
+          <p class="verdict"></p>
+        </div>
+        <div class="fq reveal" style="--d:.16s" data-type="mcq" data-kind="True or false" data-topic="Symmetric-key"
+             data-why="In symmetric-key encryption, Ke and Kd are the same and should be kept secret.">
+          <p class="stem">4 · “In symmetric-key encryption, the encryption key Ke and the decryption key Kd are different.”</p>
+          <div class="opts fq-tf">
+            <button class="opt"><span class="box"></span>True</button>
+            <button class="opt" data-ok="1"><span class="box"></span>False</button>
+          </div>
+          <p class="verdict"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Kind 3 of 9 · fill the gap</span>
+      <h2 class="reveal" style="--d:.05s">Drag or tap the right word into the gap</h2>
+      <div class="row2 fq-pair">
+        <div class="fq reveal" style="--d:.1s" data-type="gap" data-kind="Fill the gap" data-topic="Techniques and model"
+             data-answer="unknown" data-why="Component 2: secret information shared by the two principals and unknown to the opponent.">
+          <p class="stem">5 · Component 2 of the security system: some secret information shared by the two principals and <span class="drop" data-capture tabindex="0" role="button" aria-label="gap: drop a word here"></span> to the opponent.</p>
+          <div class="bank" data-capture><button class="chip">sent</button><button class="chip">unknown</button><button class="chip">shown</button><button class="chip">distributed</button></div>
+          <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+          <p class="verdict"></p>
+        </div>
+        <div class="fq reveal" style="--d:.16s" data-type="gap" data-kind="Fill the gap" data-topic="Symmetric-key"
+             data-answer="single" data-why="It is also called conventional encryption, secret-key, or single-key encryption.">
+          <p class="stem">6 · Symmetric-key encryption is also called conventional, secret-key, or <span class="drop" data-capture tabindex="0" role="button" aria-label="gap: drop a word here"></span>-key encryption.</p>
+          <div class="bank" data-capture><button class="chip">public</button><button class="chip">single</button><button class="chip">asymmetric</button><button class="chip">double</button></div>
+          <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+          <p class="verdict"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Kind 4 of 9 · match</span>
+      <h2 class="reveal" style="--d:.05s">Choose the right meaning for each one</h2>
+      <div class="row2 fq-pair">
+        <div class="fq reveal" style="--d:.1s" data-type="match" data-kind="Match" data-topic="Symmetric-key"
+             data-why="These are your slides’ definitions of the ingredients, shortened.">
+          <p class="stem">7 · Ingredients of symmetric-key cryptography</p>
+          <div class="fq-rows">
+            <div class="fq-row" data-key="a"><span class="fq-term">Plaintext</span><select></select></div>
+            <div class="fq-row" data-key="b"><span class="fq-term">Ciphertext</span><select></select></div>
+            <div class="fq-row" data-key="c"><span class="fq-term">Encryption algorithm</span><select></select></div>
+            <div class="fq-row" data-key="d"><span class="fq-term">Decryption algorithm</span><select></select></div>
+          </div>
+          <ul class="fq-choices" hidden>
+            <li data-key="a">the original message fed into the algorithm as input</li>
+            <li data-key="b">the scrambled message produced as output</li>
+            <li data-key="c">transforms the plaintext to a ciphertext</li>
+            <li data-key="d">the encryption algorithm run in reverse</li>
+          </ul>
+          <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+          <p class="verdict"></p>
+        </div>
+        <div class="fq reveal" style="--d:.16s" data-type="match" data-kind="Match" data-topic="Techniques and model"
+             data-why="Cryptography: secret writing. Steganography: covered writing; text and image covers are its covers.">
+          <p class="stem">8 · The two data security techniques, and steganography’s two covers</p>
+          <div class="fq-rows">
+            <div class="fq-row" data-key="a"><span class="fq-term">Cryptography</span><select></select></div>
+            <div class="fq-row" data-key="b"><span class="fq-term">Steganography</span><select></select></div>
+            <div class="fq-row" data-key="c"><span class="fq-term">Text cover</span><select></select></div>
+            <div class="fq-row" data-key="d"><span class="fq-term">Image cover</span><select></select></div>
+          </div>
+          <ul class="fq-choices" hidden>
+            <li data-key="a">means secret writing</li>
+            <li data-key="b">means covered writing</li>
+            <li data-key="c">single and double spaces stand for bits</li>
+            <li data-key="d">bits go into the LSBs of pixels</li>
+          </ul>
+          <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+          <p class="verdict"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Kind 5 of 9 · sort</span>
+      <h2 class="reveal" style="--d:.05s">Put each item in its group</h2>
+      <div class="row2 fq-pair">
+        <div class="fq reveal" style="--d:.1s" data-type="sort" data-kind="Sort" data-groups="Block|Stream"
+             data-topic="Symmetric-key" data-why="Block ciphers encrypt m symbols at a time. Stream ciphers give one symbol at a time.">
+          <p class="stem">9 · Block cipher or stream cipher?</p>
+          <div class="fq-rows">
+            <div class="fq-row" data-g="Block"><span class="fq-term">Encrypts m symbols (m &gt; 1) at a time</span></div>
+            <div class="fq-row" data-g="Stream"><span class="fq-term">Produces one symbol at a time</span></div>
+            <div class="fq-row" data-g="Stream"><span class="fq-term">Faster of the two</span></div>
+            <div class="fq-row" data-g="Block"><span class="fq-term">Its size is usually a multiple of 64 bits</span></div>
+            <div class="fq-row" data-g="Stream"><span class="fq-term">Works with a key stream</span></div>
+            <div class="fq-row" data-g="Block"><span class="fq-term">One key is used for all m symbols together</span></div>
+          </div>
+          <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+          <p class="verdict"></p>
+        </div>
+        <div class="fq reveal" style="--d:.16s" data-type="sort" data-kind="Sort" data-groups="Cryptography|Steganography"
+             data-topic="Techniques and model" data-why="Cryptography transforms messages. Steganography conceals the message itself by covering it.">
+          <p class="stem">10 · Cryptography or steganography?</p>
+          <div class="fq-rows">
+            <div class="fq-row" data-g="Steganography"><span class="fq-term">Single and double spaces between words carry bits</span></div>
+            <div class="fq-row" data-g="Cryptography"><span class="fq-term">Involves hashing</span></div>
+            <div class="fq-row" data-g="Cryptography"><span class="fq-term">Involves symmetric-key encipherment</span></div>
+            <div class="fq-row" data-g="Steganography"><span class="fq-term">An ASCII code goes into the LSBs of a color image</span></div>
+            <div class="fq-row" data-g="Cryptography"><span class="fq-term">Transforms messages to make them immune to attacks</span></div>
+            <div class="fq-row" data-g="Steganography"><span class="fq-term">Hides information to protect copyright</span></div>
+          </div>
+          <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+          <p class="verdict"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip">
+    <div class="inner" style="max-width:760px">
+      <span class="tag reveal">Kind 6 of 9 · put in order</span>
+      <h2 class="reveal" style="--d:.05s">Tap the steps in order</h2>
+      <div class="fq reveal" style="--d:.1s" data-type="order" data-kind="Put in order" data-topic="Techniques and model"
+           data-why="Design the algorithm, generate the secret information, develop its distribution and sharing, specify the protocol.">
+        <p class="stem">11 · Your slides’ four basic security tasks, first to last:</p>
+        <div class="fq-items">
+          <button class="fq-it" data-n="3"><span class="fq-num"></span>Develop methods to distribute and share the secret information</button>
+          <button class="fq-it" data-n="1"><span class="fq-num"></span>Design an algorithm for the security-related transformation</button>
+          <button class="fq-it" data-n="4"><span class="fq-num"></span>Specify a protocol for the principals</button>
+          <button class="fq-it" data-n="2"><span class="fq-num"></span>Generate the secret information to use with the algorithm</button>
+        </div>
+        <div class="k-ctrls"><button class="k-btn fq-check">Check</button><button class="k-btn fq-clear">Clear</button></div>
+        <p class="verdict"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Kind 7 of 9 · find the mistake</span>
+      <h2 class="reveal" style="--d:.05s">Tap the part that is wrong</h2>
+      <div class="row2 fq-pair">
+        <div class="fq reveal" style="--d:.1s" data-type="spot" data-kind="Find the mistake" data-topic="Techniques and model"
+             data-why="The added code verifies the identity of the sender.">
+          <p class="stem">12 · The first component of the security system</p>
+          <p class="fq-sent"><button class="fq-ch">A security-related transformation of information to be sent</button> <button class="fq-ch">can be encryption of the message</button> <button class="fq-ch">to be unreadable by the opponent,</button> <button class="fq-ch">or addition of a code</button> <button class="fq-ch" data-ok="1">to verify the identity of the receiver.</button></p>
+          <p class="verdict"></p>
+        </div>
+        <div class="fq reveal" style="--d:.16s" data-type="spot" data-kind="Find the mistake" data-topic="Symmetric-key"
+             data-why="Character-level and bit-level encryption sit under conventional (symmetric-key) methods.">
+          <p class="stem">13 · Categories of cryptography</p>
+          <p class="fq-sent"><button class="fq-ch">Your slides divide encryption/decryption</button> <button class="fq-ch">into conventional (symmetric-key) methods</button> <button class="fq-ch">and (asymmetric-key) public-key methods,</button> <button class="fq-ch" data-ok="1">and put character-level and bit-level encryption under public-key methods.</button></p>
+          <p class="verdict"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip">
+    <div class="inner" style="max-width:1000px">
+      <span class="tag reveal">Kind 8 of 9 · work it out</span>
+      <h2 class="reveal" style="--d:.05s">Type the number</h2>
+      <div class="row2 fq-pair">
+        <div class="fq reveal" style="--d:.1s" data-type="num" data-kind="Work it out" data-answer="2" data-topic="Techniques and model"
+             data-why="01000010 has two 1s: two double spaces. The six 0s are single spaces.">
+          <p class="stem">14 · In a text cover, a single space stands for bit 0 and a double space for bit 1. Letter B has the ASCII code 01000010. How many double spaces hide it?</p>
+          <div class="k-ctrls"><input class="gap num" type="text" inputmode="numeric" aria-label="your answer" autocomplete="off"><button class="k-btn fq-check">Check</button></div>
+          <p class="verdict"></p>
+        </div>
+        <div class="fq reveal" style="--d:.16s" data-type="num" data-kind="Work it out" data-answer="15" data-topic="Symmetric-key"
+             data-why="6 × 5 = 30, and 30 ÷ 2 = 15 keys.">
+          <p class="stem">15 · For m users, symmetric-key encryption needs <span style="white-space:nowrap">[m×(m-1)]/2</span> keys. How many keys do 6 users need?</p>
+          <div class="k-ctrls"><input class="gap num" type="text" inputmode="numeric" aria-label="your answer" autocomplete="off"><button class="k-btn fq-check">Check</button></div>
+          <p class="verdict"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip">
+    <div class="inner" style="max-width:900px">
+      <span class="tag reveal">Kind 9 of 9 · label the figure</span>
+      <h2 class="reveal" style="--d:.05s">Put each label on its number</h2>
+      <div class="fq reveal" style="--d:.1s" data-type="label" data-kind="Label the figure" data-topic="Techniques and model"
+           data-why="Third party at the top, transformations beside the channel, the opponent below the channel.">
+        <p class="stem">16 · Your slides’ model of a cryptosystem. Which part is at each number?</p>
+        <div class="fq-fig">
+          <div class="lf" style="--vw:440;--vh:420;width:min(330px,100%)">
+            <svg viewBox="0 0 440 420" aria-hidden="true">
+            <g filter="url(#wob)">
+              <path class="s" d="M126 34 L76 90" marker-start="url(#ah)" marker-end="url(#ah)"/>
+              <path class="s" d="M314 34 L364 90" marker-start="url(#ah)" marker-end="url(#ah)"/>
+              <path class="s" d="M220 100 V222" marker-start="url(#ah)" marker-end="url(#ah)"/>
+              <path class="s" d="M220 258 V338" marker-start="url(#ah)" marker-end="url(#ah)"/>
+              <path class="s k" d="M150 240 H176" marker-end="url(#ah)"/>
+              <path class="s k" d="M264 240 H286" marker-end="url(#ah)"/>
+              <path class="s b" d="M52 190 L62 206" marker-end="url(#ahB)"/>
+              <path class="s b" d="M378 206 L388 190" marker-end="url(#ahB)"/>
+              <path class="s b" d="M95 288 V274" marker-end="url(#ahB)"/>
+              <path class="s b" d="M345 288 V274" marker-end="url(#ahB)"/>
+              <rect class="s k fp" x="130" y="12" width="180" height="40" rx="6"/>
+              <circle class="s k fp" cx="60" cy="102" r="12"/><path class="s k" d="M38 134 C38 112 82 112 82 134"/>
+              <circle class="s k fp" cx="380" cy="102" r="12"/><path class="s k" d="M358 134 C358 112 402 112 402 134"/>
+              <rect class="s fp" x="38" y="160" width="24" height="30" rx="2"/><path class="s t" d="M43 168h14M43 175h14M43 182h9"/>
+              <rect class="s fp" x="378" y="160" width="24" height="30" rx="2"/><path class="s t" d="M383 168h14M383 175h14M383 182h9"/>
+              <rect class="s k fp" x="40" y="210" width="110" height="62" rx="5"/>
+              <rect class="s k fp" x="290" y="210" width="110" height="62" rx="5"/>
+              <rect class="s k fp" x="180" y="224" width="80" height="32" rx="16"/>
+              <circle class="s r k fp" cx="220" cy="350" r="12"/><path class="s r k" d="M198 382 C198 360 242 360 242 382"/>
+            </g>
+          </svg>
+            <div class="lf-layer">
+              <span class="lf-pin mid fq-mark" style="--x:220;--y:32">1</span>
+              <span class="lf-pin mid s" style="--x:60;--y:150">Principal</span>
+              <span class="lf-pin mid s" style="--x:380;--y:150">Principal</span>
+              <span class="lf-pin xs" style="--x:68;--y:176">Message</span>
+              <span class="lf-pin end xs" style="--x:372;--y:176">Message</span>
+              <span class="lf-pin mid fq-mark" style="--x:95;--y:241">4</span>
+              <span class="lf-pin mid fq-mark" style="--x:220;--y:240">2</span>
+              <span class="lf-pin mid xs" style="--x:95;--y:304">Secret<br>information</span>
+              <span class="lf-pin mid xs" style="--x:345;--y:304">Secret<br>information</span>
+              <span class="lf-pin mid fq-mark" style="--x:220;--y:404">3</span>
+            </div>
+          </div>
+        </div>
+        <div class="fq-slots" data-capture>
+          <div class="fq-slot"><span class="fq-mark">1</span><span class="drop" data-answer="Trusted Third Party" tabindex="0" role="button" aria-label="slot 1: drop a label here"></span></div>
+          <div class="fq-slot"><span class="fq-mark">2</span><span class="drop" data-answer="Channel" tabindex="0" role="button" aria-label="slot 2: drop a label here"></span></div>
+          <div class="fq-slot"><span class="fq-mark">3</span><span class="drop" data-answer="Opponent" tabindex="0" role="button" aria-label="slot 3: drop a label here"></span></div>
+          <div class="fq-slot"><span class="fq-mark">4</span><span class="drop" data-answer="Security related transformation" tabindex="0" role="button" aria-label="slot 4: drop a label here"></span></div>
+        </div>
+        <div class="bank" data-capture><button class="chip">Opponent</button><button class="chip">Security related transformation</button><button class="chip">Receiver</button><button class="chip">Channel</button><button class="chip">Trusted Third Party</button></div>
+        <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+        <p class="verdict"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-budget="skip" id="fq-score">
+    <div class="inner" style="max-width:900px">
+      <span class="tag reveal">Final quiz · your score</span>
+      <h2 class="reveal" style="--d:.05s"><span id="fq-total">0</span> / <span id="fq-of">16</span></h2>
+      <p class="lead reveal" style="--d:.1s" id="fq-msg">Answer the questions, then come back here.</p>
+      <div class="fq-grid reveal" style="--d:.16s" id="fq-grid"></div>
+      <div class="reveal" style="--d:.22s" id="fq-review"></div>
+      <div class="k-ctrls reveal" style="--d:.28s"><button class="k-btn" id="fq-retry">Try the quiz again</button></div>
+    </div>
+  </section>
+
+<!-- ================= END SLIDES ================= -->
+<!-- COURSE
+course: 210 ISY Information Security (King Saud University) · slug: isy
+deck: 5 · source: ch5.pdf (Lecture 5, Parts 1-2: Cryptography: data security techniques, model of a cryptosystem, categories of cryptography, symmetric-key encryption, block and stream ciphers)
+style: Sketchbook · canvas: chalkboard · board: deep-teal
+exam focus: none in general (every unit equally examinable); where the slides stress a definition or list (their review questions), the deck stresses it too: tag "Asked in your slides", exact wording kept, extra quiz weight
+settings changed (§11): exact wording = every defining sentence and every review-question list (the user's choice, 10 Oct); the word budget gives way to it
+standing decisions: admin, title, topics and objectives pages skipped (they become the map and the topic bar); agenda topics with no slides skipped and named in the report; slide errors taught as the slide has them with a short Note; one deck per lecture PDF; final quiz, no question set or answer box; phone first
+field words: login, offline, backup, printout, printouts, configuration, installation, reconfigure, attacker, attackers, router, routers, hacker, hackers, media, cyber, healthcare, wi-fi (beyond the checker's built-in list; wi-fi added at deck 4, then unused in the final text)
+-->
+<!-- BUDGET original=989 (text 989 + figures/tables 0: every figure label is in the text layer: the map figure p4, the model figure p8, the arrangement p17, the tree p18, the symmetric-key figure p19, the block and stream figures p22-24; the pixel grid on p7 has no words) -->
+<!-- FACT-LEDGER
+source: "ch5.pdf" (26 pages) · deck: 19 teaching slides + 11 quiz slides
+admin (skipped): p1, p14 titles · p2, p15 topics · p3, p16 objectives · p13, p26 "End of" pages · p24 (an exact copy of p23)
+agenda topics with no slides (skipped, named in the report): Objectives of Cryptography, Kerckhoff's Principle, Cryptanalysis; objectives "Illustrate the objectives of cryptography" untaught
+p4.1  list map group "Cryptography system": Data security techniques, Steganography, Security model, Types of Cryptography, Crypt analysis -> 3 exact
+p4.2  list map group "Symmetric-key Cryptography": Character-level encryption, Bit-level encryption, Symmetric-key algorithms -> 3 exact
+p4.3  list map group "Public-key cryptography": RSA, Hash function                                   -> 3 exact (no more taught: note on 3)
+p5.1  list data security techniques = cryptography, steganography (tree)                          -> 4 exact (root + panes)
+p5.2  def  "Cryptography means secrete writing."                                                   -> 4 exact
+p5.3  def  "It refers to the art of transforming messages to make them secure and immune to attacks." -> 4 exact
+p5.4  def  "It involves three distinct mechanisms: symmetric-key encipherment, asymmetric-key encipherment, and hashing." -> 4 exact
+p5.5  def  "Steganography means covered writing."                                                  -> 4 exact
+p5.6  def  "It refers to concealing the message itself by covering it with something else."       -> 4 exact
+p5.7  fact "It is possible to insert secrete binary information into data during digitization process." -> 4 exact ("possible")
+p6.1  def  objective: hides information either for secrecy or to protect copyright, prevent tampering or add extra information -> 5 exact
+p6.2  def  text cover: single space = bit 0, double space = bit 1 ("We can use")                   -> 5 exact
+p6.3  fact example: ASCII code of A = 01000001                                                     -> 5 exact
+p6.4  fact example sentence with single/double spaces, bits 0 1 0 0 0 0 0 1                        -> 5 faithful (strip, builds; ▽ = one space)
+p7.1  fact "Secrete data can be covered under a color image." ("can")                             -> 6 exact
+p7.2  def  "Images are made of pixels, each of 3 bytes."                                           -> 6 exact
+p7.3  def  "In LSB method, LSBs are set to 0s."                                                    -> 6 exact
+p7.4  def  "The ASCII code of the character is inserted in LSBs."                                  -> 6 exact
+p7.5  fact example: ASCII code of M = 01001101; "This can be hide in 3 pixels."                    -> 6 exact
+p7.6  fact the 9 bytes 01010011 10111100 01010101 01100101 10111100 01011110 00010101 01001010 01111110 -> 6 exact (code boxes, slide order)
+p7.7  fig  pixel grid picture (an image made of squares, no words)                                 -> 6: "Images are made of pixels" (picture not redrawn; it carries no fact beyond p7.2)
+p8.1  fig  model: principal ×2, message ×2, secret information ×2, security-related transformation ×2, channel, trusted third party (e.g., distributor of secret information), opponent; arrows TTP<->principals, TTP<->channel, channel<->opponent -> 7 figure redrawn, labels exact
+p9.1  def  "The two parties (principals) must cooperate for the exchange of the message."          -> 7 exact ("must")
+p9.2  fact "A channel is established by the two principals."                                       -> 7 exact
+p9.3  fact "It is desirable to protect the information transmission from an opponent who may present a threat." -> 7 exact ("desirable", "may")
+p9.4  fact "All the techniques for providing security have three components."                     -> 7 exact
+p10.1 list three components 1-3 with examples (review question p12)                               -> 8 exact; quiz 3, 5, 12, 16
+p11.1 list four basic security tasks 1-4                                                           -> 9 exact; quiz 11
+p12   list review question "List the three components of the Security System?"                    -> 8 exact (tag "Asked in your slides")
+p17.1 fig  arrangement: sender -> encryption algorithm (Ke) -> network -> decryption algorithm (Kd) -> receiver; plaintext, ciphertext, plaintext -> 10 exact labels, builds (the stray second "Network" label under the sender is not repeated)
+p18.1 list tree: Encryption/Decryption -> Conventional (symmetric-key) methods [Character-level encryption, Bit-level encryption]; (Asymmetric-key) Public-key methods -> 11 exact; quiz 13
+p25   list review question "Differentiate between categories of cryptography Techniques?"          -> 11 exact (tag); quiz 4, 6, 13
+p19.1 fig  symmetric-key: sender, encryption algorithm, network, decryption algorithm, receiver; "Secrete key shared by sender and recipient" to both algorithms; Plaintext Input, Transmitted Ciphertext, Plaintext Output -> 12 exact labels
+p20.1 def  Plaintext: "The original message that is fed into the algorithm as input."                -> 12 exact; quiz 7
+p20.2 def  Encryption algorithm: "It transforms the plaintext to a ciphertext."                       -> 12 exact; quiz 7
+p20.3 def  Secret key: "Transformations performed depend on that key."                               -> 12 exact
+p20.4 def  Ciphertext: "It is the scrambled message produced as output."                             -> 12 exact; quiz 7
+p20.5 def  Decryption algorithm: "It is the encryption algorithm run in reverse to produce plaintext from the ciphertext." -> 12 exact; quiz 7
+p21.1 fact only type of encryption in use till the late 1970s ("only")                               -> 13 exact
+p21.2 fact Ke and Kd are the same and should be kept secrete ("should")                              -> 13 exact; quiz 4
+p21.3 def  also referred to as conventional encryption, secret-key, or single-key encryption          -> 13 exact; quiz 6
+p21.4 def  decryption algorithm is the inverse of the encryption algorithm                            -> 13 exact
+p21.5 fact anyone who knows the encryption algorithm and key can deduce the decryption algorithm ("can") -> 13 exact; quiz 2
+p21.6 fact for m users, required keys = [m×(m-1)]/2                                                  -> 13 exact, 14 worked example; quiz 15
+p22.1 def  block of plaintext symbols of size m (m > 1) encrypted at a time, ciphertext block of the same size -> 15 exact; quiz 9
+p22.2 fact block size usually a multiple of 64 bits ("usually")                                       -> 15 exact; quiz 9
+p22.3 fact single key encrypts the whole block even if the key is made of multiple values             -> 15 exact; quiz 9
+p22.4 fig  plaintext blocks (m-bits), key (k bits) -> block cipher -> ciphertext blocks (m-bits)       -> 15 exact labels
+p23.1 def  stream: processes input elements continuously, one symbol (a character or a bit) at a time, as it goes along -> 16 exact; quiz 9
+p23.2 fact plaintext stream, cipher stream, and key stream                                             -> 16 exact
+p23.3 fact stream ciphers more immune to corruption of bits during transmission                        -> 16 exact
+p23.4 fact faster than block ciphers                                                                   -> 16 exact; quiz 9
+p23.5 fact hardware implementation is easier                                                           -> 16 exact
+p23.6 fig  plaintext stream, key stream -> stream cipher -> ciphertext stream                          -> 16 exact labels
+our framing (labelled): s9 arrows from tasks to components ("our links"); s14 four-user picture and "why it works" ("our picture", "our reading"); s11 Extra card (public-key keys differ: "Extra: not in your slides")
+background, not in the slides: glossary entries LSB, ASCII, cryptosystem, component, encryption, decryption, algorithm; gloss lines; s6 reading of the LSBs (10110010 = M's bits reversed) with a Note
+totals: 63 lines · exact 57 · faithful 6 · weakened 0 · missing 0
+-->
+<!-- SOURCES
+fidelity: the slides follow Forouzan, Cryptography and Network Security (ch. 1: steganography text and image cover; symmetric-key n(n-1)/2 keys; block and stream ciphers) and Stallings, Cryptography and Network Security (model for network security: four basic tasks; ingredients of symmetric encryption)
+image cover example (F4): one search ("steganography image cover 01001101 letter M hidden in 3 pixels LSB Forouzan") did not settle the bit order; the slide's 9 bytes carry M's bits in reverse order (checked by hand), so the deck shows the slide's bytes and adds a Note
+misconceptions: steganography taken for encryption (challenge, quiz 3, 10); symmetric-key keys thought to differ (s13 aside, quiz 4)
+-->
+<!-- QUIZ-MAP
+1  Choose one        · LSBs are set to 0s first            · p7  · Techniques and model
+2  Choose one        · deduce the decryption algorithm      · p21 · Symmetric-key
+3  True or false     · true: TTP distributes secret information to the principals · p10 · Techniques and model
+4  True or false     · false: Ke and Kd are the same        · p21 · Symmetric-key
+5  Fill the gap      · unknown (component 2)                · p10 · Techniques and model
+6  Fill the gap      · single(-key)                         · p21 · Symmetric-key
+7  Match             · ingredients ×4                       · p20 · Symmetric-key
+8  Match             · crypto/stego/text cover/image cover  · p5-7 · Techniques and model
+9  Sort              · block vs stream ×6                   · p22-23 · Symmetric-key
+10 Sort              · cryptography vs steganography ×6     · p5-7 · Techniques and model
+11 Put in order      · four basic security tasks            · p11 · Techniques and model
+12 Find the mistake  · identity of the sender (not receiver)· p10 · Techniques and model
+13 Find the mistake  · leaves under conventional, not public-key · p18 · Symmetric-key
+14 Work it out       · 2 double spaces for 01000010         · p6  · Techniques and model
+15 Work it out       · 15 keys for 6 users                  · p21 · Symmetric-key
+16 Label the figure  · TTP, channel, opponent, transformation (slides' model figure) · p8 · Techniques and model
+quiz slides 20-30
+-->
+<!-- INDEPENDENT-CHECK
+checker: a separate agent given only the PDF text layer, the deck text dump and one-line figure descriptions (slides-rulebook Appendix C brief)
+pass 1: 69 facts · weakened 0 · missing 0 · contradicted 0 · misquote 2 (label hyphen, capitals) · not-exact 3 · unlabelled claims 6 · questionable glosses 3 · quiz 6
+pass 2: 17 fixed · 1 open (component 3 not drilled) · 1 closed by rule (stems give the rule/number, questions-rulebook QG1) · new 2 (quiz label spelling, byte order wording)
+pass 3: all fixed · new 1 (coverage: steganography's objective no longer drilled after a quiz swap)
+pass 4: fixed · stands: p5.7 ("possible to insert secrete binary information ... digitization") is taught (slide 4, exact) but has no quiz item; not every fact needs an item (questions-rulebook QG4: every topic has items)
+verdict: no missing, weakened, contradicted or misquoted content; review questions answerable from the deck in the lecture's words
+-->
+
+
+
+
+
+</div>
+
+<div class="nav">
+  <button id="prev">‹ Prev</button>
+  <div class="dots" id="dots" aria-hidden="true"></div>
+  <div class="secbar" id="secbar" role="navigation" aria-label="Topics"></div>
+  <button id="next">Next ›</button>
+</div>
+<div class="secname" id="secname" aria-hidden="true"></div>
+<div class="progress"><div class="fill" id="fill"></div></div>
+
+<script>
+  /* ---- deck engine v2 — do not edit (builds · data-capture guard · slideenter/build events) ---- */
+  const slides=[...document.querySelectorAll('.slide')];
+  const total=slides.length;
+  let idx=0;
+  const cur=document.getElementById('cur'), fill=document.getElementById('fill');
+  const prevBtn=document.getElementById('prev'), nextBtn=document.getElementById('next'), dotsWrap=document.getElementById('dots');
+  document.getElementById('total').textContent=total;
+
+  slides.forEach((_,k)=>{ const d=document.createElement('i'); d.addEventListener('click',()=>go(k)); dotsWrap.appendChild(d); });
+  const dots=[...dotsWrap.children];
+
+  // builds: [data-build="0..n"] appear one press at a time before the page turns;
+  // data-builds="n" on a slide declares steps for widgets that follow builds (components.md §25)
+  const buildMax=slides.map(s=>Math.max(+s.dataset.builds||0,...[...s.querySelectorAll('[data-build]')].map(e=>+e.dataset.build||0)));
+  const buildStep=slides.map(()=>0);
+  function paintBuilds(k,quiet){
+    const s=slides[k], n=buildStep[k];
+    s.querySelectorAll('[data-build]').forEach(e=>{ const b=+e.dataset.build||0; e.classList.toggle('built',b<=n); e.classList.toggle('now',b===n); });
+    s.dataset.step=n;
+    if(!quiet) s.dispatchEvent(new CustomEvent('build',{detail:{step:n,of:buildMax[k]}}));
+  }
+  slides.forEach((_,k)=>paintBuilds(k,true));
+
+  function update(){
+    slides.forEach((s,k)=>s.classList.toggle('active',k===idx));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+    cur.textContent=idx+1;
+    fill.style.width=((idx+1)/total*100)+'%';
+    prevBtn.disabled=idx===0&&buildStep[idx]===0;
+    nextBtn.disabled=idx===total-1&&buildStep[idx]>=buildMax[idx];
+  }
+  // enter slide n at step 0, or fully built when stepping back into it
+  function go(n,built){
+    const from=idx; idx=Math.max(0,Math.min(total-1,n));
+    if(idx===from&&!built){ update(); return; }
+    buildStep[idx]=built?buildMax[idx]:0; paintBuilds(idx);
+    update(); slides[idx].scrollTop=0;
+    if(idx!==from) slides[idx].dispatchEvent(new CustomEvent('slideenter',{detail:{from}}));
+  }
+  function next(){ if(buildStep[idx]<buildMax[idx]){ buildStep[idx]++; paintBuilds(idx); update(); } else if(idx<total-1) go(idx+1); }
+  function prev(){ if(buildStep[idx]>0){ buildStep[idx]--; paintBuilds(idx); update(); } else if(idx>0) go(idx-1,true); }
+  nextBtn.addEventListener('click',next); prevBtn.addEventListener('click',prev);
+
+  // direction-aware keys: in RTL, ArrowLeft moves forward
+  const rtl=(document.documentElement.getAttribute('dir')||'ltr').toLowerCase()==='rtl';
+  const FWD=rtl?['ArrowLeft','ArrowDown',' ','PageDown']:['ArrowRight','ArrowDown',' ','PageDown'];
+  const BACK=rtl?['ArrowRight','ArrowUp','PageUp']:['ArrowLeft','ArrowUp','PageUp'];
+  // never hijack keys or swipes while the user is typing in an editable field,
+  // or working a widget marked data-capture (scrubbers, draggable figures)
+  const typing=e=>{const t=e.target;return !!t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.tagName==='SELECT'||t.isContentEditable||!!(t.closest&&t.closest('[data-capture]')));};
+  document.addEventListener('keydown',e=>{
+    if(typing(e)) return;
+    if(FWD.includes(e.key)){ e.preventDefault(); next(); }
+    else if(BACK.includes(e.key)){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ go(0); } else if(e.key==='End'){ go(total-1); }
+  });
+
+  // direction-aware swipe
+  let sx=null;
+  document.addEventListener('touchstart',e=>{ if(typing(e)){ sx=null; return; } sx=e.changedTouches[0].clientX; },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(sx===null) return;
+    const dx=e.changedTouches[0].clientX-sx;
+    const goFwd = rtl ? dx>50 : dx<-50;
+    const goBack = rtl ? dx<-50 : dx>50;
+    if(goFwd) next(); else if(goBack) prev();
+    sx=null;
+  },{passive:true});
+
+  update();
+  setTimeout(()=>slides[idx].dispatchEvent(new CustomEvent('slideenter',{detail:{from:-1}})),0);
+
+  /* ===================== component code (after the engine) ===================== */
+  /* 23 · linked figure */
+  (function(){
+    const hoverDev=matchMedia('(hover: hover)').matches;
+    document.querySelectorAll('[data-linkbox]').forEach(box=>{
+      box.querySelectorAll('[data-link]').forEach(el=>{
+        const k=el.dataset.link;
+        el.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')box.dataset.hot=k;});
+        el.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&box.dataset.hot===k)delete box.dataset.hot;});
+        el.addEventListener('focus',()=>{box.dataset.hot=k;});
+        el.addEventListener('blur',()=>{if(box.dataset.hot===k)delete box.dataset.hot;});
+        el.addEventListener('click',e=>{if(hoverDev&&e.pointerType!=='touch')return;
+          if(box.dataset.hot===k)delete box.dataset.hot;else box.dataset.hot=k;});
+      });
+    });
+  })();
+
+/* 28 · ink marks — native rough-notation idea; needs the #wob filter */
+(function(){
+  const NS='http://www.w3.org/2000/svg', COL={a:'var(--k-a)',b:'var(--k-b)',c:'var(--k-c)',soft:'var(--k-soft)'};
+  const rnd=seed=>{let s=seed;return()=>(s=s*16807%2147483647)/2147483647;};
+  function shapes(type,r,R,rtl){
+    const j=a=>(R()-.5)*2*a, f=v=>v.toFixed(1), P=[];
+    if(type==='underline'){const y=r.y+r.h-1;for(let k=0;k<2;k++)P.push(`M${f(r.x-3+j(2))} ${f(y+j(1.5))} Q${f(r.x+r.w*.5+j(6))} ${f(y+2.5+j(2))} ${f(r.x+r.w+4+j(2))} ${f(y+j(1.5))}`);}
+    else if(type==='strike'){const y=r.y+r.h*.56;for(let k=0;k<2;k++)P.push(`M${f(r.x-4+j(2))} ${f(y+j(2))} Q${f(r.x+r.w*.5+j(6))} ${f(y-2+j(2))} ${f(r.x+r.w+2+j(1.5))} ${f(y+j(2))}`);}
+    else if(type==='box'){const x0=r.x-6,y0=r.y-2,x1=r.x+r.w+6,y1=r.y+r.h+2;for(let k=0;k<2;k++)P.push(`M${f(x0+j(2))} ${f(y0+j(2))} L${f(x1+j(2))} ${f(y0+j(2))} L${f(x1+j(2))} ${f(y1+j(2))} L${f(x0+j(2))} ${f(y1+j(2))} L${f(x0+j(1.5))} ${f(y0-1+j(1.5))} L${f(x0+10)} ${f(y0+j(1.5))}`);}
+    else if(type==='circle'){const cx=r.x+r.w/2,cy=r.y+r.h/2,rx=r.w/2+9,ry=r.h/2+7;
+      for(let k=0;k<2;k++){const a0=-2.4+j(.4),N=36,s=1+k*.05;let d='';
+        for(let i=0;i<=N;i++){const t=a0+i/N*Math.PI*2*1.08,w=1+.035*Math.sin(t*2+k)+j(.015);d+=(i?'L':'M')+f(cx+Math.cos(t)*rx*w*s)+' '+f(cy+Math.sin(t)*ry*w*s);}
+        P.push(d);}}
+    else if(type==='highlight'){const y=r.y+r.h*.55;P.push(`M${f(r.x-3)} ${f(y+j(1))} L${f(r.x+r.w+3)} ${f(y+j(1))}`);}
+    else if(type==='bracket'){const s=rtl?-1:1,x=rtl?r.x+r.w+20:r.x-20,y0=r.y+6,y1=r.y+r.h-6;
+      for(let k=0;k<2;k++)P.push(`M${f(x+9*s+j(1.5))} ${f(y0+j(1.5))} Q${f(x+j(1))} ${f(y0+j(1))} ${f(x+j(1.5))} ${f(y0+14)} L${f(x+j(1.5))} ${f(y1-14)} Q${f(x+j(1))} ${f(y1+j(1))} ${f(x+9*s+j(1.5))} ${f(y1+j(1.5))}`);}
+    return P;
+  }
+  document.querySelectorAll('[data-inkbox]').forEach((box,bi)=>{
+    const mk=c=>{const s=document.createElementNS(NS,'svg');s.setAttribute('class','ink-layer '+c);s.setAttribute('aria-hidden','true');return s;};
+    const under=mk('under'), over=mk('over'); box.prepend(under); box.append(over);
+    const slide=box.closest('.slide'), mode=box.dataset.inkbox||'enter';
+    let shown=0, upTo=0, timer=null;
+    const rectOf=el=>{let x=0,y=0,n=el;while(n&&n!==box){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent;}return{x,y,w:el.offsetWidth,h:el.offsetHeight};};
+    function paint(limit,animate){
+      upTo=limit; const rtl=getComputedStyle(box).direction==='rtl';
+      [under,over].forEach(s=>{s.setAttribute('viewBox',`0 0 ${box.clientWidth} ${box.clientHeight}`);s.replaceChildren();});
+      const marks=[...box.querySelectorAll('[data-ink]')].filter(m=>+m.dataset.o<=limit).sort((a,b)=>a.dataset.o-b.dataset.o);
+      const R=rnd(4242+bi), fresh=[]; let t=0, last=-1;
+      marks.forEach(m=>{
+        const o=+m.dataset.o, isNew=animate&&o>shown, type=m.dataset.ink, r=rectOf(m);
+        if(isNew&&last>=0&&o!==last) t+=.7;
+        shapes(type,r,R,rtl).forEach((d,k)=>{
+          const p=document.createElementNS(NS,'path'); p.setAttribute('d',d); p.setAttribute('pathLength','1');
+          if(type==='highlight'){p.style.stroke='var(--k-hi)';p.style.strokeWidth=(r.h*.8).toFixed(1);p.style.strokeLinecap='butt';}
+          else{p.style.stroke=COL[m.dataset.c||'soft'];p.style.strokeWidth=type==='bracket'?'2':'2.3';p.setAttribute('filter','url(#wob)');}
+          if(isNew){p.style.setProperty('--d',(t+k*.3).toFixed(2)+'s');fresh.push(p);} else {p.style.transition='none';p.classList.add('go');}
+          (type==='highlight'?under:over).appendChild(p);
+        });
+        if(isNew) last=o;
+      });
+      shown=marks.length?Math.max(...marks.map(m=>+m.dataset.o)):0;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>fresh.forEach(p=>p.classList.add('go'))));
+    }
+    if(mode==='build') slide.addEventListener('build',e=>paint(e.detail.step,slide.classList.contains('active')));
+    else slide.addEventListener('slideenter',()=>{clearTimeout(timer);shown=0;paint(0,false);timer=setTimeout(()=>paint(Infinity,true),700);});
+    let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>paint(upTo,false),200);});
+    if(document.fonts) document.fonts.ready.then(()=>paint(upTo,false));
+  });
+})();
+
+/* 29 · eraser — beats by button, or by build step (data-follow="build") */
+document.querySelectorAll('[data-eraser]').forEach(er=>{
+  const slide=er.closest('.slide'), follow=er.dataset.follow==='build',
+        max=Math.max(...[...er.querySelectorAll('[data-beat]')].map(e=>+e.dataset.beat)),
+        nx=er.querySelector('[data-er-next]'), ag=er.querySelector('[data-er-again]');
+  let beat=0, t=null;
+  function set(b){
+    beat=Math.max(0,Math.min(max,b));
+    er.querySelectorAll('[data-beat]').forEach(e=>e.classList.toggle('on',+e.dataset.beat<=beat));
+    er.querySelectorAll('[data-erase]').forEach(e=>e.classList.toggle('erased',+e.dataset.erase<=beat));
+    if(nx) nx.disabled=beat>=max;
+  }
+  function replay(delay){
+    clearTimeout(t); er.classList.add('noanim'); set(0); void er.offsetWidth;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{er.classList.remove('noanim');t=setTimeout(()=>set(1),delay);}));
+  }
+  if(follow) slide.addEventListener('build',e=>set(e.detail.step));
+  else{
+    if(nx) nx.addEventListener('click',()=>set(beat+1));
+    if(ag) ag.addEventListener('click',()=>replay(300));
+    slide.addEventListener('slideenter',()=>replay(600));
+  }
+  set(0);
+});
+
+/* 31 · live element — boils only while its slide is showing */
+document.querySelectorAll('.live').forEach(g=>{
+  const slide=g.closest('.slide'), fps=+g.dataset.fps||4; let k=0;
+  g.setAttribute('filter','url(#boil0)');
+  setInterval(()=>{if(!slide.classList.contains('active'))return;k=(k+1)%3;g.setAttribute('filter','url(#boil'+k+')');},1000/fps);
+});
+
+/* topic bar — replaces the dots: one rounded block per topic, width = its slide count;
+   only the current topic is marked (no progress inside a topic). Click a block to jump to its first slide. */
+(function(){
+  const bar=document.getElementById('secbar'), nameEl=document.getElementById('secname'); if(!bar) return;
+  const secs=[];
+  slides.forEach((s,k)=>{ if(s.dataset.sec||!secs.length) secs.push({name:s.dataset.sec||'',from:k,to:k}); else secs[secs.length-1].to=k; });
+  secs.forEach(sec=>{
+    const b=document.createElement('button'); b.className='sec'; b.style.setProperty('--n',sec.to-sec.from+1);
+    const t=document.createElement('span'); t.textContent=sec.name; b.appendChild(t);
+    b.setAttribute('aria-label',sec.name); b.addEventListener('click',()=>go(sec.from));
+    bar.appendChild(b); sec.el=b;
+  });
+  function mark(){
+    secs.forEach(sec=>{
+      const on=idx>=sec.from&&idx<=sec.to;
+      sec.el.classList.toggle('now',on); sec.el.classList.toggle('done',idx>sec.to);
+      if(on){ sec.el.setAttribute('aria-current','step'); if(nameEl) nameEl.textContent=sec.name; } else sec.el.removeAttribute('aria-current');
+    });
+  }
+  slides.forEach(s=>s.addEventListener('slideenter',mark)); mark();
+})();
+
+/* deck glossary (rulebook T5b) — the first use of each glossary term on every other slide
+   becomes an anchored gloss (components §24). The definitions live once, on the glossary slide. */
+(function(){
+  const dl=document.getElementById('glossary'); if(!dl) return;
+  const esc=s=>s.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&');
+  const terms=[...dl.querySelectorAll('dt')].map(dt=>{
+    const name=dt.textContent.trim(), dd=dt.nextElementSibling;
+    const forms=[name,...(dt.dataset.forms||'').split(',').map(x=>x.trim()).filter(Boolean)];
+    const caps=/^[A-Z0-9\/]+$/.test(name);                       // acronyms match case-sensitively
+    return {name, def:dd?dd.textContent.trim():'', re:new RegExp('(?<![\\w/])('+forms.map(esc).join('|')+')(?![\\w/])', caps?'':'i')};
+  });
+  const SKIP='dfn,h1,h2,h3,.lf,button,.gl-w,.formal,.fbox .k,.lk-t,.er,.mb-mem,textarea,svg,template,code,pre,kbd,.tag,.badge,.hint,.verdict';
+  let n=0;
+  document.querySelectorAll('section.slide').forEach(sl=>{
+    if(sl.contains(dl)||sl.querySelector('.fq')) return;   // no glossary cards inside a quiz (questions-rulebook.md §6): they could give answers away
+    const defined=new Set([...sl.querySelectorAll('dfn')].map(d=>d.textContent.trim().toLowerCase()));
+    terms.forEach(t=>{
+      if(defined.has(t.name.toLowerCase())) return;               // the defining slide keeps its visible definition
+      const w=document.createTreeWalker(sl,NodeFilter.SHOW_TEXT,{acceptNode:x=>x.parentElement.closest(SKIP)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+      for(let node=w.nextNode();node;node=w.nextNode()){
+        const m=t.re.exec(node.nodeValue); if(!m) continue;
+        const r=document.createRange(); r.setStart(node,m.index); r.setEnd(node,m.index+m[0].length);
+        const id='--gx'+(++n), g=document.createElement('span'); g.className='gl-w';
+        g.innerHTML=`<span class="gl-t" tabindex="0" style="anchor-name:${id}"></span><span class="gl-card" role="tooltip" style="position-anchor:${id}"><b></b></span>`;
+        g.firstChild.textContent=m[0]; g.querySelector('b').textContent=t.name; g.lastChild.append(t.def);
+        r.deleteContents(); r.insertNode(g); break;
+      }
+    });
+  });
+})();
+
+/* B4 · phone layer — wide boxes scroll sideways without turning the page; a build that lands
+   below the fold scrolls into view (phones only) */
+document.querySelectorAll('pre,.code,.tbl-wrap').forEach(e=>{ if(e.scrollWidth>e.clientWidth+2||matchMedia('(max-width:880px)').matches) e.setAttribute('data-capture',''); });
+slides.forEach(s=>s.addEventListener('build',()=>{
+  if(!s.classList.contains('active')||!matchMedia('(max-width:880px)').matches) return;
+  const now=[...s.querySelectorAll('[data-build].now')].filter(e=>e.getBoundingClientRect().height>0).pop(); if(!now) return;
+  const r=now.getBoundingClientRect(), nav=document.querySelector('.nav'), lim=nav?nav.getBoundingClientRect().top-8:innerHeight;
+  if(r.bottom>lim||r.top<0) s.scrollBy({top:r.bottom>lim?Math.min(r.bottom-lim,r.top-60):r.top-60,behavior:'smooth'});
+}));
+
+/* 26 · magic board (added in deck 03) — follows the slide's builds when data-follow="build" */
+document.querySelectorAll('[data-mb]').forEach((w,wi)=>{
+  const board=w.querySelector('.mb'), st=w.querySelector('.mb-st'),
+        states=[...w.querySelectorAll('template')], slide=w.closest('.slide');
+  let s=-1;
+  function paint(){
+    const frag=states[s].content.cloneNode(true);
+    frag.querySelectorAll('[data-id]').forEach(e=>{e.classList.add('tk');e.style.viewTransitionName='mb'+wi+'-'+e.dataset.id;});
+    board.replaceChildren(frag);
+    if(st) st.textContent=states[s].dataset.st||'';
+  }
+  function to(n){
+    n=Math.max(0,Math.min(states.length-1,n)); if(n===s) return; s=n;
+    if(document.startViewTransition&&slide.classList.contains('active')) document.startViewTransition(paint); else paint();
+  }
+  if(w.dataset.follow==='build') slide.addEventListener('build',e=>to(e.detail.step));
+  to(0);
+});
+
+/* ===== FINAL QUIZ — 9 question kinds, one check per question, score on the last slide ===== */
+(function(){
+  const qs=[...document.querySelectorAll('.fq')]; if(!qs.length) return;
+  const state=qs.map(()=>null);                      // null = not answered · true · false
+  const resets=[];
+  const num=t=>t.replace(/[\s,]/g,'');
+  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+  const TICK='<svg viewBox="0 0 30 30"><path class="scrib" pathLength="1" d="M4 6 L26 24 M26 6 L4 24" stroke="var(--red)" stroke-width="2.6" fill="none" stroke-linecap="round"/><path class="tick" pathLength="1" d="M5 16 L12 24 L27 4" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#wob)"/></svg>';
+
+  qs.forEach((q,i)=>{
+    const v=q.querySelector('.verdict'), type=q.dataset.type, chk=q.querySelector('.fq-check');
+    const finish=(ok,extra)=>{
+      state[i]=ok; q.classList.add('locked');
+      v.textContent=(ok?'Yes. ':'Not quite. ')+(extra?extra+' ':'')+q.dataset.why; v.classList.add('show');
+      q.querySelectorAll('input,select,.fq-grp button,.fq-check,.fq-clear').forEach(e=>e.disabled=true);
+    };
+    const unlock=()=>{
+      state[i]=null; q.classList.remove('locked'); v.textContent=''; v.classList.remove('show');
+      q.querySelectorAll('input,select,.fq-grp button,.fq-check,.fq-clear').forEach(e=>e.disabled=false);
+      q.querySelectorAll('.ok,.no,.ans,.picked,.correct,.wrong').forEach(e=>e.classList.remove('ok','no','ans','picked','correct','wrong'));
+      q.querySelectorAll('.fix').forEach(e=>e.remove());
+    };
+
+    if(type==='mcq'){
+      q.querySelectorAll('.opt .box').forEach(b=>b.innerHTML=TICK);
+      q.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+        if(state[i]!==null) return;
+        const ok=b.dataset.ok==='1'; b.classList.add(ok?'correct':'wrong');
+        if(!ok) q.querySelector('.opt[data-ok="1"]').classList.add('correct');
+        finish(ok);
+      }));
+      resets[i]=unlock;
+    }
+
+    if(type==='gap'){
+      /* word bank: drag a word into the gap, or tap it; tap a filled gap to send its word back */
+      const drop=q.querySelector('.drop'), bank=q.querySelector('.bank'), chips=[...bank.querySelectorAll('.chip')];
+      const order=chips.slice();
+      const place=c=>{ if(state[i]!==null) return; const old=drop.querySelector('.chip'); if(old===c) return;
+        if(old) bank.appendChild(old); drop.appendChild(c); drop.classList.add('full');
+        order.forEach(x=>{ if(x.parentNode===bank) bank.appendChild(x); }); };
+      const back=()=>{ if(state[i]!==null) return; const c=drop.querySelector('.chip'); if(!c) return;
+        bank.appendChild(c); drop.classList.remove('full'); order.forEach(x=>{ if(x.parentNode===bank) bank.appendChild(x); }); };
+      chips.forEach(c=>{
+        let sx=0, sy=0, ghost=null, moved=false;
+        c.addEventListener('pointerdown',e=>{ if(state[i]!==null||e.button>0) return;
+          sx=e.clientX; sy=e.clientY; moved=false; c.setPointerCapture(e.pointerId); });
+        c.addEventListener('pointermove',e=>{ if(!c.hasPointerCapture(e.pointerId)) return;
+          if(!moved&&Math.hypot(e.clientX-sx,e.clientY-sy)<6) return;
+          if(!moved){ moved=true; const r=c.getBoundingClientRect(); ghost=c.cloneNode(true); ghost.classList.add('ghost');
+            ghost.style.width=r.width+'px'; document.body.appendChild(ghost); c.classList.add('lifted'); }
+          ghost.style.left=(e.clientX-ghost.offsetWidth/2)+'px'; ghost.style.top=(e.clientY-ghost.offsetHeight/2)+'px';
+          const over=document.elementFromPoint(e.clientX,e.clientY); drop.classList.toggle('over',!!over&&drop.contains(over)); });
+        const end=e=>{ if(!c.hasPointerCapture(e.pointerId)) return; c.releasePointerCapture(e.pointerId);
+          if(!moved) return;
+          const over=document.elementFromPoint(e.clientX,e.clientY);
+          ghost.remove(); ghost=null; c.classList.remove('lifted'); drop.classList.remove('over');
+          if(over&&drop.contains(over)) place(c); else if(c.parentNode===drop) back();
+          c.dataset.dragged='1'; setTimeout(()=>delete c.dataset.dragged,0); };
+        c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end);
+        c.addEventListener('click',e=>{ e.stopPropagation(); if(c.dataset.dragged) return;
+          if(c.parentNode===drop) back(); else place(c); });
+      });
+      drop.addEventListener('click',back);
+      drop.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); back(); } });
+      chk.addEventListener('click',()=>{ if(state[i]!==null) return;
+        const c=drop.querySelector('.chip');
+        if(!c){ v.textContent='Drag a word into the gap first.'; v.classList.add('show'); return; }
+        const ok=c.textContent.trim()===q.dataset.answer; drop.classList.add(ok?'ok':'no');
+        if(!ok) chips.find(x=>x.textContent.trim()===q.dataset.answer).classList.add('ans');
+        q.querySelectorAll('.chip').forEach(x=>x.disabled=true);
+        finish(ok, ok?'':'Answer: '+q.dataset.answer+'.'); });
+      resets[i]=()=>{ unlock(); q.querySelectorAll('.chip').forEach(x=>x.disabled=false);
+        const c=drop.querySelector('.chip'); if(c) bank.appendChild(c); drop.classList.remove('full');
+        order.forEach(x=>bank.appendChild(x)); };
+    }
+
+    if(type==='num'){
+      const inp=q.querySelector('input.gap');
+      const run=()=>{ if(state[i]!==null||!inp.value.trim()) return;
+        const ok=num(inp.value)===q.dataset.answer; inp.classList.add(ok?'ok':'no'); finish(ok); };
+      chk.addEventListener('click',run);
+      inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); run(); } });
+      resets[i]=()=>{ unlock(); inp.value=''; };
+    }
+
+    if(type==='match'){
+      const choices=[...q.querySelectorAll('.fq-choices li')].map(li=>({k:li.dataset.key,t:li.textContent}));
+      const rows=[...q.querySelectorAll('.fq-row')];
+      const fill=()=>{ const order=shuffle(choices.slice());
+        rows.forEach(r=>{ const s=r.querySelector('select');
+          s.innerHTML='<option value="">Choose…</option>'+order.map(c=>`<option value="${c.k}">${c.t}</option>`).join('');
+          s.setAttribute('aria-label','meaning of '+r.querySelector('.fq-term').textContent); }); };
+      fill();
+      chk.addEventListener('click',()=>{ if(state[i]!==null) return;
+        if(rows.some(r=>!r.querySelector('select').value)){ v.textContent='Choose a meaning for every term first.'; v.classList.add('show'); return; }
+        let good=0;
+        rows.forEach(r=>{ const ok=r.querySelector('select').value===r.dataset.key; r.classList.add(ok?'ok':'no'); if(ok) good++;
+          else{ const f=document.createElement('span'); f.className='fix'; f.textContent='→ '+choices.find(c=>c.k===r.dataset.key).t; r.appendChild(f);} });
+        finish(good===rows.length, good===rows.length?'':good+' of '+rows.length+' right.'); });
+      resets[i]=()=>{ unlock(); fill(); };
+    }
+
+    if(type==='sort'){
+      const groups=q.dataset.groups.split('|'), rows=[...q.querySelectorAll('.fq-row')];
+      rows.forEach(r=>{ const g=document.createElement('div'); g.className='fq-grp';
+        groups.forEach(name=>{ const b=document.createElement('button'); b.type='button'; b.textContent=name; b.dataset.g=name;
+          b.addEventListener('click',()=>{ if(state[i]!==null) return; g.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); });
+          g.appendChild(b); });
+        r.appendChild(g); });
+      chk.addEventListener('click',()=>{ if(state[i]!==null) return;
+        if(rows.some(r=>!r.querySelector('.fq-grp .on'))){ v.textContent='Put every item in a group first.'; v.classList.add('show'); return; }
+        let good=0;
+        rows.forEach(r=>{ const ok=r.querySelector('.fq-grp .on').dataset.g===r.dataset.g; r.classList.add(ok?'ok':'no'); if(ok) good++;
+          else{ const f=document.createElement('span'); f.className='fix'; f.textContent='→ '+r.dataset.g; r.appendChild(f);} });
+        finish(good===rows.length, good===rows.length?'':good+' of '+rows.length+' right.'); });
+      resets[i]=()=>{ unlock(); q.querySelectorAll('.fq-grp .on').forEach(b=>b.classList.remove('on')); };
+    }
+
+    if(type==='order'){
+      const items=[...q.querySelectorAll('.fq-it')], picked=[];
+      const paint=()=>items.forEach(it=>{ const p=picked.indexOf(it); it.querySelector('.fq-num').textContent=p<0?'':p+1; it.classList.toggle('picked',p>=0); });
+      items.forEach(it=>it.addEventListener('click',()=>{ if(state[i]!==null) return;
+        const p=picked.indexOf(it); if(p>=0) picked.splice(p,1); else picked.push(it); paint(); }));
+      q.querySelector('.fq-clear').addEventListener('click',()=>{ if(state[i]!==null) return; picked.length=0; paint(); });
+      chk.addEventListener('click',()=>{ if(state[i]!==null) return;
+        if(picked.length<items.length){ v.textContent='Tap every step first ('+picked.length+' of '+items.length+').'; v.classList.add('show'); return; }
+        let good=0;
+        picked.forEach((it,k)=>{ const ok=+it.dataset.n===k+1; it.classList.add(ok?'ok':'no'); if(ok) good++;
+          else{ const f=document.createElement('span'); f.className='fix'; f.textContent='should be '+it.dataset.n; it.appendChild(f);} });
+        finish(good===items.length, good===items.length?'':good+' of '+items.length+' in place.'); });
+      resets[i]=()=>{ unlock(); picked.length=0; paint(); };
+    }
+
+    if(type==='spot'){
+      q.querySelectorAll('.fq-ch').forEach(c=>c.addEventListener('click',()=>{ if(state[i]!==null) return;
+        const ok=c.dataset.ok==='1'; c.classList.add(ok?'ok':'no');
+        if(!ok) q.querySelector('.fq-ch[data-ok="1"]').classList.add('ans');
+        finish(ok); }));
+      resets[i]=unlock;
+    }
+
+    if(type==='label'){
+      /* label the figure (new kind, deck 2): one drop per numbered slot. Drag a label onto a slot, or tap a slot and then a label
+         (a tapped label fills the chosen slot, else the first empty one); tap a filled slot to send its label back. */
+      const drops=[...q.querySelectorAll('.drop')], bank=q.querySelector('.bank'), chips=[...bank.querySelectorAll('.chip')];
+      const order=chips.slice(); let sel=null;
+      const tidy=()=>order.forEach(x=>{ if(x.parentNode===bank) bank.appendChild(x); });
+      const mark=d=>{ sel=d; drops.forEach(x=>x.classList.toggle('sel',x===d)); };
+      const back=d=>{ if(state[i]!==null) return; const c=d.querySelector('.chip'); if(!c) return;
+        bank.appendChild(c); d.classList.remove('full'); tidy(); };
+      const put=(c,d)=>{ if(state[i]!==null) return; const old=d.querySelector('.chip'); if(old===c) return;
+        const from=c.parentNode.classList.contains('drop')?c.parentNode:null;
+        if(old) bank.appendChild(old);
+        d.appendChild(c); d.classList.add('full'); if(from) from.classList.remove('full'); tidy();
+        mark(drops.find(x=>!x.querySelector('.chip'))||null); };
+      const target=()=>(sel&&!sel.querySelector('.chip'))?sel:(drops.find(x=>!x.querySelector('.chip'))||sel);
+      chips.forEach(c=>{
+        let sx=0, sy=0, ghost=null, moved=false, hot=null;
+        c.addEventListener('pointerdown',e=>{ if(state[i]!==null||e.button>0) return;
+          sx=e.clientX; sy=e.clientY; moved=false; c.setPointerCapture(e.pointerId); });
+        c.addEventListener('pointermove',e=>{ if(!c.hasPointerCapture(e.pointerId)) return;
+          if(!moved&&Math.hypot(e.clientX-sx,e.clientY-sy)<6) return;
+          if(!moved){ moved=true; const r=c.getBoundingClientRect(); ghost=c.cloneNode(true); ghost.classList.add('ghost');
+            ghost.style.width=r.width+'px'; document.body.appendChild(ghost); c.classList.add('lifted'); }
+          ghost.style.left=(e.clientX-ghost.offsetWidth/2)+'px'; ghost.style.top=(e.clientY-ghost.offsetHeight/2)+'px';
+          const over=document.elementFromPoint(e.clientX,e.clientY); hot=over&&drops.find(d=>d.contains(over))||null;
+          drops.forEach(d=>d.classList.toggle('over',d===hot)); });
+        const end=e=>{ if(!c.hasPointerCapture(e.pointerId)) return; c.releasePointerCapture(e.pointerId);
+          if(!moved) return;
+          const over=document.elementFromPoint(e.clientX,e.clientY), d=over&&drops.find(x=>x.contains(over));
+          ghost.remove(); ghost=null; c.classList.remove('lifted'); drops.forEach(x=>x.classList.remove('over'));
+          if(d) put(c,d); else if(c.parentNode.classList.contains('drop')) back(c.parentNode);
+          c.dataset.dragged='1'; setTimeout(()=>delete c.dataset.dragged,0); };
+        c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end);
+        c.addEventListener('click',e=>{ e.stopPropagation(); if(c.dataset.dragged||state[i]!==null) return;
+          if(c.parentNode.classList.contains('drop')){ const d=c.parentNode; back(d); mark(d); }
+          else{ const t=target(); if(t) put(c,t); } });
+      });
+      drops.forEach(d=>{
+        const tap=()=>{ if(state[i]!==null) return; if(d.querySelector('.chip')) back(d); mark(d); };
+        d.addEventListener('click',tap);
+        d.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); tap(); } });
+      });
+      chk.addEventListener('click',()=>{ if(state[i]!==null) return;
+        const open=drops.filter(d=>!d.querySelector('.chip')).length;
+        if(open){ v.textContent='Put a label on every number first ('+(drops.length-open)+' of '+drops.length+').'; v.classList.add('show'); return; }
+        let good=0;
+        drops.forEach(d=>{ const ok=d.querySelector('.chip').textContent.trim()===d.dataset.answer; d.classList.add(ok?'ok':'no'); if(ok) good++;
+          else{ const f=document.createElement('span'); f.className='fix'; f.textContent='→ '+d.dataset.answer; d.parentNode.appendChild(f);} });
+        mark(null); chips.forEach(x=>x.disabled=true);
+        finish(good===drops.length, good===drops.length?'':good+' of '+drops.length+' right.'); });
+      resets[i]=()=>{ unlock(); chips.forEach(x=>x.disabled=false);
+        drops.forEach(d=>{ const c=d.querySelector('.chip'); if(c) bank.appendChild(c); d.classList.remove('full','over'); });
+        order.forEach(x=>bank.appendChild(x)); mark(null); };
+    }
+  });
+
+  /* score slide */
+  const sc=document.getElementById('fq-score'); if(!sc) return;
+  const of=document.getElementById('fq-of'); if(of) of.textContent=qs.length;
+  const tot=document.getElementById('fq-total'), msg=document.getElementById('fq-msg'),
+        grid=document.getElementById('fq-grid'), rev=document.getElementById('fq-review');
+  const topicStart=name=>slides.findIndex(s=>s.dataset.sec===name);
+  function score(){
+    const right=state.filter(x=>x===true).length, open=state.filter(x=>x===null).length;
+    tot.textContent=right;
+    msg.textContent= open===qs.length ? 'Answer the questions, then come back here.'
+      : open ? `${open} question${open>1?'s':''} still open. The score counts answered questions only.`
+      : right>=Math.ceil(.85*qs.length) ? 'Excellent. You own this chapter.'
+      : right>=Math.ceil(.6*qs.length) ? 'Good work. Revisit the topics below, then try again.'
+      : 'A second pass will help. Start with the topics below.';
+    const kinds=[...new Set(qs.map(q=>q.dataset.kind||'Questions'))];      // grid: one cell per kind, in order of appearance
+    grid.innerHTML=kinds.map((k,n)=>{
+      const m=qs.map((q,j)=>[q,j]).filter(([q])=>(q.dataset.kind||'Questions')===k)
+        .map(([,j])=>state[j]===true?'<span class="m-ok">✓</span>':state[j]===false?'<span class="m-no">✗</span>':'<span class="m-skip">·</span>').join(' ');
+      return `<div class="fq-cell"><b>${n+1} · ${k}</b><span class="marks">${m}</span></div>`; }).join('');
+    const miss=[...new Set(qs.filter((q,j)=>state[j]===false).map(q=>q.dataset.topic))];
+    rev.innerHTML=miss.length?'<span class="soft">Revisit:</span> ':'';
+    miss.forEach(t=>{ const b=document.createElement('button'); b.className='k-btn'; b.textContent=t;
+      b.addEventListener('click',()=>{ const k=topicStart(t); if(k>=0) go(k); }); rev.appendChild(b); });
+  }
+  sc.addEventListener('slideenter',score); score();
+  document.getElementById('fq-retry').addEventListener('click',()=>{
+    resets.forEach(r=>r&&r()); score(); go(slides.indexOf(qs[0].closest('.slide'))); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<!-- STYLE SAMPLE · SKETCHBOOK KIT — chalkboard (default board: slate-reinked), works on paper too.
+     The mechanics of the retired style families (Playroom, Nocturne, Terra), ported to the Sketchbook skin.
+     Components shown: §32i pointer spotlight cover · §32j smudge panels · §32d index cards → detail tray ·
+     §32h token journey (builds) · §32k skins stepper (one skeleton, two skins) · §32b lab (chips + gauge,
+     fixed-budget lamp) · §32f duo panes (final-geometry). The dots in the top bar preview the canvas and
+     every board (exemplar-only control). Topic subjects here are exemplar-only (Law 2). Engine = lesson-deck-builder v2. -->
+<html lang="en" dir="ltr" data-canvas="chalkboard" data-board="slate-reinked">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sketchbook kit · Ported components</title>
+
+<!-- FONTS — English Sketchbook pairing: Caveat (display) + Karla (body). Arabic: see assets/template.html -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet" />
+
+<style>
+  /* ===== FONT TOKENS ===== */
+  :root{
+    --font-display:"Caveat", cursive;
+    --font-body:"Karla", sans-serif;
+    --font-eyebrow:"Karla", sans-serif;
+    --display-w:700;                       /* English: Caveat 700 (Arabic decks: Playpen 800) */
+  }
+
+  /* ===== CANVAS TOKENS — paper (bright) ===== */
+  :root{
+    --paper:#FBF6EA; --paper-2:#F4EDDC; --ink:#29241B; --ink-soft:#5E5748; --pencil:#9A9280; --line:#D9CFB8;
+    --red:#C4553B; --blue:#3E6B8C; --ochre:#A8741A; --yellow:var(--ochre);   /* pen a · pen b · pen c (third pen) */
+    --marker:#FFE590;
+    --spill-1:rgba(255,229,144,.25); --spill-2:transparent;
+    --surface:#FFFDF6; --surface-2:#F7F0E1;
+    --rule:rgba(154,146,128,.13); --margin:rgba(196,85,59,.28);
+    --dust-op:0; --dust-blend:multiply;
+    --shadow:0 14px 34px -22px rgba(60,50,30,.5);
+    --er-streak:rgba(41,36,27,.08); --er-wash:rgba(41,36,27,.04); --er-ghost:.2;
+    --code-bg:#2C302A; --code-bar:#23271f; --code-line:#3a3f37;
+  }
+  /* ===== CANVAS TOKENS — chalkboard (shared) ===== */
+  :root[data-canvas="chalkboard"]{
+    --surface:rgba(255,255,255,.06); --surface-2:rgba(255,255,255,.04);
+    --rule:color-mix(in srgb,var(--ink) 4.5%,transparent); --margin:color-mix(in srgb,var(--red) 26%,transparent);
+    --dust-op:.05; --dust-blend:screen;
+    --shadow:0 14px 34px -22px rgba(0,0,0,.6);
+    --er-streak:color-mix(in srgb,var(--ink) 10%,transparent); --er-wash:color-mix(in srgb,var(--ink) 5%,transparent); --er-ghost:.14;
+    --code-bg:color-mix(in srgb,var(--paper-2) 70%,black); --code-bar:color-mix(in srgb,var(--paper-2) 55%,black); --code-line:var(--line);
+  }
+  /* ===== CHALKBOARD BOARDS (style-system.md §5) — pick one with data-board ===== */
+  /* Slate re-inked (DEFAULT board) — pens: rose · chalk-blue · chalk-yellow */
+  :root[data-canvas="chalkboard"],
+  :root[data-canvas="chalkboard"][data-board="slate-reinked"]{
+    --paper:#19211B; --paper-2:#121914; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#97A49A; --line:#38403A;
+    --red:#FF9E8F; --blue:#98CCF6; --yellow:#F5D870; --marker:#595732;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(152,204,246,.045);
+  }
+  /* Midnight blue — pens: coral · mint · butter */
+  :root[data-canvas="chalkboard"][data-board="midnight-blue"]{
+    --paper:#131D2A; --paper-2:#0D1521; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#95A1B2; --line:#323C49;
+    --red:#FEA684; --blue:#83E2BF; --yellow:#FAD980; --marker:#5F5530;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(131,226,191,.045);
+  }
+  /* Olive gold — pens: coral · periwinkle · lemon */
+  :root[data-canvas="chalkboard"][data-board="olive-gold"]{
+    --paper:#1F1E13; --paper-2:#18170C; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#A2A191; --line:#3E3D32;
+    --red:#FDA19E; --blue:#A5C9FF; --yellow:#F3E685; --marker:#5A5732;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(165,201,255,.045);
+  }
+  /* Dusk indigo — pens: peach · aqua · gold */
+  :root[data-canvas="chalkboard"][data-board="dusk-indigo"]{
+    --paper:#1A1A28; --paper-2:#131220; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#9E9EB1; --line:#393847;
+    --red:#FBA59A; --blue:#7DDBE0; --yellow:#F9DA7B; --marker:#5F5530;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(125,219,224,.045);
+  }
+  /* Deep teal — pens: apricot · periwinkle · sun */
+  :root[data-canvas="chalkboard"][data-board="deep-teal"]{
+    --paper:#0E2224; --paper-2:#081A1C; --ink:#F3EFE3; --ink-soft:#DBD6C6; --pencil:#8EA5A8; --line:#2F4143;
+    --red:#FEAA7A; --blue:#B9BCF9; --yellow:#F4DF79; --marker:#5C5630;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(185,188,249,.045);
+  }
+  /* Red graphite — pens: pink · sage-teal · butter */
+  :root[data-canvas="chalkboard"][data-board="red-graphite"]{
+    --paper:#281717; --paper-2:#1F1010; --ink:#F4EFE3; --ink-soft:#DDD5C6; --pencil:#B09A99; --line:#473636;
+    --red:#FDA9B5; --blue:#88D9D1; --yellow:#F6D97E; --marker:#62542F;
+    --spill-1:rgba(250,232,163,0.035); --spill-2:rgba(136,217,209,.045);
+  }
+
+  /* ===== COMPONENT BRIDGE (style-system.md §7) — components §1–§32 read these ===== */
+  :root{
+    --k-ink:var(--ink); --k-soft:var(--ink-soft); --k-a:var(--red); --k-b:var(--blue); --k-c:var(--yellow);
+    --k-hi:var(--marker); --k-surface:var(--surface); --k-card:#FBF6EA; --k-card-ink:#29241B;   /* paper objects keep the paper palette */
+    --k-line:var(--line); --k-ease:cubic-bezier(.2,.7,.2,1);
+    --wash-a:color-mix(in srgb,var(--k-a) 16%,transparent);
+    --wash-b:color-mix(in srgb,var(--k-b) 16%,transparent);
+    --wash-c:color-mix(in srgb,var(--k-c) 18%,transparent);
+    --wob-r:14px 22px 16px 24px/22px 14px 24px 16px;     /* hand-drawn frame radius */
+    --wob-s:10px 16px 12px 18px/16px 10px 18px 12px;     /* small frame radius */
+  }
+
+  /* ===== BASE ===== */
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{font-family:var(--font-body); background:var(--paper); color:var(--ink);
+    overflow:hidden; line-height:1.7; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;}
+  :lang(ar) body{line-height:1.9;}
+
+  /* ruled board: faint rules + margin line + two faint light spills; dust is a tiled data-URI (style-system §5) */
+  .bg{position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(70% 60% at 80% 10%, var(--spill-1), transparent 60%),
+      radial-gradient(60% 55% at 6% 100%, var(--spill-2), transparent 62%),
+      repeating-linear-gradient(transparent 0 34px, var(--rule) 34px 35px);}
+  .bg::after{content:""; position:absolute; top:0; bottom:0; inset-inline-start:56px; width:1px; background:var(--margin);}
+  .dust{position:fixed; inset:0; z-index:1; pointer-events:none; opacity:var(--dust-op); mix-blend-mode:var(--dust-blend);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); background-repeat:repeat;}
+
+  /* ===== DECK / SLIDES ===== */
+  .deck{position:relative; z-index:2; height:100vh; width:100%;}
+  .slide{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    padding:70px 34px 100px; opacity:0; visibility:hidden;
+    transition:opacity .5s ease, visibility .5s ease; overflow-y:auto;}
+  .slide.active{opacity:1; visibility:visible;}
+  .inner{width:100%; max-width:1040px; margin:auto;}
+
+  /* ===== MOTION (one law: draw-in + slight rotations, cubic-bezier(.2,.7,.2,1)) ===== */
+  .reveal{opacity:0; transform:translateY(14px) rotate(-.4deg);
+    transition:opacity .6s ease, transform .7s cubic-bezier(.2,.7,.2,1); transition-delay:var(--d,0s);}
+  .slide.active .reveal{opacity:1; transform:none;}
+  .draw{stroke-dasharray:1; stroke-dashoffset:1; opacity:0; transition:stroke-dashoffset 1.1s ease, opacity .01s linear; transition-delay:var(--d,0s);}
+  .slide.active .draw{stroke-dashoffset:0; opacity:1;}
+  /* ===== BUILDS (engine v2) — [data-build="0..n"] appear one press at a time (components.md §25) ===== */
+  [data-build]{opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .55s var(--k-ease,cubic-bezier(.2,.7,.2,1))}
+  svg [data-build]{transform:none}
+  [data-build].built{opacity:1;transform:none}
+  .slide.active [data-build]:not(.built) .draw{stroke-dashoffset:1;opacity:0}
+
+  /* ===== TYPE ===== */
+  .eyebrow,.tag{font-family:var(--font-eyebrow); font-weight:700; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--red); display:inline-flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .eyebrow .dot{width:7px; height:7px; border-radius:50%; border:1.6px solid currentColor;}
+  :lang(ar) .eyebrow,:lang(ar) .tag{letter-spacing:0; text-transform:none; font-size:.86rem; font-weight:600;}
+  h1,h2,h3{font-family:var(--font-display); font-weight:var(--display-w); line-height:1.1;}
+  :lang(ar) h1,:lang(ar) h2,:lang(ar) h3{line-height:1.35;}
+  h2{font-size:clamp(2rem,4vw,2.8rem); margin-bottom:10px;}
+  :lang(ar) h2{font-size:clamp(1.5rem,3vw,2.1rem);}
+  .lead{font-size:clamp(1rem,1.5vw,1.1rem); color:var(--ink-soft); max-width:62ch;}
+  b,strong{font-weight:700; color:var(--ink);}
+  mark{background:linear-gradient(105deg,transparent 2%,var(--marker) 4%,var(--marker) 94%,transparent 97%); padding:0 .2em; border-radius:2px; color:var(--ink);}
+
+  /* cover / closing */
+  .cover{text-align:center; max-width:760px; margin-inline:auto;}
+  .cover h1{font-size:clamp(3rem,8vw,5.2rem); margin:8px 0 6px;}
+  :lang(ar) .cover h1{font-size:clamp(2rem,5.2vw,3.4rem);}
+  .cover .lead{margin-inline:auto; font-size:clamp(1.02rem,1.8vw,1.18rem);}
+  .spark{width:96px; height:96px; display:block; margin-inline:auto;}
+  .underline-svg{display:block; margin:2px auto 16px; width:min(340px,70%);}
+  .hint{margin-top:28px; display:inline-flex; align-items:center; gap:10px; font-size:.86rem; color:var(--pencil);
+    border:1.6px solid var(--ink); border-radius:14px 18px 15px 17px/17px 14px 18px 15px; padding:8px 16px; background:var(--paper-2); transform:rotate(-.5deg);}
+  kbd{font-family:var(--font-body); font-size:.78rem; border:1.4px solid var(--ink); border-radius:6px 8px 7px 6px; padding:0 7px; background:var(--surface); color:var(--ink);}
+
+  /* two-column */
+  .grid2{display:grid; grid-template-columns:1.05fr .95fr; gap:42px; align-items:center;}
+  .grid2.rev{grid-template-columns:.95fr 1.05fr;}
+  .col-text h2{margin-bottom:12px;}
+  .col-text .lead{margin-bottom:18px;}
+
+  /* point list — hand-drawn tick boxes */
+  ul.points{list-style:none; display:grid; gap:12px; margin-top:4px;}
+  ul.points li{display:flex; gap:12px; align-items:flex-start; font-size:1rem; color:var(--ink);}
+  ul.points li .tick{flex:none; width:23px; height:23px; border:1.6px solid var(--ink); border-radius:5px 8px 6px 9px;
+    color:var(--red); display:grid; place-items:center; margin-top:3px; background:var(--surface);}
+  ul.points li .tick svg{width:15px; height:15px; stroke-width:2.6;}
+
+  /* aside / callout — dashed pen line */
+  .aside{margin-top:20px; background:var(--surface); border:1.6px solid var(--line); border-inline-start:2.4px dashed var(--red);
+    border-radius:var(--wob-s); padding:14px 18px; font-size:.95rem; color:var(--ink-soft);}
+  .aside b{color:var(--ink);}
+
+  /* figure frame — the sketch card */
+  .fig,.sketch{position:relative; background:var(--surface); border:1.8px solid var(--ink); border-radius:var(--wob-r);
+    padding:22px 24px; box-shadow:var(--shadow);}
+  .tilt-l{transform:rotate(-.6deg);} .tilt-r{transform:rotate(.5deg);}
+  .tape{position:absolute; top:-12px; left:50%; width:88px; height:24px; transform:translateX(-50%) rotate(-2deg);
+    background:rgba(255,229,144,.75); border:1px solid rgba(160,140,60,.35);}   /* paper object: paper palette on every board */
+  .num{position:absolute; inset-inline-start:16px; inset-block-start:10px; font-family:var(--font-display); font-weight:var(--display-w);
+    font-size:1.05rem; color:var(--pencil);}
+
+  /* window mockup — sketched window */
+  .win{background:var(--surface); border:1.8px solid var(--ink); border-radius:var(--wob-s); overflow:hidden; box-shadow:var(--shadow);}
+  .win .bar{display:flex; align-items:center; gap:8px; padding:9px 12px; background:var(--surface-2); border-bottom:1.6px solid var(--ink);}
+  .win .bar .dots{display:flex; gap:6px;}
+  .win .bar .dots i{width:10px; height:10px; border-radius:50%; display:block; border:1.2px solid var(--ink);}
+  .win .bar .pill{flex:1; height:24px; background:var(--paper); border:1.4px solid var(--line); border-radius:999px;
+    display:flex; align-items:center; padding:0 12px; font-size:.72rem; color:var(--pencil); font-family:var(--font-body);}
+  .win .body{padding:18px;}
+
+  /* chat bubbles */
+  .chat{display:grid; gap:12px;}
+  .bubble{max-width:82%; padding:11px 15px; border-radius:16px 18px 15px 19px/18px 15px 19px 16px; font-size:.95rem; line-height:1.7; border:1.6px solid var(--ink);}
+  .bubble.user{background:var(--wash-a); margin-inline-start:auto; border-end-end-radius:5px; color:var(--ink);}
+  .bubble.bot{background:var(--surface); border-color:var(--line); border-end-start-radius:5px; color:var(--ink-soft);}
+  .bubble .who{font-size:.72rem; color:var(--pencil); margin-bottom:3px; font-family:var(--font-eyebrow); font-weight:700;}
+
+  /* cards grid */
+  .cards{display:grid; gap:16px;}
+  .cards.c3{grid-template-columns:repeat(3,1fr);}
+  .cards.c2{grid-template-columns:repeat(2,1fr);}
+  .card{background:var(--surface); border:1.6px solid var(--ink-soft); border-radius:var(--wob-s); padding:16px 16px 15px;}
+  .card .ico,.ico{width:42px; height:42px; border-radius:10px 14px 11px 15px/14px 10px 15px 11px; display:grid; place-items:center; margin-bottom:12px;
+    border:1.6px solid currentColor; background:var(--wash-c); color:var(--yellow);}
+  .ico.clay{background:var(--wash-a); color:var(--red);}
+  .ico.blue{background:var(--wash-b); color:var(--blue);}
+  .ico.gold{background:var(--wash-c); color:var(--yellow);}
+  .ico svg{width:21px; height:21px;}
+  .card h3{font-size:1.3rem; margin-bottom:4px;}
+  :lang(ar) .card h3{font-size:1.05rem;}
+  .card p{font-size:.92rem; color:var(--ink-soft); line-height:1.65;}
+
+  /* section heading block */
+  .head{max-width:64ch; margin-bottom:24px;}
+  .head h2{margin-bottom:10px;}
+
+  /* stroke icon defaults */
+  .ic{stroke:currentColor; stroke-width:1.9; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+
+  /* comparison tiers — sketched rows, pen badges, hand-drawn meter ticks */
+  .tier{display:grid; grid-template-columns:auto 1fr auto; gap:18px; align-items:center;
+    background:var(--surface); border:1.6px solid var(--ink-soft); border-radius:var(--wob-s); padding:14px 18px;}
+  .tier .badge{font-family:var(--font-display); font-weight:var(--display-w); font-size:1.35rem; width:96px; text-align:center; padding:4px 0;
+    border:1.6px solid currentColor; border-radius:10px 14px 11px 15px/14px 10px 15px 11px;}
+  :lang(ar) .tier .badge{font-size:1.02rem;}
+  .tier .t-a{background:var(--wash-a); color:var(--red);}
+  .tier .t-b{background:var(--wash-b); color:var(--blue);}
+  .tier .t-c{background:var(--wash-c); color:var(--yellow);}
+  .tier p{font-size:.95rem; color:var(--ink-soft);}
+  .tier .meter{display:flex; gap:5px; align-items:center;}
+  .tier .meter span{width:8px; height:22px; border-radius:3px 4px 3px 5px; border:1.4px solid var(--line);}
+  .tier .meter span.on{background:var(--red); border-color:var(--red);}
+  .meter-label{font-size:.72rem; color:var(--pencil); font-family:var(--font-eyebrow); font-weight:700; margin-bottom:4px; display:block;}
+
+  /* flow recap — sketched pills, pen arrows */
+  .flow{display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; margin-top:8px;}
+  .flow .pill{background:var(--surface); border:1.6px solid var(--ink); border-radius:16px 20px 15px 21px/20px 15px 21px 16px; padding:8px 18px;
+    font-family:var(--font-display); font-weight:var(--display-w); font-size:1.25rem;}
+  :lang(ar) .flow .pill{font-size:1rem;}
+  .flow .arrow{color:var(--red); font-family:var(--font-display); font-size:1.6rem; line-height:1;}
+
+  /* source rows + barchart */
+  .src{display:grid; gap:9px; margin-top:14px;}
+  .src .row{display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1.4px solid var(--line); border-radius:var(--wob-s); padding:8px 12px;}
+  .src .row .fav{width:18px; height:18px; border-radius:5px 7px 5px 8px; flex:none;}
+  .src .row .ln{height:8px; border-radius:4px; background:var(--line);}
+  .barchart{display:flex; align-items:flex-end; gap:12px; height:120px; padding-top:6px; border-bottom:1.8px solid var(--ink);}
+  .barchart .b{flex:1; border-radius:6px 9px 0 0; background:var(--red); opacity:.85; border:1.4px solid var(--ink); border-bottom:none;}
+
+  /* code window (always a dark pane) */
+  .win.code{background:var(--code-bg); border-color:var(--code-line);}
+  .win.code .bar{background:var(--code-bar); border-color:var(--code-line);}
+  .codeline{display:flex; gap:9px; align-items:center; margin-bottom:9px; font-family:var(--font-body); direction:ltr;}
+  .codeline .ln{height:9px; border-radius:5px;}
+  @keyframes blink{50%{opacity:0}}
+
+  /* checklist / step card */
+  .checklist{display:grid; gap:10px;}
+  .checklist .ci{display:flex; align-items:center; gap:11px; font-size:.92rem; color:var(--ink-soft);}
+  .checklist .cb{width:20px; height:20px; border:1.6px solid var(--ink); border-radius:5px 7px 5px 8px; color:var(--red); display:grid; place-items:center; flex:none;}
+  .checklist .cb svg{width:13px; height:13px; stroke-width:2.6;}
+  .stepcard{background:var(--surface-2); border:1.8px dashed var(--red); border-radius:var(--wob-s); padding:16px 18px;}
+  .stepcard .tag{margin-bottom:0;}
+  .stepcard .title{font-family:var(--font-display); font-weight:var(--display-w); font-size:1.45rem; margin:2px 0 12px;}
+  :lang(ar) .stepcard .title{font-size:1.1rem;}
+  .stepcard .step{display:flex; gap:10px; align-items:center; margin-bottom:8px; font-size:.9rem; color:var(--ink-soft);}
+  .stepcard .step .n,ol.steps .n{width:24px; height:24px; border:1.6px solid var(--ink); border-radius:50% 46% 52% 48%/48% 52% 46% 52%;
+    color:var(--ink); display:grid; place-items:center; font-family:var(--font-display); font-weight:var(--display-w); font-size:1.02rem; flex:none;}
+  ol.steps{list-style:none; display:grid; gap:9px;}
+  ol.steps li{display:flex; gap:10px; align-items:flex-start; color:var(--ink-soft);}
+
+  /* tri-grid + tiles */
+  .trigrid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  .trigrid .rc{background:var(--surface); border:1.6px solid var(--ink-soft); border-radius:var(--wob-s); padding:14px; text-align:center;}
+  .trigrid .rc .ico{margin:0 auto 10px;}
+  .trigrid .rc small{font-size:.84rem; color:var(--ink-soft); display:block; line-height:1.6;}
+  .tiles{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+  .tile{display:flex; gap:14px; align-items:center; background:var(--surface); border:1.6px solid var(--ink-soft); border-radius:var(--wob-s); padding:13px 15px;}
+  .tile .ico{flex:none; margin:0;}
+  .tile .tx h4{font-family:var(--font-display); font-weight:var(--display-w); font-size:1.25rem; margin-bottom:0;}
+  :lang(ar) .tile .tx h4{font-size:1rem;}
+  .tile .tx p{font-size:.86rem; color:var(--ink-soft); line-height:1.6;}
+
+  /* ===== FIGURE STROKES (hand-drawn: filter="url(#wob)") ===== */
+  .s{fill:none; stroke:var(--ink); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .s.t{stroke-width:1.4;} .s.k{stroke-width:2.6;}
+  .s.soft{stroke:var(--ink-soft);} .s.r{stroke:var(--red);} .s.b{stroke:var(--blue);} .s.y{stroke:var(--yellow);}
+  .s.dash{stroke-dasharray:6 6;}
+  .fl{fill:var(--surface);} .fl2{fill:color-mix(in srgb,var(--ink) 16%,transparent);}
+  .fr{fill:color-mix(in srgb,var(--red) 22%,transparent);} .fb{fill:color-mix(in srgb,var(--blue) 22%,transparent);} .fy{fill:color-mix(in srgb,var(--yellow) 24%,transparent);}
+  .fhatch{fill:url(#p-hatch);} .fdots{fill:url(#p-dots);}
+
+  /* ===== CHROME ===== */
+  .topbar{position:fixed; top:0; inset-inline:0; z-index:6; display:flex; align-items:center; justify-content:space-between; padding:14px 26px;}
+  .topbar .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:var(--display-w); font-size:1.25rem; color:var(--ink-soft);}
+  :lang(ar) .topbar .brand{font-size:.98rem;}
+  .topbar .brand .mk{width:22px; height:22px;}
+  .counter{font-size:.85rem; color:var(--pencil);}
+  .nav{position:fixed; bottom:14px; inset-inline:0; z-index:6; display:flex; align-items:center; justify-content:center; gap:14px;}
+  .nav button{font-family:var(--font-display); font-weight:var(--display-w); font-size:1.15rem; color:var(--ink);
+    background:color-mix(in srgb,var(--paper) 85%,transparent); cursor:pointer;
+    border:1.8px solid var(--ink); border-radius:12px 18px 14px 20px/18px 12px 20px 14px; padding:7px 20px; transition:transform .2s, background .2s;}
+  :lang(ar) .nav button{font-size:.95rem;}
+  .nav button:hover:not(:disabled){transform:rotate(-1deg) translateY(-2px); background:var(--marker);}
+  .nav button:disabled{opacity:.3; cursor:default;}
+  .nav .dots{display:flex; gap:7px; flex-wrap:wrap; max-width:46vw; justify-content:center;}
+  .nav .dots i{width:10px; height:10px; border:1.5px solid var(--ink); border-radius:50%; cursor:pointer; transition:background .3s;}
+  .nav .dots i.on{background:var(--red);}
+  .progress{position:fixed; bottom:0; inset-inline:0; height:4px; background:var(--line); z-index:6;}
+  .progress .fill{height:100%; width:0; background:var(--red); transition:width .5s ease;}
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width:880px){
+    .grid2,.grid2.rev{grid-template-columns:1fr; gap:24px;}
+    .grid2 .fig{order:2;}
+    .cards.c3,.cards.c2,.tiles,.trigrid{grid-template-columns:1fr;}
+    .tier{grid-template-columns:auto 1fr; gap:12px;}
+    .tier .meter{grid-column:1 / -1;}
+    .slide{padding:60px 18px 96px; align-items:flex-start;}
+    .bg::after{inset-inline-start:12px;}
+    .nav .dots{display:none;}
+  }
+  @media (max-width:520px){
+    .nav button{padding:7px 14px;}
+    .topbar{padding:12px 16px;}
+    .bubble{max-width:92%;}
+  }
+
+  /* ===================== PORTED COMPONENTS (components.md §32) ===================== */
+  .board-pick{display:inline-flex;gap:6px;align-items:center;margin-inline-end:14px;vertical-align:middle}
+  .board-pick button{width:14px;height:14px;border-radius:50%;border:1.6px solid var(--ink-soft);cursor:pointer;padding:0}
+  .board-pick button.on{outline:2px solid var(--ink);outline-offset:2px}
+
+  /* §24 anchored gloss (Sketchbook index-card skin) + §32e numbered footnote */
+  .gl-t{text-decoration:underline dotted var(--k-a);text-underline-offset:5px;cursor:help;border-radius:3px;transition:background .25s ease}
+  .gl-t:hover,.gl-t:focus-visible{background:var(--k-hi);outline:none}
+  .gl-t sup{font-family:var(--font-display);font-weight:var(--display-w);font-size:.7em;color:var(--k-a)}
+  .gl-card{position:absolute;position-area:top;position-try-fallbacks:flip-block;margin:8px 0;width:max-content;max-width:240px;z-index:20;
+    background:var(--k-card);color:var(--k-card-ink);border:1.5px solid #29241B;border-radius:3px 7px 4px 8px;padding:8px 13px 10px;
+    background-image:linear-gradient(#C4553B,#C4553B);background-size:100% 1.5px;background-repeat:no-repeat;background-position:0 2.35em;
+    font-family:var(--font-body);font-weight:400;font-size:.84rem;line-height:1.5;text-align:start;letter-spacing:0;text-transform:none;
+    box-shadow:0 14px 34px -20px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .3s ease}
+  .gl-card b{display:block;font-family:var(--font-display);font-weight:var(--display-w);font-size:1.12rem;line-height:1.15;margin-bottom:5px;color:var(--k-card-ink)}
+  .gl-t:hover + .gl-card,.gl-t:focus + .gl-card{opacity:1}
+  @supports not (anchor-name: --a){ .gl-w{position:relative} .gl-card{bottom:calc(100% + 6px);left:50%;transform:translateX(-50%)} }
+
+  /* §32i · pointer spotlight cover — words render only where the light lands (ported from Nocturne) */
+  .spot-field{position:absolute;inset:0;z-index:1;pointer-events:none;user-select:none}
+  .spot-field span{position:absolute;font-family:var(--font-display);font-weight:var(--display-w);font-size:1.2rem;color:var(--k-soft);opacity:.6;white-space:nowrap}
+  .spot-veil{position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:radial-gradient(circle 170px at var(--mx,50%) var(--my,38%), transparent 0 90px, color-mix(in srgb,var(--paper) 95%,transparent) 200px)}
+  .spot-cover{position:relative;z-index:3}
+
+  /* §32j · smudge panels — depth sits in reserved space as smudged chalk; it clears under attention (ported from Nocturne) */
+  .smudge{display:grid;gap:12px;margin-top:18px}
+  .sm{background:var(--k-surface);border:1.6px solid var(--k-soft);border-radius:var(--wob-s);padding:12px 18px;cursor:help;
+    transition:border-color .4s ease,transform .4s var(--k-ease)}
+  .sm h3{font-size:1.45rem;display:flex;gap:10px;align-items:center}
+  .sm .lamp{width:11px;height:11px;border-radius:50%;border:1.6px solid var(--pencil);flex:none;transition:background .4s,border-color .4s}
+  .sm p{margin-top:2px;font-size:.95rem;max-width:64ch;color:var(--k-soft);filter:blur(3.5px);opacity:.7;
+    transition:filter .5s ease,opacity .5s ease}
+  .sm:hover,.sm:focus-visible,.sm.open{border-color:var(--k-ink);transform:translateY(-2px) rotate(-.3deg);outline:none}
+  .sm:hover .lamp,.sm:focus-visible .lamp,.sm.open .lamp{background:var(--k-c);border-color:var(--k-c)}
+  .sm:hover p,.sm:focus-visible p,.sm.open p{filter:none;opacity:1}
+
+  /* §32d · index cards → detail tray — depth of any length lands in a fixed-size, scrolling tray (ported from Playroom) */
+  .ixrow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px;align-items:start}
+  .ixc{font:inherit;text-align:start;cursor:pointer;background:#FBF6EA;color:#29241B;border:1.6px solid #29241B;
+    border-radius:3px 7px 4px 8px;padding:10px 14px 12px;transform:rotate(var(--r,-.6deg));
+    background-image:linear-gradient(#C4553B,#C4553B);background-size:100% 1.5px;background-repeat:no-repeat;background-position:0 2.6em;
+    transition:transform .4s var(--k-ease),box-shadow .4s ease}
+  .ixc:nth-child(2){--r:.7deg} .ixc:nth-child(3){--r:-.3deg}
+  .ixc h3{font-size:1.45rem;color:#29241B;margin-bottom:6px}
+  .ixc .tap{font-size:.8rem;color:#5E5748}
+  .ixc .more{display:none}
+  .ixc:hover,.ixc.sel{transform:rotate(0) translateY(-4px);box-shadow:var(--shadow)}
+  .ixc.sel{outline:2px dashed var(--k-a);outline-offset:4px}
+  .tray{margin-top:16px;background:var(--k-surface);border:1.8px dashed var(--k-soft);border-radius:var(--wob-s);padding:12px 18px;
+    height:clamp(120px,22vh,190px);overflow-y:auto;color:var(--k-soft);font-size:.95rem}
+  .tray h4{font-family:var(--font-display);font-weight:var(--display-w);font-size:1.4rem;color:var(--k-ink);margin-bottom:2px}
+  .tray .empty{color:var(--pencil);font-style:italic}
+  @keyframes traynudge{0%{transform:rotate(-.5deg)}100%{transform:none}}
+  .tray.bump{animation:traynudge .5s var(--k-ease)}
+
+  /* §32h · token journey — one actor travels a drawn route, one node per build (ported from Playroom's pipeline) */
+  .journey{position:relative;width:min(760px,100%);margin:26px auto 0;container-type:inline-size}
+  .journey > svg{display:block;width:100%;height:auto;overflow:visible}
+  .journey:dir(rtl) > svg{transform:scaleX(-1)}                      /* RTL: the route runs right → left */
+  .jnode{fill:var(--paper);transition:fill .4s ease}
+  .jnode.on{fill:color-mix(in srgb,var(--k-a) 28%,var(--paper))}
+  .jtok{transition:transform .8s var(--k-ease)}
+  .jpin{position:absolute;left:calc(var(--x) / 600 * 100%);top:calc(var(--y) / 200 * 100%);transform:translate(-50%,-50%);
+    font-family:var(--font-display);font-weight:var(--display-w);font-size:min(1.3rem,max(9px,calc(20 * 100cqi / 600)));white-space:nowrap;color:var(--k-soft)}
+  .journey:dir(rtl) .jpin{left:calc((600 - var(--x)) / 600 * 100%)}
+  .bcaps{display:grid;margin-top:18px;text-align:center}
+  .bcaps > *{grid-area:1/1;font-family:var(--font-display);font-weight:var(--display-w);font-size:clamp(1.3rem,2.6vw,1.65rem)}
+  .bcaps > [data-build]:not(.now){opacity:0}
+
+  /* §32a · stepper skeleton (state index · prev/next · caption fade · per-state values) + §32k skins (ported from Terra) */
+  .st-fig{position:relative;container-type:inline-size}
+  .st-fig > svg{display:block;width:100%;height:auto;overflow:visible}
+  .st-pin{position:absolute;left:calc(var(--x) / var(--vw) * 100%);top:calc(var(--y) / var(--vh) * 100%);transform:translate(-50%,-50%);
+    font-family:var(--font-display);font-weight:var(--display-w);font-size:min(1.25rem,max(9px,calc(19 * 100cqi / var(--vw))));white-space:nowrap;color:var(--k-soft)}
+  .st-el{transition:opacity .7s var(--k-ease),stroke-width .7s var(--k-ease),transform .9s var(--k-ease)}
+  .stepbar{display:flex;align-items:center;gap:14px;margin-top:14px;justify-content:center}
+  .stepbtn{font-family:var(--font-display);font-size:1.25rem;font-weight:var(--display-w);color:var(--k-ink);background:var(--k-surface);
+    border:1.8px solid var(--k-ink);border-radius:50% 46% 52% 48%/48% 52% 46% 52%;width:44px;height:44px;cursor:pointer;transition:transform .2s ease,background .2s}
+  .stepbtn:hover:not(:disabled){transform:rotate(-4deg) scale(1.06);background:var(--k-hi)}
+  .stepbtn:disabled{opacity:.3;cursor:default}
+  .steplabel{font-family:var(--font-display);font-weight:var(--display-w);font-size:1.2rem;color:var(--pencil);min-width:7ch;text-align:center}
+  .caption{font-family:var(--font-display);font-weight:var(--display-w);font-size:clamp(1.3rem,2.5vw,1.6rem);min-height:2.6em;text-align:center;margin-top:10px;transition:opacity .3s}
+  .skinbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  .skinbtn{font-family:var(--font-display);font-weight:var(--display-w);font-size:1.1rem;color:var(--k-ink);background:var(--k-surface);cursor:pointer;
+    border:1.6px solid var(--k-soft);border-radius:var(--wob-s);padding:2px 14px;transition:background .3s,border-color .3s}
+  .skinbtn.on{background:var(--k-hi);border-color:var(--k-ink)}
+  .skinnote{font-size:.82rem;color:var(--pencil);font-style:italic}
+  .stage{margin-top:14px}
+
+  /* §32b · lab widget — a slider drives a live readout + one verdict line (skins: chips+gauge from Playroom, lamp budget from Nocturne) */
+  .labbox{background:var(--k-surface);border:1.8px solid var(--k-ink);border-radius:var(--wob-r);padding:20px 24px;margin-top:18px;box-shadow:var(--shadow)}
+  .krow{display:flex;align-items:center;gap:16px}
+  .krow label{font-family:var(--font-display);font-weight:var(--display-w);font-size:1.3rem;white-space:nowrap}
+  .kval{font-family:var(--font-display);font-weight:var(--display-w);font-size:1.7rem;color:var(--k-a);min-width:2.2ch;text-align:center}
+  .krow input[type=range]{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--k-soft);outline:none}
+  .krow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50% 46% 52% 48%;
+    background:var(--paper);border:2px solid var(--k-ink);cursor:grab}
+  .krow input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--paper);border:2px solid var(--k-ink);cursor:grab}
+  .krow input[type=range]:focus-visible::-webkit-slider-thumb{background:var(--k-hi)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;min-height:76px;align-content:flex-start}
+  .chip{font-size:.86rem;font-weight:700;border:1.5px solid currentColor;border-radius:14px 18px 15px 19px/18px 15px 19px 14px;padding:3px 12px;
+    transition:color .35s ease,background .35s ease,opacity .35s ease,transform .45s var(--k-ease)}
+  .chip.kept{color:var(--k-b);background:var(--wash-b)}
+  .chip.lost{color:var(--k-a);background:transparent;opacity:.55;text-decoration:line-through}
+  .chip.sig{color:var(--k-b);background:var(--wash-b)}                    /* 'appear' mode: relevant */
+  .chip.noise{color:var(--k-a);background:transparent}                      /* 'appear' mode: noise */
+  .chip.off{opacity:0;transform:scale(.6)}                                   /* 'appear' mode: not fetched yet — keeps its place */
+  .gauge{margin-top:12px;display:flex;align-items:center;gap:12px}
+  .gauge b{font-family:var(--font-display);font-weight:var(--display-w);font-size:1.15rem;white-space:nowrap}
+  .gauge .track{flex:1;height:14px;border:1.6px solid var(--k-ink);border-radius:7px 9px 7px 10px;overflow:hidden}
+  .gauge .fillbar{height:100%;width:50%;background:var(--k-b);transition:width .5s var(--k-ease),background .4s}
+  .labnote{margin-top:12px;font-size:.95rem;color:var(--k-soft);min-height:2.6em}
+  .labnote b{color:var(--k-a)}
+  .cone{fill:color-mix(in srgb,var(--k-c) 16%,transparent);stroke:color-mix(in srgb,var(--k-c) 60%,transparent);stroke-width:1.4;stroke-dasharray:5 6}
+  .ldots circle{transition:opacity .4s ease}
+
+  /* §32f · duo panes (final-geometry) — lean into a side; it takes the room (ported from Terra) */
+  .panes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;transition:grid-template-columns 1s var(--k-ease)}
+  .panes:has(.pane:nth-child(1):is(:hover,:focus-within)){grid-template-columns:1.7fr 1fr}
+  .panes:has(.pane:nth-child(2):is(:hover,:focus-within)){grid-template-columns:1fr 1.7fr}
+  .pane{background:var(--k-surface);border:1.8px solid var(--k-soft);border-radius:var(--wob-r);padding:18px 22px;cursor:pointer;overflow:hidden;outline:none;
+    transition:border-color .5s ease}
+  .pane:hover,.pane:focus-within{border-color:var(--k-ink)}
+  .pane h3{font-size:1.6rem;display:flex;align-items:baseline;gap:10px}
+  .pane h3 span{font-family:var(--font-body);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pencil)}
+  .pane .big{font-family:var(--font-display);font-weight:var(--display-w);font-size:2.4rem;line-height:1.1;margin:2px 0;color:var(--k-a)}
+  .pane.b .big{color:var(--k-b)}
+  .pane p{font-size:.93rem;color:var(--k-soft)}
+  .pane .deep{height:0;overflow:hidden;opacity:0;transition:height 1s var(--k-ease),opacity .7s ease,margin .7s ease}
+  .pane .deep>div{overflow:hidden}
+  .pane:hover .deep,.pane:focus-within .deep{height:var(--dh,150px);opacity:1;margin-top:8px}
+  .panes.noanim,.panes.noanim *{transition:none!important}
+  .panes.m-left{grid-template-columns:1.7fr 1fr!important}
+  .panes.m-right{grid-template-columns:1fr 1.7fr!important}
+  .pane.m-open .deep{height:auto!important;opacity:1;margin-top:8px}
+
+  /* §32l · key passage frame — the one paragraph that carries the argument (ported from Terra's essay frame) */
+  .keypara{position:relative;border:1.8px solid var(--k-ink);border-radius:var(--wob-r);padding:20px 26px;background:var(--k-surface);text-align:start}
+  .keypara::before{content:"";position:absolute;inset:6px;border:1px solid var(--k-soft);border-radius:var(--wob-s);opacity:.55;pointer-events:none}
+  .keypara p{color:var(--k-soft)}
+  .keypara p:first-of-type::first-letter{font-family:var(--font-display);font-weight:var(--display-w);font-size:3.1em;line-height:.8;
+    float:inline-start;margin-inline-end:.08em;margin-top:.06em;color:var(--k-a)}
+  :lang(ar) .keypara p:first-of-type::first-letter{font:inherit;float:none;margin:0;color:inherit}   /* Arabic letters join: no drop initial */
+
+  .kit-index{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 22px;margin:18px auto 0;max-width:720px;text-align:start;font-size:.95rem;color:var(--ink-soft)}
+  .kit-index b{font-family:var(--font-display);font-weight:var(--display-w);font-size:1.2rem;color:var(--ink);margin-inline-end:6px}
+
+  @media(max-width:880px){
+    .ixrow,.kit-index{grid-template-columns:1fr}
+    .panes,.panes:has(.pane:nth-child(1):is(:hover,:focus-within)),.panes:has(.pane:nth-child(2):is(:hover,:focus-within)){grid-template-columns:1fr}
+    .panes.m-left,.panes.m-right{grid-template-columns:1fr!important}
+  }
+
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="dust"></div>
+
+<!-- shared defs: wobble filter, arrowheads (colours follow the canvas through style=), fill patterns -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="wob"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="t"/><feDisplacementMap in="SourceGraphic" in2="t" scale="2.6"/></filter>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--red);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--blue);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <marker id="ahY" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1 L9 5 L1 9" style="fill:none;stroke:var(--yellow);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/></marker>
+    <pattern id="p-hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="1" y1="0" x2="1" y2="7" style="stroke:var(--blue);stroke-width:1.6"/></pattern>
+    <pattern id="p-dots" patternUnits="userSpaceOnUse" width="7" height="7"><circle cx="3.5" cy="3.5" r="1.5" style="fill:var(--yellow)"/></pattern>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <div class="brand"><svg class="mk" viewBox="0 0 24 24" style="filter:url(#wob)" aria-hidden="true"><path d="M4 18 C7 6, 15 4, 20 8" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"/><path d="M4 20 C9 12, 16 10, 20 13" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/></svg>
+    <span>Sketchbook kit · ported components</span></div>
+  <div class="counter"><span class="board-pick" id="boardpick" aria-label="Canvas and board preview"></span><span id="cur">1</span> / <span id="total">9</span></div>
+</div>
+
+<div class="deck" id="deck">
+  <!-- ================= BEGIN SLIDES ================= -->
+
+  <!-- 1 · §32i POINTER SPOTLIGHT COVER -->
+  <section class="slide active" data-spot>
+    <div class="spot-field" aria-hidden="true" data-words="photosynthesis|2¹⁰ = 1024|the Treaty of 1648|mitochondria|past perfect|Ohm’s law|the capital of Peru|a² + b² = c²|the French word for bridge|Newton’s 3rd law|the year of the Hijra|DNS|irregular verbs|the Krebs cycle"></div>
+    <div class="spot-veil"></div>
+    <div class="inner cover spot-cover">
+      <span class="eyebrow reveal" style="--d:.05s"><span class="dot"></span> §32i — pointer spotlight cover</span>
+      <h1 class="reveal" style="--d:.15s">Memory is a path,<br>not a vault.</h1>
+      <svg class="underline-svg reveal" style="--d:.28s" viewBox="0 0 340 22" fill="none" aria-hidden="true">
+        <path class="draw" style="--d:.42s" pathLength="1" d="M6 14 C 80 4, 150 20, 210 10 S 320 8, 334 12" stroke="var(--red)" stroke-width="4" stroke-linecap="round" filter="url(#wob)"/>
+      </svg>
+      <p class="lead reveal" style="--d:.36s">Move the pointer. The facts you learned are all on the board — but only the ones you <mark>revisit</mark> are lit.</p>
+      <div class="hint reveal" style="--d:.5s">pages: <kbd>←</kbd> <kbd>→</kbd> · the dots above switch the board</div>
+    </div>
+  </section>
+
+  <!-- 2 · §32j SMUDGE PANELS + §32e NUMBERED FOOTNOTE -->
+  <section class="slide">
+    <div class="inner" style="max-width:860px">
+      <span class="eyebrow reveal"><span class="dot"></span> §32j — smudge panels (hover, focus or tap) · §32e — footnote</span>
+      <h2 class="reveal" style="--d:.08s">Three facts about forgetting</h2>
+      <p class="lead reveal" style="--d:.14s">Headlines are free. The detail is smudged chalk — it clears where your attention lands, and nothing on the board moves. The pattern was first measured by
+        <span class="gl-w"><span class="gl-t" tabindex="0" style="anchor-name:--f1">Ebbinghaus<sup>1</sup></span><span class="gl-card" role="tooltip" style="position-anchor:--f1"><b>Footnote 1</b>Hermann Ebbinghaus tested his own memory of nonsense syllables in the 1880s and plotted how fast they faded.</span></span>.</p>
+      <div class="smudge">
+        <div class="sm reveal" style="--d:.2s" tabindex="0"><h3><span class="lamp"></span>Forgetting is fast at first</h3>
+          <p>Most of what fades, fades in the first day or two. After that the curve flattens: what survives the first week tends to stay.</p></div>
+        <div class="sm reveal" style="--d:.28s" tabindex="0"><h3><span class="lamp"></span>Effortful recall is the workout</h3>
+          <p>Re-reading feels productive but asks nothing of memory. Pulling the answer out — even slowly — is what strengthens the path.</p></div>
+        <div class="sm reveal" style="--d:.36s" tabindex="0"><h3><span class="lamp"></span>Each review buys more time</h3>
+          <p>After a successful recall, the next fade is slower. That is why the gaps between reviews can grow: one day, three, a week, a month.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · §32d INDEX CARDS → DETAIL TRAY -->
+  <section class="slide">
+    <div class="inner" style="max-width:900px">
+      <span class="eyebrow reveal"><span class="dot"></span> §32d — detail tray (tap a card)</span>
+      <h2 class="reveal" style="--d:.08s">Three parts of a review system</h2>
+      <p class="lead reveal" style="--d:.14s">Tap a card. Its depth lands in the tray below — however long it runs, the tray keeps its size and scrolls.</p>
+      <div class="ixwrap">
+        <div class="ixrow">
+          <button class="ixc reveal" style="--d:.2s"><h3>The deck</h3><p class="tap">what you want to keep — tap</p>
+            <div class="more">One fact per card, phrased as a <b>question</b> you must answer, not a page you re-read. Small cards make the recall honest: you either produced the answer or you did not.</div></button>
+          <button class="ixc reveal" style="--d:.28s"><h3>The schedule</h3><p class="tap">when each card returns — tap</p>
+            <div class="more">Every card carries its own gap. Recall it and the gap grows; miss it and the gap shrinks back. The schedule spends your minutes on the cards that are about to fade, not on the ones you already own.</div></button>
+          <button class="ixc reveal" style="--d:.36s"><h3>The verdict</h3><p class="tap">your honest grade — tap</p>
+            <div class="more">After each answer you grade yourself: missed, hard, easy. That grade is the only signal the schedule has, so the whole system is as good as your honesty here. Grading "easy" when it was hard pushes the card out too far, and it quietly fades before it returns — which feels like the system failing, when really the input was off. Long text like this is fine in the tray: it scrolls instead of shoving the page.</div></button>
+        </div>
+        <div class="tray reveal" style="--d:.44s"><p class="empty">Tap a card above — its inner workings land here.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · §32h TOKEN JOURNEY (builds-driven) -->
+  <section class="slide" data-builds="4">
+    <div class="inner" style="max-width:900px">
+      <span class="eyebrow reveal"><span class="dot"></span> §32h — token journey (press → to move)</span>
+      <h2 class="reveal" style="--d:.08s">Ride one fact</h2>
+      <div class="journey reveal" style="--d:.16s">
+        <svg viewBox="0 0 600 200" aria-hidden="true">
+          <g filter="url(#wob)">
+            <path class="s soft dash" d="M60 110 C 120 70, 150 140, 180 110 S 260 70, 300 110 S 380 150, 420 110 S 500 70, 540 110"/>
+            <circle class="s jnode" cx="60"  cy="110" r="22"/>
+            <circle class="s jnode" cx="180" cy="110" r="22"/>
+            <circle class="s jnode" cx="300" cy="110" r="22"/>
+            <circle class="s jnode" cx="420" cy="110" r="22"/>
+            <circle class="s jnode" cx="540" cy="110" r="22"/>
+          </g>
+          <g class="jtok" style="transform:translate(60px,110px)"><circle r="9" class="s r k fr"/></g>
+        </svg>
+        <span class="jpin" style="--x:60;--y:162">learn</span>
+        <span class="jpin" style="--x:180;--y:162">fade</span>
+        <span class="jpin" style="--x:300;--y:162">cue</span>
+        <span class="jpin" style="--x:420;--y:162">recall</span>
+        <span class="jpin" style="--x:540;--y:162">stronger</span>
+      </div>
+      <div class="bcaps">
+        <p data-build="0">You meet a fact once. The path is faint.</p>
+        <p data-build="1">A day passes. Most of the path grows over.</p>
+        <p data-build="2">A card asks the question — the cue.</p>
+        <p data-build="3">You dig the answer out. Effort is the point.</p>
+        <p data-build="4">The path is deeper now. The next fade is slower.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · §32k SKINS STEPPER — one skeleton (§32a), two skins -->
+  <section class="slide">
+    <div class="inner" style="max-width:860px">
+      <span class="eyebrow reveal"><span class="dot"></span> §32k — skins stepper (one skeleton · swappable skins)</span>
+      <h2 class="reveal" style="--d:.08s">Four days, one principle</h2>
+      <div class="stepper" data-stepper="review">
+        <div class="skinbar reveal" style="--d:.14s">
+          <button class="skinbtn on" data-skin="trace">The chalk trace</button>
+          <button class="skinbtn" data-skin="path">The footpath</button>
+          <span class="skinnote">same stepper, different illustration — the skin is drawn per topic</span>
+        </div>
+        <div class="sketch stage reveal" style="--d:.2s">
+          <div class="st-fig" style="--vw:520;--vh:170">
+            <svg viewBox="0 0 520 170" aria-hidden="true">
+              <!-- SKIN 1: a chalk trace that fades and is re-traced -->
+              <g data-skin="trace" filter="url(#wob)">
+                <path class="s st-el" data-o="1|.25|1|.8" data-sw="3|3|5|5" d="M60 100 C 120 40, 170 140, 230 90 S 330 40, 380 95 S 450 120, 470 70"/>
+                <path class="s r st-el" data-o="0|0|1|0" d="M60 108 C 120 48, 170 148, 230 98 S 330 48, 380 103 S 450 128, 470 78"/>
+              </g>
+              <!-- SKIN 2: a footpath through grass that fades unless walked; a walker moves per state -->
+              <g data-skin="path" filter="url(#wob)" style="display:none">
+                <path class="s soft" d="M40 150 l8 -16 l4 16 M110 40 l6 -14 l4 14 M300 30 l6 -14 l4 14 M470 150 l8 -16 l4 16 M420 40 l6 -14 l4 14 M200 155 l6 -14 l4 14"/>
+                <path class="s y dash st-el" data-o="1|.2|1|.85" data-sw="4|4|7|7" d="M30 120 C 140 120, 170 60, 260 80 S 400 130, 500 60"/>
+                <g class="st-el" data-o="0|0|1|1"><circle class="s" cx="150" cy="104" r="3"/><circle class="s" cx="230" cy="78" r="3"/><circle class="s" cx="320" cy="100" r="3"/><circle class="s" cx="420" cy="104" r="3"/></g>
+                <g class="st-el" data-o="1|0|1|0" data-tf="translate(0px,0px)|translate(0px,0px)|translate(380px,-46px)|translate(380px,-46px)"><circle class="s r k fr" cx="70" cy="118" r="8"/></g>
+              </g>
+            </svg>
+            <!-- per-skin annotation (an HTML pin, shown on chosen states) and a state-linked counter -->
+            <span class="st-pin st-el" data-skin="trace" data-o="0|0|1|0" style="--x:300;--y:150;color:var(--k-a)">re-traced, harder</span>
+            <span class="st-pin st-el" data-skin="path" data-o="0|0|0|1" style="--x:400;--y:30;color:var(--k-c)">walked, so it stays</span>
+            <span class="st-pin st-el" style="--x:20;--y:18" data-txt="reviews: 0|reviews: 0|reviews: 1|reviews: 1">reviews: 0</span>
+          </div>
+        </div>
+        <p class="caption"></p>
+        <div class="stepbar reveal" style="--d:.3s">
+          <button class="stepbtn st-prev" aria-label="previous step">‹</button>
+          <span class="steplabel"></span>
+          <button class="stepbtn st-next" aria-label="next step">›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · §32b LAB — chips + gauge -->
+  <section class="slide">
+    <div class="inner" style="max-width:860px">
+      <span class="eyebrow reveal"><span class="dot"></span> §32b — lab widget · chips + gauge</span>
+      <h2 class="reveal" style="--d:.08s">Feel the review gap</h2>
+      <p class="lead reveal" style="--d:.14s">Eight cards learned on Monday, one review later. How long can you wait? Drag and watch what survives.</p>
+      <div class="labbox reveal" style="--d:.22s" data-lab="gap">
+        <div class="krow">
+          <label>days before review</label>
+          <input class="lab-in" type="range" min="1" max="14" value="3" data-capture aria-label="days before review" />
+          <span class="kval">3</span>
+        </div>
+        <div class="chips"></div>
+        <div class="gauge"><b>kept</b><div class="track"><div class="fillbar"></div></div></div>
+        <p class="labnote"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · §32b LAB — fixed budget lamp -->
+  <section class="slide">
+    <div class="inner" style="max-width:860px">
+      <span class="eyebrow reveal"><span class="dot"></span> §32b — lab widget · fixed-budget lamp</span>
+      <h2 class="reveal" style="--d:.08s">Twenty minutes, one lamp</h2>
+      <p class="lead reveal" style="--d:.14s">Your review time is fixed. Widen the session to more cards — and watch how much light each one gets.</p>
+      <div class="labbox reveal" style="--d:.22s" data-lamp="session">
+        <svg viewBox="0 0 420 170" aria-hidden="true" style="display:block;width:100%;height:auto">
+          <g filter="url(#wob)"><circle class="s y k fy" cx="210" cy="14" r="8"/></g>
+          <polygon class="cone" points="210,20 160,165 260,165"/>
+          <g class="ldots"></g>
+        </svg>
+        <div class="krow">
+          <label>cards per session</label>
+          <input class="lab-in" type="range" min="10" max="100" value="24" data-capture aria-label="cards per session" />
+        </div>
+        <p class="labnote"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · §32f DUO PANES (final-geometry) -->
+  <section class="slide">
+    <div class="inner" style="max-width:900px">
+      <span class="eyebrow reveal"><span class="dot"></span> §32f — duo panes (lean into a side)</span>
+      <h2 class="reveal" style="--d:.08s">Same hours, two plans</h2>
+      <p class="lead reveal" style="--d:.14s">Six hours of study, spent two ways. Hover or focus a pane — it takes the room, and its depth opens without moving the page.</p>
+      <div class="panes reveal" style="--d:.24s">
+        <div class="pane" tabindex="0">
+          <h3>Cramming <span>one long night</span></h3>
+          <div class="big">6 h × 1</div>
+          <p>Feels strong on the night. Most of it is gone within a week.</p>
+          <div class="deep"><div><p>Massed study builds fluency — the material feels familiar because you just saw it. Familiarity is not retrieval strength, so the test a week later finds the path already overgrown.</p></div></div>
+        </div>
+        <div class="pane b" tabindex="0">
+          <h3>Spacing <span>six short sessions</span></h3>
+          <div class="big">1 h × 6</div>
+          <p>Feels harder each time. Much more of it is still there in a month.</p>
+          <div class="deep"><div><p>Each session starts with a little forgetting, so every recall takes effort — and effortful recall is the workout. The difficulty you feel is the learning, not a sign it is failing.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · CLOSE -->
+  <section class="slide">
+    <div class="inner cover" style="max-width:820px">
+      <span class="eyebrow reveal" style="--d:.05s"><span class="dot"></span> end of the kit</span>
+      <h1 class="reveal" style="--d:.15s;font-size:clamp(2.4rem,6vw,3.8rem)">Borrowed mechanics, chalk skin.</h1>
+      <div class="keypara reveal" style="--d:.28s;max-width:640px;margin:10px auto 0"><p>These components came from the retired style families. The mechanics are theirs; the look is Sketchbook — they work on paper and on every board, as many times per deck as you need.</p></div>
+      <div class="kit-index reveal" style="--d:.4s">
+        <div><b>§32i</b> pointer spotlight cover</div>
+        <div><b>§32j</b> smudge panels</div>
+        <div><b>§32e</b> numbered footnotes (on §24)</div>
+        <div><b>§32d</b> index cards → detail tray</div>
+        <div><b>§32h</b> token journey (builds)</div>
+        <div><b>§32a/k</b> stepper skeleton · skins</div>
+        <div><b>§32b</b> lab: chips + gauge · lamp budget</div>
+        <div><b>§32f</b> duo panes (final-geometry)</div>
+        <div><b>§32l</b> key passage frame</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= END SLIDES ================= -->
+</div>
+
+<div class="nav">
+  <button id="prev">‹ Prev</button>
+  <div class="dots" id="dots"></div>
+  <button id="next">Next ›</button>
+</div>
+<div class="progress"><div class="fill" id="fill"></div></div>
+
+<script>
+  /* ---- deck engine v2 — do not edit (builds · data-capture guard · slideenter/build events) ---- */
+  const slides=[...document.querySelectorAll('.slide')];
+  const total=slides.length;
+  let idx=0;
+  const cur=document.getElementById('cur'), fill=document.getElementById('fill');
+  const prevBtn=document.getElementById('prev'), nextBtn=document.getElementById('next'), dotsWrap=document.getElementById('dots');
+  document.getElementById('total').textContent=total;
+
+  slides.forEach((_,k)=>{ const d=document.createElement('i'); d.addEventListener('click',()=>go(k)); dotsWrap.appendChild(d); });
+  const dots=[...dotsWrap.children];
+
+  // builds: [data-build="0..n"] appear one press at a time before the page turns;
+  // data-builds="n" on a slide declares steps for widgets that follow builds (components.md §25)
+  const buildMax=slides.map(s=>Math.max(+s.dataset.builds||0,...[...s.querySelectorAll('[data-build]')].map(e=>+e.dataset.build||0)));
+  const buildStep=slides.map(()=>0);
+  function paintBuilds(k,quiet){
+    const s=slides[k], n=buildStep[k];
+    s.querySelectorAll('[data-build]').forEach(e=>{ const b=+e.dataset.build||0; e.classList.toggle('built',b<=n); e.classList.toggle('now',b===n); });
+    s.dataset.step=n;
+    if(!quiet) s.dispatchEvent(new CustomEvent('build',{detail:{step:n,of:buildMax[k]}}));
+  }
+  slides.forEach((_,k)=>paintBuilds(k,true));
+
+  function update(){
+    slides.forEach((s,k)=>s.classList.toggle('active',k===idx));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+    cur.textContent=idx+1;
+    fill.style.width=((idx+1)/total*100)+'%';
+    prevBtn.disabled=idx===0&&buildStep[idx]===0;
+    nextBtn.disabled=idx===total-1&&buildStep[idx]>=buildMax[idx];
+  }
+  // enter slide n at step 0, or fully built when stepping back into it
+  function go(n,built){
+    const from=idx; idx=Math.max(0,Math.min(total-1,n));
+    if(idx===from&&!built){ update(); return; }
+    buildStep[idx]=built?buildMax[idx]:0; paintBuilds(idx);
+    update(); slides[idx].scrollTop=0;
+    if(idx!==from) slides[idx].dispatchEvent(new CustomEvent('slideenter',{detail:{from}}));
+  }
+  function next(){ if(buildStep[idx]<buildMax[idx]){ buildStep[idx]++; paintBuilds(idx); update(); } else if(idx<total-1) go(idx+1); }
+  function prev(){ if(buildStep[idx]>0){ buildStep[idx]--; paintBuilds(idx); update(); } else if(idx>0) go(idx-1,true); }
+  nextBtn.addEventListener('click',next); prevBtn.addEventListener('click',prev);
+
+  // direction-aware keys: in RTL, ArrowLeft moves forward
+  const rtl=(document.documentElement.getAttribute('dir')||'ltr').toLowerCase()==='rtl';
+  const FWD=rtl?['ArrowLeft','ArrowDown',' ','PageDown']:['ArrowRight','ArrowDown',' ','PageDown'];
+  const BACK=rtl?['ArrowRight','ArrowUp','PageUp']:['ArrowLeft','ArrowUp','PageUp'];
+  // never hijack keys or swipes while the user is typing in an editable field,
+  // or working a widget marked data-capture (scrubbers, draggable figures)
+  const typing=e=>{const t=e.target;return !!t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.tagName==='SELECT'||t.isContentEditable||!!(t.closest&&t.closest('[data-capture]')));};
+  document.addEventListener('keydown',e=>{
+    if(typing(e)) return;
+    if(FWD.includes(e.key)){ e.preventDefault(); next(); }
+    else if(BACK.includes(e.key)){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ go(0); } else if(e.key==='End'){ go(total-1); }
+  });
+
+  // direction-aware swipe
+  let sx=null;
+  document.addEventListener('touchstart',e=>{ if(typing(e)){ sx=null; return; } sx=e.changedTouches[0].clientX; },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(sx===null) return;
+    const dx=e.changedTouches[0].clientX-sx;
+    const goFwd = rtl ? dx>50 : dx<-50;
+    const goBack = rtl ? dx<-50 : dx>50;
+    if(goFwd) next(); else if(goBack) prev();
+    sx=null;
+  },{passive:true});
+
+  update();
+  setTimeout(()=>slides[idx].dispatchEvent(new CustomEvent('slideenter',{detail:{from:-1}})),0);
+/* ===================== component code (after the engine) ===================== */
+/* Every component below works per container: use it as many times per deck as you like. */
+
+/* canvas + board preview (exemplar only — a real deck sets data-canvas / data-board once on the root element) */
+(function(){
+  const root=document.documentElement, pick=document.getElementById('boardpick'); if(!pick) return;
+  const opts=[['paper','#FBF6EA'],['slate-reinked','#19211B'],['midnight-blue','#131D2A'],['olive-gold','#1F1E13'],
+              ['dusk-indigo','#1A1A28'],['deep-teal','#0E2224'],['red-graphite','#281717']];
+  opts.forEach(([k,c])=>{
+    const b=document.createElement('button'); b.style.background=c; b.title=k; b.setAttribute('aria-label',k);
+    b.addEventListener('click',()=>{
+      if(k==='paper'){ root.dataset.canvas='paper'; delete root.dataset.board; }
+      else { root.dataset.canvas='chalkboard'; root.dataset.board=k; }
+      [...pick.children].forEach(x=>x.classList.toggle('on',x===b));
+      window.dispatchEvent(new Event('resize'));
+    });
+    pick.appendChild(b);
+  });
+  const cur=root.dataset.canvas==='paper'?'paper':(root.dataset.board||'slate-reinked');
+  [...pick.children].forEach(x=>x.classList.toggle('on',x.title===cur));
+})();
+
+/* §32i · pointer spotlight cover — words come from data-words on .spot-field (deterministic scatter) */
+document.querySelectorAll('[data-spot]').forEach(slide=>{
+  const field=slide.querySelector('.spot-field'), veil=slide.querySelector('.spot-veil');
+  const words=(field.dataset.words||'').split('|');
+  for(let i=0;i<34;i++){
+    const w=document.createElement('span'); w.textContent=words[i%words.length];
+    w.style.left=((i*61.8)%90+3)+'%'; w.style.top=((i*38.2+7)%86+5)+'%';
+    w.style.transform='rotate('+(((i*37)%24)-12)+'deg)';
+    field.appendChild(w);
+  }
+  function move(x,y){ const r=slide.getBoundingClientRect();
+    veil.style.setProperty('--mx',((x-r.left)/r.width*100)+'%'); veil.style.setProperty('--my',((y-r.top)/r.height*100)+'%'); }
+  slide.addEventListener('pointermove',e=>move(e.clientX,e.clientY));
+  slide.addEventListener('touchmove',e=>{const t=e.touches[0];move(t.clientX,t.clientY)},{passive:true});
+});
+
+/* §32j · smudge panels — tap toggles on touch (hover and focus need no script) */
+document.querySelectorAll('.sm').forEach(p=>p.addEventListener('click',e=>{ if(e.pointerType!=='mouse') p.classList.toggle('open'); }));
+
+/* §32d · index cards → detail tray — each .ixwrap owns its cards and its tray */
+document.querySelectorAll('.ixwrap').forEach(wrap=>{
+  const tray=wrap.querySelector('.tray'), cards=[...wrap.querySelectorAll('.ixc')];
+  cards.forEach(c=>c.addEventListener('click',()=>{
+    cards.forEach(o=>o.classList.toggle('sel',o===c));
+    tray.innerHTML='<h4></h4><p></p>';
+    tray.querySelector('h4').textContent=c.querySelector('h3').textContent;
+    tray.querySelector('p').innerHTML=c.querySelector('.more').innerHTML;
+    tray.classList.remove('bump'); void tray.offsetWidth; tray.classList.add('bump'); tray.scrollTop=0;
+  }));
+});
+
+/* §32h · token journey — follows the engine's builds (no buttons of its own) */
+document.querySelectorAll('.journey').forEach(box=>{
+  const slide=box.closest('.slide'), tok=box.querySelector('.jtok'), nodes=[...box.querySelectorAll('.jnode')];
+  function place(step){
+    const n=nodes[Math.min(step,nodes.length-1)];
+    tok.style.transform='translate('+n.getAttribute('cx')+'px,'+n.getAttribute('cy')+'px)';
+    nodes.forEach((x,i)=>x.classList.toggle('on',i<=step));
+  }
+  slide.addEventListener('build',e=>place(e.detail.step));
+  place(+slide.dataset.step||0);
+});
+
+/* §32a/§32k · stepper skeleton — per .stepper container; content lives in STEPPERS[data-stepper].
+   The skeleton owns: state index, prev/next, caption fade, step label, skin switching, and per-state
+   values read from '|'-separated lists on any element:  data-o (opacity) · data-sw (stroke width) ·
+   data-tf (CSS transform) · data-txt (text) · data-w (shown from state w on). Skins own only their
+   scene ([data-skin] groups or pins) and their captions. */
+const STEPPERS={
+  loop:{ labels:['1','2','3','4'], caps:['First state.','Second state.','Third state.','Fourth state.'] },   // example entry for components §32a (no skins)
+  review:{ labels:['day 1','day 3','day 4','day 10'],
+    caps:{ trace:['Day 1 — written once, in fresh chalk.','Day 3 — the line is fading; the board still holds a ghost of it.',
+                  'Day 4 — the review: you trace it again, harder.','Day 10 — still clearly there. The second line fades slower.'],
+           path:['Day 1 — one walk flattens a faint path.','Day 3 — the grass is growing back over it.',
+                 'Day 4 — you walk it again; the footprints press it down.','Day 10 — the path holds. Walked paths stay open longer.'] } }
+};
+document.querySelectorAll('.stepper').forEach(box=>{
+  const cfg=STEPPERS[box.dataset.stepper]; if(!cfg) return;
+  const cap=box.querySelector('.caption'), label=box.querySelector('.steplabel'),
+        pv=box.querySelector('.st-prev'), nx=box.querySelector('.st-next'), skinBtns=[...box.querySelectorAll('.skinbtn')];
+  const n=cfg.labels.length, list=(el,a)=>el.dataset[a].split('|');
+  let skin=skinBtns.length ? (skinBtns.find(b=>b.classList.contains('on'))||skinBtns[0]).dataset.skin : null, s=0;
+  function render(){
+    box.querySelectorAll('[data-skin]:not(.skinbtn)').forEach(el=>el.style.display=(el.dataset.skin===skin)?'':'none');
+    box.querySelectorAll('[data-o],[data-sw],[data-tf],[data-txt],[data-w]').forEach(el=>{
+      if(el.dataset.w!==undefined) el.style.opacity = s>=+el.dataset.w ? 1 : 0;
+      if(el.dataset.o) el.style.opacity=list(el,'o')[s];
+      if(el.dataset.sw) el.style.strokeWidth=list(el,'sw')[s];
+      if(el.dataset.tf) el.style.transform=list(el,'tf')[s];
+      if(el.dataset.txt) el.textContent=list(el,'txt')[s];
+    });
+    const caps=skin ? cfg.caps[skin] : cfg.caps;
+    cap.style.opacity=0; setTimeout(()=>{cap.textContent=caps[s]; cap.style.opacity=1},180);
+    if(label) label.textContent=cfg.labels[s];
+    pv.disabled=s===0; nx.disabled=s===n-1;
+  }
+  pv.addEventListener('click',()=>{if(s>0){s--;render()}});
+  nx.addEventListener('click',()=>{if(s<n-1){s++;render()}});
+  skinBtns.forEach(b=>b.addEventListener('click',()=>{ skin=b.dataset.skin; skinBtns.forEach(x=>x.classList.toggle('on',x===b)); render(); }));
+  render();
+});
+
+/* §32b · lab widget, skin 1: chips + gauge — per [data-lab]; content lives in LABS[data-lab].
+   Two modes:  'decay' (default) — share(v) returns 0..1; the first round(share×n) chips stay kept, the rest are struck;
+               'appear' (signal vs noise) — chips appear one per step (the first v show), each tagged ✓/✕ by rel[i];
+               the gauge shows the relevant share of what is shown.  verdict(v,share) returns the one-line verdict (HTML). */
+const LABS={
+  gap:{ items:['cell wall','osmosis','enzyme','mitosis','ATP','diffusion','ribosome','chlorophyll'],
+        share:d=>Math.exp(-d/6.5),                                   // a teaching curve, not a fitted model
+        verdict:d=> d<=2 ? 'Safe — but you are spending a review on cards that were not fading yet.'
+          : d<=5 ? 'The sweet spot: enough fading that recall takes effort, enough left that it succeeds.'
+          : '<b>Too late</b> for most cards — the review becomes relearning from scratch.' },
+  topk:{ mode:'appear', items:['Clause 7 · late penalty','Clause 7.2 · grace period','Clause 9 · force majeure','Shipping FAQ (2019)','Office pizza policy','Old draft'],
+         rel:[1,1,1,0,0,0],                                            // example entry for components §32b (signal-vs-noise)
+         verdict:(k,sh)=> k<=2 ? 'Clean — but the grace-period clause is still missing.'
+           : sh===1 ? 'The sweet spot: full coverage, nothing rotten yet.'
+           : '<b>More is not better</b> — now the noise is crowding the answer.' }
+};
+document.querySelectorAll('[data-lab]').forEach(box=>{
+  const cfg=LABS[box.dataset.lab]; if(!cfg) return;
+  const slider=box.querySelector('.lab-in'), val=box.querySelector('.kval'), chipsEl=box.querySelector('.chips'),
+        bar=box.querySelector('.fillbar'), note=box.querySelector('.labnote');
+  const appear=cfg.mode==='appear';
+  cfg.items.forEach((t,i)=>{const c=document.createElement('span'); c.className='chip';
+    c.textContent=appear ? (cfg.rel[i]?'✓ ':'✕ ')+t : t; chipsEl.appendChild(c);});
+  const chips=[...chipsEl.children];
+  function render(){
+    const v=+slider.value;
+    let sh;
+    if(appear){                                                       // signal vs noise
+      const shown=Math.min(v,chips.length);
+      chips.forEach((c,i)=>{c.classList.toggle('off',i>=shown); c.classList.toggle('sig',cfg.rel[i]===1); c.classList.toggle('noise',cfg.rel[i]!==1);});
+      sh=shown ? cfg.rel.slice(0,shown).filter(Boolean).length/shown : 0;
+    } else {                                                          // decay
+      sh=cfg.share(v); const k=Math.round(sh*chips.length);
+      chips.forEach((c,i)=>{c.classList.toggle('kept',i<k); c.classList.toggle('lost',i>=k);});
+    }
+    if(val) val.textContent=v;
+    bar.style.width=Math.round(sh*100)+'%';
+    bar.style.background=sh>.6?'var(--k-b)':sh>.35?'var(--k-c)':'var(--k-a)';
+    note.innerHTML=cfg.verdict(v,sh);
+  }
+  slider.addEventListener('input',render); render();
+});
+
+/* §32b · lab widget, skin 2: fixed-budget lamp — per [data-lamp]; one light shared by everything in the beam */
+const LAMPS={
+  session:{ count:26, budget:46,
+    verdict:n=> n<=3 ? '<b>'+n+'</b> card(s) in the light — each gets full attention.'
+      : n<=8 ? '<b>'+n+'</b> cards share the lamp — workable, none at full brightness.'
+      : '<b>'+n+'</b> cards, one lamp — everything touched, nothing really lit.' }
+};
+document.querySelectorAll('[data-lamp]').forEach(box=>{
+  const cfg=LAMPS[box.dataset.lamp]; if(!cfg) return;
+  const NS='http://www.w3.org/2000/svg', slider=box.querySelector('.lab-in'), cone=box.querySelector('.cone'),
+        g=box.querySelector('.ldots'), note=box.querySelector('.labnote');
+  const rnd=k=>{const v=Math.sin(k*12.9898)*43758.5453; return v-Math.floor(v);}, dots=[];   // deterministic scatter
+  for(let i=0;i<cfg.count;i++){
+    const x=40+rnd(i+1)*340, y=72+rnd(i+101)*88, c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',3); g.appendChild(c); dots.push({el:c,x,y});
+  }
+  function render(){
+    const half=+slider.value*1.6;
+    cone.setAttribute('points','210,20 '+(210-half)+',165 '+(210+half)+',165');
+    const inside=dots.filter(d=>Math.abs(d.x-210) < half*((d.y-20)/145));
+    const each=inside.length ? Math.min(1, cfg.budget/(inside.length*8)) : 0;            // fixed budget, shared
+    dots.forEach(d=>{const on=inside.includes(d);
+      d.el.style.fill=on?'var(--k-c)':'var(--pencil)'; d.el.style.opacity=on?(0.3+each*0.7).toFixed(2):'.3';
+      d.el.setAttribute('r',on?(3+each*3).toFixed(1):3);});
+    note.innerHTML=cfg.verdict(inside.length);
+  }
+  slider.addEventListener('input',render); render();
+});
+
+/* §32f · duo panes — final-geometry, per .panes: measure each deep block at its FINAL width (--dh),
+   lock the container to the tallest end state; hover then travels straight to final geometry. */
+document.querySelectorAll('.panes').forEach(panes=>{
+  const ps=[...panes.querySelectorAll('.pane')];
+  function measure(){
+    panes.classList.add('noanim'); panes.style.height='';
+    let maxH=panes.offsetHeight;
+    [['m-left',0],['m-right',1]].forEach(([cls,i])=>{
+      panes.classList.add(cls); ps[i].classList.add('m-open');
+      ps[i].style.setProperty('--dh', ps[i].querySelector('.deep').scrollHeight+'px');
+      maxH=Math.max(maxH,panes.offsetHeight);
+      ps[i].classList.remove('m-open'); panes.classList.remove(cls);
+    });
+    panes.style.height=maxH+'px'; void panes.offsetWidth; panes.classList.remove('noanim');
+  }
+  measure();
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>setTimeout(measure,30));
+  window.addEventListener('load',()=>setTimeout(measure,30));
+  let t; window.addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(measure,150)});
+  panes.closest('.slide').addEventListener('slideenter',()=>setTimeout(measure,30));
+});
+
+</script>
+</body>
+</html>

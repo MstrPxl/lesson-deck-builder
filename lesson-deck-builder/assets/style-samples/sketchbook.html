@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<!-- STYLE SAMPLE A · "SKETCHBOOK" — hand-drawn, wobbly ink, marker highlights.
+     Components shown: poster cover · hover margin-notes concept card ·
+     steppable figure · hand-drawn MCQ check. Engine contract = lesson-deck-builder. -->
+<html lang="en" dir="ltr" data-canvas="paper">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sketchbook · The Pin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Karla:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+:root{
+ /* component bridge (style-system.md §7) */
+ --ochre:#A8741A;
+ --k-ink:var(--ink); --k-soft:var(--ink-soft); --k-a:var(--red); --k-b:var(--blue); --k-c:var(--ochre); --k-hi:var(--marker); --k-surface:#FFFDF6; --k-card:#FFFDF6; --k-card-ink:var(--ink); --k-line:var(--line); --k-ease:cubic-bezier(.2,.7,.2,1);
+ --er-streak:rgba(41,36,27,.08); --er-wash:rgba(41,36,27,.04); --er-ghost:.2;
+  --paper:#FBF6EA; --paper-2:#F4EDDC; --ink:#29241B; --ink-soft:#5E5748; --pencil:#9A9280;
+  --red:#C4553B; --blue:#3E6B8C; --marker:#FFE590; --line:#D9CFB8;
+  --font-display:"Caveat", cursive; --font-body:"Karla", sans-serif;
+  --shadow:0 14px 34px -22px rgba(60,50,30,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font-body);background:var(--paper);color:var(--ink);overflow:hidden;line-height:1.7;-webkit-font-smoothing:antialiased}
+
+/* ruled-paper backdrop */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(70% 60% at 80% 10%, rgba(255,229,144,.25), transparent 60%),
+    repeating-linear-gradient(transparent 0 34px, rgba(154,146,128,.13) 34px 35px);}
+.bg::after{content:"";position:absolute;top:0;bottom:0;left:64px;width:1px;background:rgba(196,85,59,.28)}
+
+.deck{position:relative;z-index:2;height:100vh}
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:70px 28px 100px;opacity:0;visibility:hidden;transition:opacity .5s ease,visibility .5s ease;overflow-y:auto}
+.slide.active{opacity:1;visibility:visible}
+.inner{width:100%;max-width:980px}
+
+.reveal{opacity:0;transform:translateY(14px) rotate(-.4deg);transition:opacity .6s ease,transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+.slide.active .reveal{opacity:1;transform:none}
+.draw{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.1s ease;transition-delay:var(--d,0s)}
+.slide.active .draw{stroke-dashoffset:0}
+
+.tag{font-family:var(--font-body);font-weight:700;font-size:.72rem;letter-spacing:.14em;color:var(--red);text-transform:uppercase}
+h1{font-family:var(--font-display);font-weight:700;line-height:1.05}
+h2{font-family:var(--font-display);font-weight:600;line-height:1.1}
+.lead{color:var(--ink-soft);max-width:58ch}
+
+mark{background:linear-gradient(105deg, transparent 2%, var(--marker) 4%, var(--marker) 94%, transparent 97%);
+  padding:0 .2em;border-radius:2px;color:var(--ink)}
+
+/* ---------- COVER ---------- */
+.cover{text-align:center;max-width:740px;margin-inline:auto;position:relative}
+.cover h1{font-size:clamp(3rem,8vw,5.4rem);margin:10px 0 6px}
+.cover .lead{margin-inline:auto;font-size:1.06rem}
+.underline-svg{display:block;margin:2px auto 18px;width:min(340px,70%)}
+.hint{margin-top:30px;display:inline-flex;gap:10px;align-items:center;font-size:.85rem;color:var(--pencil);
+  border:1.6px solid var(--ink);border-radius:14px 18px 15px 17px/17px 14px 18px 15px;padding:8px 16px;background:var(--paper-2);transform:rotate(-.5deg)}
+kbd{font-size:.78rem;border:1.4px solid var(--ink);border-radius:6px 8px 7px 6px;padding:0 7px;background:#fff}
+
+/* ---------- SKETCH CARD (hand-drawn frame) ---------- */
+.sketch{position:relative;background:#FFFDF6;border:1.8px solid var(--ink);
+  border-radius:14px 22px 16px 24px/22px 14px 24px 16px;box-shadow:var(--shadow);padding:26px 28px}
+.sketch.tilt-l{transform:rotate(-.7deg)} .sketch.tilt-r{transform:rotate(.6deg)}
+.tape{position:absolute;top:-13px;left:50%;width:92px;height:26px;transform:translateX(-50%) rotate(-2deg);
+  background:rgba(255,229,144,.75);border:1px solid rgba(160,140,60,.35)}
+
+/* ---------- CONCEPT + MARGIN NOTES (hover depth) ---------- */
+.concept-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:start}
+.concept-grid h2{font-size:clamp(2rem,4.4vw,3rem);margin-bottom:10px}
+.note-stack{display:grid;gap:16px;align-content:start;height:420px}
+.note{position:relative;z-index:1;background:var(--marker);border:1.6px solid var(--ink);cursor:help;
+  border-radius:4px 10px 6px 12px/10px 5px 12px 6px;padding:12px 16px;transform:rotate(var(--r,1deg));
+  transition:transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease}
+.note:nth-child(2){--r:-1.2deg;background:#DCEAF4}
+.note:nth-child(3){--r:.8deg;background:#F6DCD2}
+.note .n-title{font-family:var(--font-display);font-weight:700;font-size:1.3rem;display:flex;align-items:center;gap:8px}
+/* depth unfolds IN FLOW — sibling notes are pushed down naturally — but the stack
+   lives in a RESERVED-height box, so the paragraph and the rest of the scene never move */
+.note .n-body{max-height:0;overflow:hidden;opacity:0;font-size:.93rem;color:var(--ink-soft);
+  border-top:1.6px dashed rgba(41,36,27,0);
+  transition:max-height .5s cubic-bezier(.2,.7,.2,1), opacity .4s ease .05s,
+             margin .4s ease, padding .4s ease, border-color .4s ease}
+.note:hover{transform:rotate(0) translateY(-3px);box-shadow:var(--shadow);z-index:10}
+.note:hover .n-body{max-height:190px;opacity:1;margin-top:8px;padding-top:8px;border-top-color:rgba(41,36,27,.35)}
+.note .peek{font-size:.72rem;color:var(--ink-soft);opacity:.65;float:right;font-style:italic}
+
+/* ---------- BOARD FIGURE (steppable) ---------- */
+.fig-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:38px;align-items:center}
+.boardwrap{position:relative;width:min(340px,100%);margin-inline:auto}
+.board{display:grid;grid-template-columns:repeat(5,1fr);border:2px solid var(--ink);
+  border-radius:6px 12px 8px 12px/12px 7px 12px 8px;overflow:hidden;aspect-ratio:1;background:#FFFDF6}
+.board i{display:block}
+.board i.d{background:#EADFC6}
+/* pieces live INSIDE the figure's SVG — one coordinate system, placement locked on every screen */
+.pc{font-size:15px;transition:transform .8s cubic-bezier(.3,.9,.3,1)}
+.pc.black{fill:var(--ink)}
+.pc.white{fill:#FFFDF6;stroke:var(--ink);stroke-width:.9;paint-order:stroke}
+.overlay{position:absolute;inset:0;z-index:2;pointer-events:none}
+.attack{stroke:var(--red);stroke-width:3;stroke-linecap:round;stroke-dasharray:7 8;opacity:0;transition:opacity .5s ease}
+.ghost{opacity:0;transition:opacity .5s ease}
+.frozen-ring{fill:none;stroke:var(--blue);stroke-width:3;stroke-dasharray:1;stroke-dashoffset:1;opacity:0;transition:stroke-dashoffset .9s ease .15s,opacity .2s ease}
+[data-step="2"] .attack{opacity:1}
+[data-step="3"] .attack{opacity:1}
+[data-step="3"] .ghost{opacity:1}
+[data-step="3"] .frozen-ring{stroke-dashoffset:0;opacity:1}
+.stepbar{display:flex;align-items:center;gap:14px;margin-top:18px;justify-content:center}
+.stepbtn{font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:var(--ink);background:#FFFDF6;
+  border:1.8px solid var(--ink);border-radius:50% 46% 52% 48%/48% 52% 46% 52%;width:46px;height:46px;cursor:pointer;
+  transition:transform .2s ease,background .2s}
+.stepbtn:hover{transform:rotate(-4deg) scale(1.06);background:var(--marker)}
+.stepbtn:disabled{opacity:.3;cursor:default;transform:none}
+.stepdots{display:flex;gap:8px}
+.stepdots b{width:10px;height:10px;border:1.6px solid var(--ink);border-radius:50%;background:transparent;transition:background .3s}
+.stepdots b.on{background:var(--red)}
+.caption{font-family:var(--font-display);font-size:clamp(1.35rem,2.6vw,1.7rem);font-weight:600;min-height:2.6em;transition:opacity .3s}
+.fig-grid h2{font-size:clamp(2rem,4.2vw,2.8rem);margin-bottom:8px}
+
+/* ---------- QUIZ ---------- */
+.quiz h2{font-size:clamp(2rem,4.4vw,2.9rem);margin-bottom:6px}
+.opts{display:grid;gap:14px;margin-top:22px;max-width:640px}
+.opt{display:flex;gap:14px;align-items:center;background:#FFFDF6;border:1.8px solid var(--ink);cursor:pointer;text-align:left;
+  border-radius:10px 16px 12px 18px/16px 10px 18px 12px;padding:14px 18px;font-family:var(--font-body);font-size:.98rem;color:var(--ink);
+  transition:transform .25s ease, background .3s ease}
+.opt:hover{transform:rotate(-.5deg) translateX(4px)}
+.opt .box{flex:none;width:24px;height:24px;border:1.8px solid var(--ink);border-radius:5px 8px 6px 9px;position:relative;background:#fff}
+.opt .box svg{position:absolute;inset:-4px;width:30px;height:30px;overflow:visible}
+.opt .tick,.opt .scrib{stroke-dasharray:1;stroke-dashoffset:1}
+.opt.correct{background:var(--marker)}
+.opt.correct .tick{stroke-dashoffset:0;transition:stroke-dashoffset .5s ease}
+.opt.wrong .scrib{stroke-dashoffset:0;transition:stroke-dashoffset .5s ease}
+.verdict{margin-top:16px;font-family:var(--font-display);font-size:1.5rem;font-weight:600;opacity:0;transition:opacity .5s ease}
+.verdict.show{opacity:1}
+.sign{margin-top:34px;font-family:var(--font-display);font-size:1.35rem;color:var(--ink-soft);transform:rotate(-1deg)}
+
+/* ---------- CHROME ---------- */
+.topbar{position:fixed;top:0;inset-inline:0;display:flex;justify-content:space-between;align-items:center;padding:16px 26px;z-index:5}
+.brand{font-family:var(--font-display);font-weight:700;font-size:1.3rem;display:flex;gap:10px;align-items:center}
+.counter{font-size:.85rem;color:var(--pencil)}
+.nav{position:fixed;bottom:16px;inset-inline:0;display:flex;justify-content:center;gap:16px;align-items:center;z-index:5}
+.nav button{font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:var(--ink);background:#FFFDF6;cursor:pointer;
+  border:1.8px solid var(--ink);border-radius:12px 18px 14px 20px/18px 12px 20px 14px;padding:9px 22px;transition:transform .2s,background .2s}
+.nav button:hover:not(:disabled){transform:rotate(-1deg) translateY(-2px);background:var(--marker)}
+.nav button:disabled{opacity:.3;cursor:default}
+.dots{display:flex;gap:9px}
+.dots i{width:11px;height:11px;border:1.6px solid var(--ink);border-radius:50%;cursor:pointer;transition:background .3s}
+.dots i.on{background:var(--red)}
+.progress{position:fixed;bottom:0;inset-inline:0;height:4px;background:var(--line);z-index:6}
+.progress .fill{height:100%;width:0;background:var(--red);transition:width .5s ease}
+
+@media(max-width:880px){
+  .concept-grid,.fig-grid{grid-template-columns:1fr;gap:26px}
+  .note-stack{height:auto}
+  .slide{padding:60px 18px 96px}
+  .nav .dots{display:none}
+}
+
+/* ===== BUILDS (engine v2) — [data-build="0..n"] appear one press at a time (components.md §25) ===== */
+[data-build]{opacity:0;transform:translateY(8px);transition:opacity .45s ease,transform .55s var(--k-ease,cubic-bezier(.2,.7,.2,1))}
+svg [data-build]{transform:none}
+[data-build].built{opacity:1;transform:none}
+.slide.active [data-build]:not(.built) .draw{stroke-dashoffset:1;opacity:0}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<!-- global wobble filter for hand-drawn strokes -->
+<svg width="0" height="0" style="position:absolute">
+  <filter id="wob"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="t"/>
+  <feDisplacementMap in="SourceGraphic" in2="t" scale="2.6"/></filter>
+</svg>
+
+<div class="topbar">
+  <div class="brand"><svg width="22" height="22" viewBox="0 0 24 24" style="filter:url(#wob)"><path d="M4 18 C7 6, 15 4, 20 8" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round"/><path d="M4 20 C9 12, 16 10, 20 13" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/></svg> Sketchbook</div>
+  <div class="counter"><span id="cur">1</span> / <span id="total">5</span></div>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 · COVER (poster component) -->
+  <section class="slide active">
+    <div class="inner cover">
+      <span class="tag reveal" style="--d:.05s">Style sample A · component 01 — poster</span>
+      <h1 class="reveal" style="--d:.15s">The Pin</h1>
+      <svg class="underline-svg reveal" style="--d:.3s" viewBox="0 0 340 22" fill="none">
+        <path class="draw" style="--d:.45s" pathLength="1" d="M6 14 C 80 4, 150 20, 210 10 S 320 8, 334 12" stroke="var(--red)" stroke-width="4" stroke-linecap="round" filter="url(#wob)"/>
+      </svg>
+      <p class="lead reveal" style="--d:.4s">One piece stands still because <mark>something precious hides behind it</mark>. Five minutes, one idea, drawn by hand.</p>
+      <div class="hint reveal" style="--d:.55s">flip pages with <kbd>←</kbd> <kbd>→</kbd> — hover the yellow notes</div>
+    </div>
+  </section>
+
+  <!-- 2 · CONCEPT + hover margin notes (hover-depth component) -->
+  <section class="slide">
+    <div class="inner concept-grid">
+      <div>
+        <span class="tag reveal">component 02 — margin notes (hover for depth)</span>
+        <h2 class="reveal" style="--d:.08s">A pin is a promise of punishment</h2>
+        <p class="lead reveal" style="--d:.16s">A long-range piece aims through an enemy piece at <mark>something more valuable behind it</mark>. The front piece isn't captured — it's <strong>paralyzed</strong>. Moving it would expose the treasure.</p>
+        <p class="lead reveal" style="--d:.24s">The core fits in one line. Everything deeper lives in the notes — touch them only if you want more.</p>
+      </div>
+      <div class="note-stack reveal" style="--d:.3s">
+        <div class="note"><span class="peek">hover ✎</span><div class="n-title">Who can pin?</div>
+          <div class="n-body">Only sliders — bishop, rook, queen. A knight can never pin anything: it attacks around corners, not through lines.</div></div>
+        <div class="note"><span class="peek">hover ✎</span><div class="n-title">Absolute vs relative</div>
+          <div class="n-body">King behind = <b>absolute</b>: moving off the line is illegal. Queen or rook behind = <b>relative</b>: legal, just usually a terrible idea.</div></div>
+        <div class="note"><span class="peek">hover ✎</span><div class="n-title">Why it wins games</div>
+          <div class="n-body">A pinned piece defends nothing and fears everything. Pile attackers on it — it can't run.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · STEPPABLE FIGURE (walk a diagram through states) -->
+  <section class="slide">
+    <div class="inner fig-grid">
+      <div>
+        <span class="tag reveal">component 03 — steppable figure</span>
+        <h2 class="reveal" style="--d:.08s">Watch a pin being born</h2>
+        <p class="caption reveal" style="--d:.16s" id="figcap">The pieces before the storm: a knight shields its king.</p>
+        <div class="stepbar reveal" style="--d:.24s">
+          <button class="stepbtn" id="fprev" aria-label="previous step">‹</button>
+          <div class="stepdots" id="fdots"></div>
+          <button class="stepbtn" id="fnext" aria-label="next step">›</button>
+        </div>
+      </div>
+      <div class="sketch tilt-r reveal" style="--d:.2s"><div class="tape"></div>
+        <div class="boardwrap" id="figroot" data-step="0">
+          <div class="board" aria-hidden="true">
+            <i></i><i class="d"></i><i></i><i class="d"></i><i></i>
+            <i class="d"></i><i></i><i class="d"></i><i></i><i class="d"></i>
+            <i></i><i class="d"></i><i></i><i class="d"></i><i></i>
+            <i class="d"></i><i></i><i class="d"></i><i></i><i class="d"></i>
+            <i></i><i class="d"></i><i></i><i class="d"></i><i></i>
+          </div>
+          <svg class="overlay" viewBox="0 0 100 100">
+            <line class="attack" x1="70" y1="86" x2="70" y2="14" filter="url(#wob)"/>
+            <circle class="frozen-ring" pathLength="1" cx="70" cy="50" r="11" filter="url(#wob)"/>
+            <g class="ghost"><text class="pc black" x="30" y="30" text-anchor="middle" dominant-baseline="central" opacity=".45">♞</text>
+              <path d="M23 23 L37 37 M37 23 L23 37" stroke="var(--red)" stroke-width="2.6" stroke-linecap="round" filter="url(#wob)"/></g>
+            <text class="pc black" id="pK" x="0" y="0" text-anchor="middle" dominant-baseline="central" style="transform:translate(70px,10px)">♚</text>
+            <text class="pc black" id="pN" x="0" y="0" text-anchor="middle" dominant-baseline="central" style="transform:translate(70px,50px)">♞</text>
+            <text class="pc white" id="pR" x="0" y="0" text-anchor="middle" dominant-baseline="central" style="transform:translate(10px,90px)">♜</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · MCQ CHECK (hand-drawn quiz component) -->
+  <section class="slide">
+    <div class="inner quiz">
+      <span class="tag reveal">component 04 — sketch check</span>
+      <h2 class="reveal" style="--d:.08s">One question, answered in ink</h2>
+      <p class="lead reveal" style="--d:.14s">The king stands behind the pinned rook — an <mark>absolute pin</mark>. What may the rook do?</p>
+      <div class="opts reveal" style="--d:.24s" id="quiz">
+        <button class="opt" data-ok="0"><span class="box"><svg viewBox="0 0 30 30"><path class="scrib" pathLength="1" d="M4 6 L26 24 M26 6 L4 24" stroke="var(--red)" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></span>Move anywhere — a pin is only a suggestion</button>
+        <button class="opt" data-ok="1"><span class="box"><svg viewBox="0 0 30 30"><path class="tick" pathLength="1" d="M5 16 L12 24 L27 4" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#wob)"/></svg></span>Slide only along the pin line — the leash has one direction</button>
+        <button class="opt" data-ok="0"><span class="box"><svg viewBox="0 0 30 30"><path class="scrib" pathLength="1" d="M4 6 L26 24 M26 6 L4 24" stroke="var(--red)" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></span>Never move at all, in any direction</button>
+      </div>
+      <p class="verdict" id="verdict"></p>
+    </div>
+  </section>
+
+  <!-- 5 · CLOSE (poster reprise + component index) -->
+  <section class="slide">
+    <div class="inner cover">
+      <span class="tag reveal" style="--d:.05s">end of sample A</span>
+      <h1 class="reveal" style="--d:.15s; font-size:clamp(2.4rem,6vw,4rem)">Little ink, loud idea.</h1>
+      <svg class="underline-svg reveal" style="--d:.3s" viewBox="0 0 340 22" fill="none">
+        <path class="draw" style="--d:.42s" pathLength="1" d="M10 12 C 90 20, 180 4, 330 14" stroke="var(--blue)" stroke-width="4" stroke-linecap="round" filter="url(#wob)"/>
+      </svg>
+      <p class="lead reveal" style="--d:.4s">Components in this style: wobble-frame cards · marker highlights · sticky margin notes (hover depth) · draw-in strokes · steppable board · sketch quiz.</p>
+      <p class="sign reveal" style="--d:.55s">— drawn, not rendered ✎</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev">‹ Prev</button>
+  <div class="dots" id="dots"></div>
+  <button id="next">Next ›</button>
+</div>
+<div class="progress"><div class="fill" id="fill"></div></div>
+
+<script>
+/* ---- deck engine v2 — do not edit (builds · data-capture guard · slideenter/build events) ---- */
+  const slides=[...document.querySelectorAll('.slide')];
+  const total=slides.length;
+  let idx=0;
+  const cur=document.getElementById('cur'), fill=document.getElementById('fill');
+  const prevBtn=document.getElementById('prev'), nextBtn=document.getElementById('next'), dotsWrap=document.getElementById('dots');
+  document.getElementById('total').textContent=total;
+
+  slides.forEach((_,k)=>{ const d=document.createElement('i'); d.addEventListener('click',()=>go(k)); dotsWrap.appendChild(d); });
+  const dots=[...dotsWrap.children];
+
+  // builds: [data-build="0..n"] appear one press at a time before the page turns;
+  // data-builds="n" on a slide declares steps for widgets that follow builds (components.md §25)
+  const buildMax=slides.map(s=>Math.max(+s.dataset.builds||0,...[...s.querySelectorAll('[data-build]')].map(e=>+e.dataset.build||0)));
+  const buildStep=slides.map(()=>0);
+  function paintBuilds(k,quiet){
+    const s=slides[k], n=buildStep[k];
+    s.querySelectorAll('[data-build]').forEach(e=>{ const b=+e.dataset.build||0; e.classList.toggle('built',b<=n); e.classList.toggle('now',b===n); });
+    s.dataset.step=n;
+    if(!quiet) s.dispatchEvent(new CustomEvent('build',{detail:{step:n,of:buildMax[k]}}));
+  }
+  slides.forEach((_,k)=>paintBuilds(k,true));
+
+  function update(){
+    slides.forEach((s,k)=>s.classList.toggle('active',k===idx));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+    cur.textContent=idx+1;
+    fill.style.width=((idx+1)/total*100)+'%';
+    prevBtn.disabled=idx===0&&buildStep[idx]===0;
+    nextBtn.disabled=idx===total-1&&buildStep[idx]>=buildMax[idx];
+  }
+  // enter slide n at step 0, or fully built when stepping back into it
+  function go(n,built){
+    const from=idx; idx=Math.max(0,Math.min(total-1,n));
+    if(idx===from&&!built){ update(); return; }
+    buildStep[idx]=built?buildMax[idx]:0; paintBuilds(idx);
+    update(); slides[idx].scrollTop=0;
+    if(idx!==from) slides[idx].dispatchEvent(new CustomEvent('slideenter',{detail:{from}}));
+  }
+  function next(){ if(buildStep[idx]<buildMax[idx]){ buildStep[idx]++; paintBuilds(idx); update(); } else if(idx<total-1) go(idx+1); }
+  function prev(){ if(buildStep[idx]>0){ buildStep[idx]--; paintBuilds(idx); update(); } else if(idx>0) go(idx-1,true); }
+  nextBtn.addEventListener('click',next); prevBtn.addEventListener('click',prev);
+
+  // direction-aware keys: in RTL, ArrowLeft moves forward
+  const rtl=(document.documentElement.getAttribute('dir')||'ltr').toLowerCase()==='rtl';
+  const FWD=rtl?['ArrowLeft','ArrowDown',' ','PageDown']:['ArrowRight','ArrowDown',' ','PageDown'];
+  const BACK=rtl?['ArrowRight','ArrowUp','PageUp']:['ArrowLeft','ArrowUp','PageUp'];
+  // never hijack keys or swipes while the user is typing in an editable field,
+  // or working a widget marked data-capture (scrubbers, draggable figures)
+  const typing=e=>{const t=e.target;return !!t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'||t.tagName==='SELECT'||t.isContentEditable||!!(t.closest&&t.closest('[data-capture]')));};
+  document.addEventListener('keydown',e=>{
+    if(typing(e)) return;
+    if(FWD.includes(e.key)){ e.preventDefault(); next(); }
+    else if(BACK.includes(e.key)){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ go(0); } else if(e.key==='End'){ go(total-1); }
+  });
+
+  // direction-aware swipe
+  let sx=null;
+  document.addEventListener('touchstart',e=>{ if(typing(e)){ sx=null; return; } sx=e.changedTouches[0].clientX; },{passive:true});
+  document.addEventListener('touchend',e=>{
+    if(sx===null) return;
+    const dx=e.changedTouches[0].clientX-sx;
+    const goFwd = rtl ? dx>50 : dx<-50;
+    const goBack = rtl ? dx<-50 : dx>50;
+    if(goFwd) next(); else if(goBack) prev();
+    sx=null;
+  },{passive:true});
+
+  update();
+  setTimeout(()=>slides[idx].dispatchEvent(new CustomEvent('slideenter',{detail:{from:-1}})),0);
+
+/* ---- component script: steppable figure ---- */
+(function(){
+  const root=document.getElementById('figroot');
+  const cap=document.getElementById('figcap');
+  const R=document.getElementById('pR');
+  const caps=[
+    "The pieces before the storm: a knight shields its king.",
+    "The rook slides onto the same file. The trap is set.",
+    "X-ray vision: the attack passes through the knight to the king.",
+    "The knight tries to jump — illegal! It is glued to the file."
+  ];
+  let s=0; const N=4;
+  const dotsEl=document.getElementById('fdots');
+  for(let i=0;i<N;i++){const b=document.createElement('b');dotsEl.appendChild(b)}
+  const fd=[...dotsEl.children];
+  const pv=document.getElementById('fprev'), nx=document.getElementById('fnext');
+  function render(){
+    root.dataset.step=s;
+    R.style.transform = s>=1 ? 'translate(70px,90px)' : 'translate(10px,90px)';
+    cap.style.opacity=0;
+    setTimeout(()=>{cap.textContent=caps[s];cap.style.opacity=1},180);
+    fd.forEach((d,k)=>d.classList.toggle('on',k===s));
+    pv.disabled=s===0; nx.disabled=s===N-1;
+  }
+  pv.addEventListener('click',()=>{if(s>0){s--;render()}});
+  nx.addEventListener('click',()=>{if(s<N-1){s++;render()}});
+  render();
+})();
+
+/* ---- component script: sketch quiz ---- */
+(function(){
+  const quiz=document.getElementById('quiz'), verdict=document.getElementById('verdict');
+  let done=false;
+  quiz.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(done)return; done=true;
+      const ok=btn.dataset.ok==='1';
+      btn.classList.add(ok?'correct':'wrong');
+      if(!ok) quiz.querySelector('[data-ok="1"]').classList.add('correct');
+      verdict.textContent = ok
+        ? "Yes — along the line it may crawl; off the line, never."
+        : "Close — it may still slide along the pin line, just never off it.";
+      verdict.classList.add('show');
+    });
+  });
+})();
+</script>
+</body>
+</html>
