@@ -681,6 +681,7 @@ s.addEventListener(<span class="s">'build'</span>, e =&gt; moveToken(e.detail.st
     <tbody><tr><td>≈ 10 min</td><td>8–10</td></tr><tr><td>≈ 20 min (default)</td><td>14–16</td></tr><tr><td>≈ 30 min</td><td>16–20</td></tr></tbody>
   </table></div>
   <p>In teaching decks, the opening challenge, the challenge revisited and the question set count <strong>inside</strong> this budget: they replace content slides, they are never added on top.</p>
+  <div class="aside">This slide budget is for ordinary decks. Decks made from lecture slides with the <a href="#rulebooks">slides rulebook</a> are measured differently: in words only, up to 2 × the lecture's words, with no slide-count limit.</div>
 </section>
 
 <!-- ============ VALIDATE ============ -->
@@ -761,9 +762,9 @@ python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the rever
 
   <div class="grid g2">
     <div class="card">
-      <span class="tag">rulebooks/slides-rulebook.md · v1.7</span>
+      <span class="tag">rulebooks/slides-rulebook.md · v1.8</span>
       <h3>Slides Rulebook</h3>
-      <p>How to turn one lecture into one deck that is <strong>complete</strong>, <strong>shorter to read</strong> than the slides, in <strong>plain English (A2–B1)</strong>, split into <strong>topics that each stand alone</strong>, taught with research-backed methods, and <strong>phone first</strong>. It also keeps every deck of a course consistent, from the first lecture to the last.</p>
+      <p>How to turn one lecture into one deck that is <strong>complete</strong>, <strong>easier to digest</strong> than the slides (in <strong>at most twice their words</strong>), in <strong>plain English (A2–B1)</strong>, split into <strong>topics that each stand alone</strong>, taught with research-backed methods, and <strong>phone first</strong>. It also keeps every deck of a course consistent, from the first lecture to the last.</p>
       <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/slides-rulebook.md">Read it on GitHub ↗</a></p>
     </div>
     <div class="card">
@@ -772,6 +773,15 @@ python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the rever
       <p>How to add a <strong>final quiz</strong> to a deck: about 10 minutes, several kinds of questions, marked on the page with a reason for every answer, and a score slide that sends you back to the topics you missed. Works with the slides rulebook or on its own, for any subject.</p>
       <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/questions-rulebook.md">Read it on GitHub ↗</a></p>
     </div>
+  </div>
+
+  <div class="note"><span class="nt">New in 1.8: easier to digest, not shorter</span>
+    The goal is no longer a deck <em>shorter</em> than the slides. It is a deck that is <strong>easier to digest</strong>: plain words even when they're longer, full sentences instead of bullet fragments, the "why", and a concrete example for every key idea.
+    <ul>
+      <li><strong>Ceiling:</strong> at most <strong>2 ×</strong> the source's words (its text plus the words in its figures and tables). Never more.</li>
+      <li><strong>Words only:</strong> there is no limit on the number of slides. Each slide stays a small chunk (about 50–70 words), so more explanation means more slides, not denser ones.</li>
+      <li><strong>If a deck runs long,</strong> the deck's own extras (a second example, an analogy) are cut first. Facts and exact definitions are never cut; if they alone wouldn't fit, Claude stops and asks you.</li>
+    </ul>
   </div>
 
   <h3>How to use them</h3>
@@ -807,11 +817,22 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
       <tr><td><strong>G2</strong> English at A2–B1</td><td>Everyday words, short sentences</td><td><code>plain_check.py</code>: ≥98% known words, no sentence over 20 words</td></tr>
       <tr><td><strong>G3</strong> Independent topics</td><td>Any topic understood alone; no unexplained word</td><td>Gloss and acronym checks; a "cold read"</td></tr>
       <tr><td><strong>G4</strong> Best ways to teach</td><td>The Concept Pattern and teaching rules TE1–TE10</td><td>Checklist</td></tr>
-      <tr><td><strong>G5</strong> Shorter than the slides</td><td>Fewer slides (≈0.8×) and no more words than the source</td><td>Word budget</td></tr>
+      <tr><td><strong>G5</strong> Easier to digest, in at most twice the words</td><td>Plain, full explanations with an example for every key idea, in small chunks; at most 2 × the source's words, with no slide-count limit</td><td><code>plain_check.py</code>: words ≤ 200% of the source; Concept Pattern, words per slide, cold read</td></tr>
       <tr><td><strong>G6</strong> Phone first</td><td>Works upright on a phone, unchanged on a laptop</td><td>Checks at 390×844, 360, 320 and sideways</td></tr>
     </tbody>
   </table></div>
-  <p>When rules conflict: correctness first, then completeness (the word budget gives way to it), then the budget, then understandability, then teaching method, then style.</p>
+  <p>When rules conflict: correctness first, then completeness, then the 2 × word ceiling, then ease of understanding, then teaching method, then style. Completeness and the ceiling are both hard limits: extras are cut to meet the ceiling, and if the facts alone wouldn't fit, Claude asks you.</p>
+  <h3>Where the extra words go</h3>
+  <p>The room between the source's word count and the ceiling is spent in this order, and cut from the bottom up when a deck runs long:</p>
+  <ol>
+    <li>Plain words and full sentences, even when they're longer than the slides' wording.</li>
+    <li>A concrete example for every key idea, and a worked example for every procedure, calculation or piece of code.</li>
+    <li>The "why": the mechanism in a sentence or two.</li>
+    <li>Help where it's needed: visible glosses, a plain reading beside every exact quote, background the slides assume.</li>
+    <li>The common mistake, named and corrected.</li>
+    <li>A second example or an analogy, only for ideas students often find hard.</li>
+  </ol>
+  <p>Never padding, repeats or decorative stories: the ceiling is a limit, not a goal.</p>
 
   <h3>What's inside each file</h3>
   <div class="grid g2">
@@ -819,8 +840,8 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
       <li><strong>Workflow W1–W11</strong>: read every page (text and images), measure the source's words, build a fact ledger, research every key concept, order for learning, plan, confirm only real decisions, write a term sheet, draft, build, check, deliver, update notes.</li>
       <li><strong>Rule families</strong> with IDs you can cite in feedback: L (language), T (terms), TE (teaching), F (fidelity), V (visuals), M (phone), N (navigation), Q (checks).</li>
       <li><strong>The Concept Pattern</strong>: ask · plain idea + case · name it · picture · why it works · worked example · common mistake · check.</li>
-      <li><strong>Settings</strong> (§11): vocabulary level, Arabic support, deck shape, budget, quiz on/off, glossary, navigation, exact wording…</li>
-      <li><strong>Appendices</strong>: <code>plain_check.py</code> (language/budget checker), topic bar, glossary, phone layer code, and the independent checker's brief.</li>
+      <li><strong>Settings</strong> (§11): vocabulary level, Arabic support, deck shape, word ceiling (2 × by default; Tighter 1.5 ×; Shorter, the old rule), quiz on/off, glossary, navigation, exact wording…</li>
+      <li><strong>Appendices</strong>: <code>plain_check.py</code> (language and word-ceiling checker, <code>--ceiling</code>), topic bar, glossary, phone layer code, and the independent checker's brief.</li>
     </ul></div>
     <div class="card soft"><b>Questions rulebook</b><ul>
       <li><strong>Goals QG1–QG5</strong>: answerable from the deck alone, fair but challenging, ≈10 minutes, covers every topic, marks itself and teaches.</li>
@@ -837,7 +858,7 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
     <thead><tr><th>Comment</th><th>What it holds</th></tr></thead>
     <tbody>
       <tr><td><code>&lt;!-- COURSE --&gt;</code></td><td>The course's standing choices: canvas and board, exam focus, settings, field words, deck number. Later decks copy it, so nothing is asked twice.</td></tr>
-      <tr><td><code>&lt;!-- BUDGET --&gt;</code></td><td>The source's word count (text + words inside figures).</td></tr>
+      <tr><td><code>&lt;!-- BUDGET --&gt;</code></td><td>The source's word count (text + words inside figures). The deck's ceiling is twice this number.</td></tr>
       <tr><td><code>&lt;!-- FACT-LEDGER --&gt;</code></td><td>Every fact of the lecture, by page, with where the deck teaches it.</td></tr>
       <tr><td><code>&lt;!-- SOURCES --&gt;</code></td><td>The research behind the deck: fidelity checks, misconceptions, slide errors.</td></tr>
       <tr><td><code>&lt;!-- QUIZ-MAP --&gt;</code></td><td>Each quiz item: kind, answer, source page, topic.</td></tr>
@@ -870,6 +891,7 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
       <tr><th>Quiz</th><td>16 items in 9 kinds: Choose one, True or false, Fill the gap, Match, Sort, Put in order, Find the mistake, Work it out, Label the figure</td></tr>
       <tr><th>Extras</th><td>A deck glossary ("Words in this deck"), tap-to-define terms, builds, and the phone layer</td></tr>
       <tr><th>Checks</th><td><code>validate.py</code> clean; independent check run four times until nothing was missing, weakened, contradicted or misquoted</td></tr>
+      <tr><th>Words</th><td>2,105 words outside the quiz, for a 989-word lecture (213%, measured with <code>plain_check.py</code>). It was built under rulebook v1.7, where exact definitions could push a deck past its word limit. Under v1.8's 2 × ceiling (1,978 words), about 130 words of the deck's own additions would be cut.</td></tr>
     </tbody>
   </table></div>
 
@@ -879,7 +901,7 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
     <div class="card soft"><b>Take the quiz</b><p class="mt0">Click "Final quiz" in the topic bar. Answer, check, and watch the score slide send you back to missed topics.</p></div>
     <div class="card soft"><b>Read the records</b><p class="mt0">Open the file in a text editor and search for <code>COURSE</code>, <code>FACT-LEDGER</code> or <code>QUIZ-MAP</code> near the end.</p></div>
   </div>
-  <p class="muted"><small>The validator's "more than 20 slides" note is expected here: the slides rulebook makes one deck per lecture and replaces the skill's slide budget with a word budget. The deck quotes the lecture's definitions word for word (rule F2); those quotations belong to their original authors.</small></p>
+  <p class="muted"><small>The validator's "more than 20 slides" note is expected here: the slides rulebook makes one deck per lecture and measures its length in words, not slides. The deck quotes the lecture's definitions word for word (rule F2); those quotations belong to their original authors.</small></p>
 </section>
 
 <!-- ============ REPO ============ -->
@@ -947,6 +969,7 @@ README.md · LICENSE</div>
       <tr><td><strong>Skill v1.3</strong></td><td>2026-10-09</td><td>Sketchbook only; canvas gate with paper and six chalkboard boards; template rebuilt; retired styles' mechanics ported to §32.</td></tr>
       <tr><td>Skill v1.2.1</td><td>2026-10-07</td><td>Chalk grain removed; chalkboard text renders clean.</td></tr>
       <tr><td>Skill v1.2</td><td>2026-10-06</td><td>Use-case system; engine v2 (builds, capture guard, events); components §22–§31; validator upgrades.</td></tr>
+      <tr><td><strong>Slides rulebook 1.8</strong></td><td>2026-10-16</td><td>Easier to digest, not shorter: up to 2 × the source's words, never more; size measured in words only, no slide-count limit; <code>plain_check.py --ceiling</code>.</td></tr>
       <tr><td>Slides rulebook 1.7</td><td>2026-10-10</td><td>Fact ledger, required independent check, exact wording for every definition.</td></tr>
       <tr><td>Questions rulebook 1.2.1</td><td>2026-10-10</td><td>Goals over procedures; "Departures" line in the report.</td></tr>
     </tbody>

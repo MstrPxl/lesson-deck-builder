@@ -4,7 +4,7 @@ Optional companions to the `lesson-deck-builder` skill, for turning **university
 
 | File | Purpose |
 |---|---|
-| [`slides-rulebook.md`](slides-rulebook.md) (v1.7) | One deck per lecture: complete (every fact at full strength, definitions word for word), shorter than the slides, plain English at A2–B1, topics that stand alone, phone first, consistent across every deck of a course. |
+| [`slides-rulebook.md`](slides-rulebook.md) (v1.8) | One deck per lecture: complete (every fact at full strength, definitions word for word), **easier to digest than the slides** (plain words, full sentences, an example for every key idea) in **at most twice their words** (no slide-count limit), plain English at A2–B1, topics that stand alone, phone first, consistent across every deck of a course. |
 | [`questions-rulebook.md`](questions-rulebook.md) (v1.2.1) | A self-marking final quiz (~10 min, up to nine question kinds) with a score slide that sends the learner back to missed topics. Works with the slides rulebook or on its own. |
 
 ## Prompts

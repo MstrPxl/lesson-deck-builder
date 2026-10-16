@@ -1,6 +1,16 @@
 # Slides Rulebook
 
-**Version 1.7 · 10 October 2026 · written against `lesson-deck-builder` v1.3 (Sketchbook: paper, or chalkboard in six boards)**
+**Version 1.8 · 16 October 2026 · written against `lesson-deck-builder` v1.3 (Sketchbook: paper, or chalkboard in six boards)**
+
+> **Changes in 1.8: easier to digest, not shorter.** G5 used to say "shorter than the slides". It now says **easier to digest than the slides, in at most twice their words**.
+> - **The word ceiling is 2 × the original's words** (W1b: its text plus the words inside its figures and tables). Plain words that are longer, full sentences instead of telegraphic bullets, the "why", and examples may use that room. The deck never passes the ceiling.
+> - **Words are the only measure of size.** There is no slide-count limit (the old "about 0.8 × the source's slides" is gone). The slide count follows from one idea per slide (TE1) and the words per slide (V5).
+> - **Where the room goes** is a ranked list (§1, "Where the extra words go"). When a plan passes the ceiling, cut from the bottom of that list up (W4). Facts and their exact wording are never cut. If they alone would pass the ceiling, stop and ask the user (precedence, W5).
+> - The Concept Pattern's "budget form" is now its **deck form** (§6): every load-bearing concept gets a concrete example, and a concept may take 1–3 slides.
+> - **Checks and report:** Q6 checks the ceiling and digestibility, not the slide count. The report shows words against the 200% ceiling and says what the room above 100% was spent on (§10).
+> - **`plain_check.py` v1.8** reports deck words against the ceiling (`--ceiling`, default 2.0) and flags only a deck over it.
+> - **Settings (§11):** the word ceiling is 2 × by default. **Tighter** (1.5 ×) and **Shorter** (the v1.7 rule: no more words than the source, about 0.8 × its slides) remain as options.
+> - **Courses started before 1.8** switch to the 2 × ceiling from their next deck, unless the user keeps the Shorter setting (§0).
 
 > **Changes in 1.7: the deck must stand alone, and that is now checked fact by fact.** G1 always said the student never needs the slides, but its check (a coverage map of slide units) let small losses through: a 210 ISY deck passed with 13 weakened facts, 2 contradictions and 9 quiz problems, all found by an independent reader.
 > - **F1 — Fact ledger** replaces the coverage map. Every bullet is split into single facts, qualifiers kept, each with its slide and a status. Re-run after every trimming pass (W9).
@@ -74,7 +84,7 @@
 
 This file tells you how to turn a set of university lecture slides into one lesson-deck-builder HTML deck that a student can study **instead of** the slides:
 - complete;
-- **shorter to read than the slides**;
+- **easier to digest than the slides**, in **no more than twice their words**;
 - in plain English at A2–B1 level;
 - organised in topics that each stand alone;
 - taught with methods that have research behind them.
@@ -96,7 +106,7 @@ It also tells you how to keep all the decks of a course consistent, from the fir
 - **Goals over procedures.** Some parts of this file are fixed:
   - the goals (§1, G1–G6) and their precedence;
   - the user's choices, here and in the COURSE record;
-  - the limits that serve the user: completeness, the word budget, the deck shape the user picked (§11), the canvas gate.
+  - the limits that serve the user: completeness, the word ceiling (2 × the original's words, G5), the deck shape the user picked (§11), the canvas gate.
 
   Everything that says *how* is a tested default, written for the models and the skill of its date: the workflow steps, the numbers marked *(target)*, the appendix code, the checks.
   - If you can meet the goals better another way, do it, and name the change and its reason on the report's "Departures" line (§10).
@@ -182,6 +192,7 @@ field words: none beyond the checker's built-in list
 - **Decks made before v1.4 have no record.** Take the settings from the course's notes (in notes made before v1.6: the course's section of the field notes). Anything the notes don't answer, ask in W5. Then write the record into the new deck.
 - **Records without a `board:`** (made before v1.5): the board is the `data-board` attribute on the deck's `<html>`, or Slate re-inked when the attribute is absent. Write the `board:` into the new record.
 - **Shells made before v1.5 have no phone layer.** Add Appendix B4 to the new deck (it adds code, it rewrites nothing), and check the phone view (Q7).
+- **Courses started before v1.8** built their decks to be shorter than the slides. Their next deck follows the 2 × word ceiling (G5) unless the record's `settings changed` line or the prompt keeps the **Shorter** setting (§11). Don't ask about it in W5. Say it on the report's "Settings changed" line ("word ceiling: 2 × from this deck (v1.8)"), and write it into the new record. Notes written before v1.8 may give advice that only served the old rule (fewer slides than the source, compressing to stay under 100%). This file wins over them.
 - **Field words** beyond the checker's built-in list, for any course: list them in the record, write them to a file, and pass it to the checker with `--known` (Q2). Each deck inherits the list with the record and may add to it (L1).
 
 **Earlier decks.**
@@ -209,7 +220,7 @@ field words: none beyond the checker's built-in list
 
 ---
 
-## 1. The five goals and how each one is measured
+## 1. The six goals and how each one is measured
 
 | Goal | What it means here | How it is checked |
 |---|---|---|
@@ -217,28 +228,43 @@ field words: none beyond the checker's built-in list
 | **G2 — English at A2–B1** | Everyday words, short sentences, simple grammar. | `plain_check.py`: ≥ 98% of running words at B1 or below (field words allowed, L1); no sentence over 20 words (§9) |
 | **G3 — Independent topics, no jargon** | Any topic (N1) can be understood without the other topics. On any slide, every term is explained, visibly or by its glossary card. "No jargon" means **no unexplained word**, not "no technical word": the course terms that exams use are still taught. | `plain_check.py` gloss, acronym and back-reference checks; cold read (Q4) |
 | **G4 — The best ways to teach** | The Concept Pattern (§6) and the teaching rules TE1–TE10. | Checklist Q5 (§9) |
-| **G5 — Shorter than the slides** | One deck per lecture. **Fewer slides** than the source, about 0.8 × or less *(target)*. **No more words** than the source, counting its text and the words inside its figures and tables, unless completeness and exact wording need more (precedence 2). | Word budget (W1b, Q6); `plain_check.py` reports deck words / original |
+| **G5 — Easier to digest than the slides, in at most twice their words** | One deck per lecture. Each concept is easier to take in than on the slides: plain words even when they are longer, full sentences instead of telegraphic bullets, the "why", a concrete example for every load-bearing concept, and small steps (one idea per slide, few new terms at a time). **The word ceiling:** the deck's words are at most **2 ×** the source's, counting its text and the words inside its figures and tables. The ceiling is never passed. **Size is measured in words only:** there is no slide-count limit. | Word ceiling (W1b, Q6): `plain_check.py` reports deck words / original ≤ 200%. Digestibility (Q6): the Concept Pattern in its deck form (§6), words per slide (V5), new-term load (T4), cold read (Q4) |
 | **G6 — Phone first** | Every slide reads and works well on a phone, held upright, and still as well on a laptop as before. | Phone checks M1–M8 (Q7), at 390 × 844 first, then laptop |
 
 ### Precedence when rules conflict
 
 1. **Correctness, and the skill's technical hard rules** (untouched engine script, validator passes, no storage APIs).
-2. **Completeness (G1), including exact wording (F2).** Never drop, shrink or weaken content to meet a budget, a word cap, or a simplicity target. When the facts and their exact wording do not fit the budget, the budget gives way: report the overrun (§10). (210 ISY deck 2: 119% of the source with exact definitions, against 98% without.)
-3. **The budget (G5).** The deck's total words stay at or below the original's. The slide count stays below the source's.
-4. **Understandability (G2, G3), on a phone as on a laptop (G6).**
+2. **Completeness (G1), including exact wording (F2).** Never drop, shrink or weaken content to meet the word ceiling, a word cap, or a simplicity target. The ceiling is met by cutting the deck's own additions (W4), never the slides' facts. If the facts and their exact wording alone would pass the ceiling, stop and ask the user (W5). (For scale, under v1.7: the 210 ISY deck 2 needed 119% of the source with every definition quoted; deck 5, a short lecture of 989 words, reached 213%. Short lectures need the tightest planning, because the arc and the glossary cost about the same words in every deck.)
+3. **The word ceiling (G5).** The deck's total words stay at or below **2 × the original's**. This is a hard limit: no overrun is delivered. There is no slide-count limit.
+4. **Easy to digest: understandability (G2, G3, G5), on a phone as on a laptop (G6).**
 5. **Teaching method (G4).**
-6. **Style** (the skill's reading-time budget, Law 5 "little text").
+6. **Style** (Law 5 "little text"). The skill's reading-time budget and slide counts do not apply (§2).
 
-*Why this order:* a deck that leaves out a topic fails the student at the exam (G1). A deck that is longer to read than the slides gives the student no reason to use it (G5). Plain language usually needs *more* words than the slides' telegraphic bullets. So the cost of G1 + G2 inside G5 is paid in **wording and visuals**:
+*Why this order:* a deck that leaves out a topic fails the student at the exam (G1). A deck that is harder to take in than the slides gives the student no reason to use it (G5). Plain language, full sentences and examples need *more* words than the slides' telegraphic bullets, and that is where the room up to 2 × goes. The ceiling keeps the deck a study tool, not a textbook: at the slower reading speed of second-language readers (about 128 words per minute [RS]), every 1,000 source words become at most about 16 minutes of reading.
+
+These rules still apply, because they make a slide easier to read, not only shorter:
 - Facts that name or describe a part move into figure labels (V13).
 - Each idea is said once, in its best place (L11).
 - Terms are explained once and re-used through the glossary (T5b).
 
-If plain language still needs more words than the budget allows, compress first (L11). Then use on-demand glosses (T5). Only last, accept a lower `plain_check` score, and report it. If the facts and their exact wording (F2) still need more words than the source, the budget gives way: report the overrun.
+### Where the extra words go (G5)
+
+The room between the original's word count and the ceiling is spent in this order. Spend it only where it makes the deck easier to digest; never pad toward the ceiling.
+
+1. **Plain words and full sentences.** Everyday words even when they are longer ("the program that always runs" for "resident"), small words kept (L3), and complete sentences instead of the slides' telegraphic bullets.
+2. **One concrete example for every load-bearing concept** (Concept Pattern step 2), and a worked example with a practice problem for every procedure, calculation and piece of code (step 6).
+3. **The "why"**: the mechanism in one or two sentences (step 5).
+4. **Help where it is needed**: the visible glosses that a topic's main sentence depends on (T5), the plain reading beside every exact quote (F2), and "What you need first" background (T8).
+5. **The common mistake**, named and corrected (step 7).
+6. **A second example or an analogy** (T10), only for a concept that students often find hard.
+
+Never spend it on repeats (L11), decorative stories or fun facts (V1, TE10), or content outside the slides beyond what F3 allows.
+
+**When a plan or a draft passes the ceiling,** cut from the bottom of this list up (W4 gives the full order). Only the deck's own additions are cut: never a fact or its exact wording.
 
 ### Improve the presentation, keep the content
 
-Lecture slides are usually not built to teach on their own: ideas arrive in a weak order, steps are skipped, figures are cluttered, and examples are thin. **The deck is not a transcription. It is a better and shorter teaching of the same content.**
+Lecture slides are usually not built to teach on their own: ideas arrive in a weak order, steps are skipped, figures are cluttered, and examples are thin. **The deck is not a transcription. It is a better, easier-to-digest teaching of the same content, in at most twice the words.**
 
 | You are expected to improve | You must keep exactly |
 |---|---|
@@ -249,6 +275,7 @@ Lecture slides are usually not built to teach on their own: ideas arrive in a we
 | Figures: replace a weak figure with a clearer one that carries the same information (F5) | The examinable scope: nothing removed; anything added is marked (F3) |
 | Visual form: turn lists into tables, flows, maps, or step-throughs (§8); turn descriptive sentences into figure labels (V13) | The slides' version when a source disagrees, taught with a visible note (F4) |
 | Background the slides assume but never teach (T8) | |
+| Wording: plain words and full sentences, even when they are longer than the slides' (G5, within the 2 × ceiling) | |
 
 Every improvement must rest on research (W2b) and must not change what the student will be examined on.
 
@@ -263,18 +290,18 @@ Every improvement must rest on research (W2b) and must not change what the stude
 | **Canvas gate (step 1b)** | Unchanged in shape: always the skill's exact question (canvas, then board on the chalkboard). Ask **once per course**, at its first deck (case A, §0), **always**, and build nothing until the user answers. Later decks read the canvas and board from the COURSE record. |
 | **Language (step 2)** | Already answered: **English**, `dir="ltr" lang="en"`. Do not ask. |
 | **Scope & mode (step 3)** | Not used. The slides define the scope. |
-| **Intake (step 4)** | Already answered. Audience: newcomers to the subject who read English at A2–B1, often on a phone (G6). Length: the budget (G5, W4). |
-| **Teaching arc (step 5)** | Keep it, compactly. Order: cover · opening challenge · map (the topics, named as in the topic bar) · the topics · challenge revisited · recap (with a one-line closing) · glossary slide "Words in this deck" (T5b) · **final quiz** (its own topic, `questions-rulebook.md`). **The skill's question set and answer box are left out:** the final quiz does their job (§11 brings them back). The arc costs about 250 words *(target)*; the quiz is outside the budget (`data-budget="skip"`). Inside "one idea per slide", use the Concept Pattern in its budget form (§6). |
-| **Length budget** | **One deck per lecture file.** Fewer slides than the source, about 0.8 × *(target)*. Words at or below the original (G5), unless the facts and their exact wording need more (precedence 2): then report the overrun. The validator's "> 20 slides" note is expected; mention it, don't act on it. |
+| **Intake (step 4)** | Already answered. Audience: newcomers to the subject who read English at A2–B1, often on a phone (G6). Length: the word ceiling, at most 2 × the source's words (G5, W4). |
+| **Teaching arc (step 5)** | Keep it, compactly. Order: cover · opening challenge · map (the topics, named as in the topic bar) · the topics · challenge revisited · recap (with a one-line closing) · glossary slide "Words in this deck" (T5b) · **final quiz** (its own topic, `questions-rulebook.md`). **The skill's question set and answer box are left out:** the final quiz does their job (§11 brings them back). The arc costs about 250 words *(target)*; the quiz is outside the word count (`data-budget="skip"`). Inside "one idea per slide", use the Concept Pattern in its deck form (§6). |
+| **Length** | **One deck per lecture file**, measured in **words only**: at most 2 × the original's words (G5), never more. There is no slide-count limit, and the skill's reading-time budget and its slides-per-minute table (`design-system.md` §5) do not apply. The slide count follows from TE1 and V5. The validator's "> 20 slides" note is expected; mention it, don't act on it. |
 | **Law 5: little text** | Applies fully. The always-visible layer carries the complete plain explanation and every gloss that the slide's main sentence depends on (T5). Hover/tap depth is only for supporting-term glosses (T5, T5b) and extras ("Extra: not in your slides"). Examinable content is never hidden (F9). |
-| **Visual-first** | Visuals are the main carrier of structure, sequence, comparison and change (§8), and the main way to save words (V13). Every visual must explain something from the source (V1). No mood pictures. Where this file and the skill disagree about *how* a visual is built, the skill wins; this file decides *what* the visual must show. |
+| **Visual-first** | Visuals are the main carrier of structure, sequence, comparison and change (§8), and the main way to keep slides light (V13). Every visual must explain something from the source (V1). No mood pictures. Where this file and the skill disagree about *how* a visual is built, the skill wins; this file decides *what* the visual must show. |
 | **Matching slides to teaching jobs (step 5)** | Use it fully. Every inventory unit already carries its job (W2), so each slide's component comes from that job's reverse index in `use-cases.md`, varied across the deck. Use a component only where it does a job that text cannot (§8). The catalogue's advice to trim ("three load-bearing rows", "show the range that matters") decides emphasis, never deletion (F9). |
 | **Navigation** | The topic bar (N1) replaces the slide dots. |
 | **Phone** | Phone first (G6, M1–M8): design and check at phone size first. The skill's template stays the base; the phone layer (Appendix B4) goes on top. |
 | **Per-lesson research** | Required, at the depth of W2b. |
 | **Chat mode** | One deck per lecture file per reply, named as in §0. Several lecture files: one deck each, one per reply, numbered in order. |
-| **Repo mode** | Save decks as `lessons/NN-<course>-<lecture-slug>.html`. The fact ledger, independent-check record, sources, budget and course record live inside each deck as HTML comments. |
-| **Series mode** (setting §11) | Only when the user asks for it. Then the v1.2 rules apply: 14–18 slides per deck, hard cap 20, about 8 arc slides each, a deck list confirmed in W5, one deck per reply, and TE9 series review. |
+| **Repo mode** | Save decks as `lessons/NN-<course>-<lecture-slug>.html`. The fact ledger, independent-check record, sources, budget (the original's word count) and course record live inside each deck as HTML comments. |
+| **Series mode** (setting §11) | Only when the user asks for it. Then the v1.2 rules apply: 14–18 slides per deck, hard cap 20, about 8 arc slides each, a deck list confirmed in W5, one deck per reply, and TE9 series review. The word ceiling (G5) applies to the series as a whole: all its decks together stay within 2 × the lecture's words. |
 
 ---
 
@@ -285,11 +312,11 @@ Every improvement must rest on research (W2b) and must not change what the stude
 - Use the `pdf-reading` skill for PDFs and the `pptx` skill for `.pptx` files.
 - If a page is unreadable or seems to be missing, ask the user before you continue.
 
-**W1b — Measure the original's words (the budget).**
+**W1b — Measure the original's words (the base of the word ceiling).**
 - **Text:** count the words in the slides' text layer, without repeated footer and header lines. For a PDF: `pdftotext -layout`, then drop footer lines, then count with the regex `[A-Za-z0-9][A-Za-z0-9'’\-\.]*`.
 - **Figures and tables:** count the words inside them, which the text layer misses. Use OCR (`tesseract page.png - --psm 11`) on the figure and table pages, minus those pages' text-layer words, or count by hand.
-- **Record it** in the deck as `<!-- BUDGET original=<text+figures> (text <a> + figures/tables <b>) -->`.
-- *Why:* the student compares the deck with everything they would otherwise read, including the words in pictures and tables. The ch1 deck: text 1,864 + figures/tables about 295 = about 2,160.
+- **Record it** in the deck as `<!-- BUDGET original=<text+figures> (text <a> + figures/tables <b>) -->`. The ceiling is not written down: it is always 2 × `original` (or the §11 setting's multiple), and `plain_check.py` computes it. In this file, "counts toward the budget" means: counts toward the deck's words, which are measured against the ceiling.
+- *Why:* the student compares the deck with everything they would otherwise read, including the words in pictures and tables. The ch1 deck: text 1,864 + figures/tables about 295 = about 2,160, so its ceiling would be about 4,320 words.
 
 **W2 — Build the content inventory and the fact ledger (F1).**
 - Split every bullet into single facts, keeping their qualifiers, and give each an ID `p<page>.<n>`. Mark the facts that define a term (`def`) and the lists a review question asks (`list`): F2 quotes them exactly.
@@ -331,18 +358,18 @@ misconceptions: <URL> (students think one CPU runs all programs at the same mome
 - **Topics (N1).** Group the concepts into topics that a student would revise as a unit. Aim for **3 or more slides per topic** *(target)*, never 1.
   - The arc slides form a "Start" topic (cover, challenge, map) and a "Review" topic (revisited challenge, recap, glossary). The final quiz is its own last topic, "Final quiz".
   - The map slide names the same topics as the topic bar.
-- **Slides.** About 0.8 × the source's slide count or fewer *(target)*. Admin, agenda and divider slides need no slide of their own; they become the map slide and the topic bar.
+- **Slides.** No slide-count target: size is measured in words. One idea per slide (TE1), each slide within V5's word range; a concept that needs more words takes more slides, never a denser slide. Admin, agenda and divider slides need no slide of their own; they become the map slide and the topic bar.
 - **Words.**
-  - `budget = original words (W1b) × 0.9–0.95` *(target; the limit is 1.0, and only completeness and exact wording may pass it, precedence 2)*.
-  - The arc costs about 250 words (the glossary is most of it: about 4–5 words per entry). The quiz is outside the budget.
-  - Each content slide gets `(budget − arc) ÷ number of content slides`, which is usually **55–60 words, labels included** *(target)*.
-- **Per slide, write down:** its job, its component, its word cap, the source units it covers, and its phone shape (M2–M4) when it differs from the laptop shape.
-- **If the plan doesn't fit, fix it in this order:**
+  - `ceiling = original words (W1b) × 2`. This limit is never passed (G5, precedence 3).
+  - Plan to **about 1.8 × or less** *(target)*, so the fixes that the checks bring (F1b, Q4) still fit under the ceiling.
+  - Spend the room in the order of §1, "Where the extra words go". The ceiling is a limit, not a goal: a deck that is easy to digest at 1.3 × stays at 1.3 ×.
+  - The arc costs about 250 words (the glossary is most of it: about 4–5 words per entry). The quiz is outside the word count.
+- **Per slide, write down:** its job, its component, its word cap (within V5), the source units it covers, and its phone shape (M2–M4) when it differs from the laptop shape. The sum of the caps plus the arc is the planned total.
+- **If the plan passes the ceiling, fix it in this order:**
   1. Move facts into figures (V13).
-  2. Merge slides that teach the same idea.
-  3. Say things once (L11).
-  4. Cut the deck's own additions (examples, extra lines) before any wording of a fact.
-  5. Never cut or weaken content (precedence 2). If it still does not fit, the budget gives way.
+  2. Say things once (L11), and merge slides that teach the same idea.
+  3. Cut the deck's own additions from the bottom of §1's list up: first second examples and analogies, then the common-mistake lines that aren't required, then background lines that a glossary entry can carry. Keep every concept's first example and every required worked example as long as anything else can go.
+  4. Never cut or weaken a fact or its exact wording (precedence 2). If the facts and their exact wording alone pass the ceiling, stop and ask the user (W5). Never deliver a deck over the ceiling.
 - **Write a draft opening challenge** (TE3).
 
 **W5 — Confirm only what needs a decision.** Send **one** message, and only if at least one of these applies:
@@ -350,11 +377,12 @@ misconceptions: <URL> (students think one CPU runs all programs at the same mome
 - the exam focus, once per course, if not given: "Does your exam stress anything in particular? (You can skip this.)";
 - a slide error that changes what would be taught (F4), when the right handling is unclear;
 - agenda topics with no content slides: skip them, or add them as "Extra: not in your slides"?
-- a setting (§11) the slides make relevant. Example: the first lecture with code or numeric tables raises "what counts toward the budget".
+- a setting (§11) the slides make relevant. Example: the first lecture with code or numeric tables raises "what counts toward the budget";
+- the facts and their exact wording alone would pass the word ceiling (G5), so the deck cannot be complete under it. Say by how much, and ask how to go on. Count before asking: the deck's own additions (examples, analogies, background, the arc's extra lines) are cut first (W4), and they are usually what pushes a deck over.
 
 Never ask what the COURSE record already answers.
 
-Otherwise, don't stop: build the deck, and put the plan's essentials (topics, slide count, budget) in the delivery report. At a first deck, the canvas gate always stops the run once.
+Otherwise, don't stop: build the deck, and put the plan's essentials (topics, slide count, words against the ceiling) in the delivery report. At a first deck, the canvas gate always stops the run once.
 
 **W6 — Write the term sheet.** For every term:
 - the plain meaning (≤ 12 words, A2 words);
@@ -364,7 +392,7 @@ Otherwise, don't stop: build the deck, and put the plan's essentials (topics, sl
 
 The term sheet feeds the visible definitions (T3), the deck glossary (T5b) and the "Words in this deck" slide (TE8). Use the **same gloss text** for a term everywhere, and across the lectures of a course: copy it from the earlier decks' glossary when the term comes back.
 
-**W7 — Draft every concept** with the Concept Pattern in its budget form (§6), in plain language (§4), with independence (§5). Count words after the first draft, not at the end (Q6).
+**W7 — Draft every concept** with the Concept Pattern in its deck form (§6), in plain language (§4), with independence (§5). Count words after the first draft, not at the end (Q6).
 
 **W8 — Build** the deck with the skill (engine v2, canvas and board, bridge tokens). Start from the shell when there is one (case B, §0); otherwise from the skill's template. Then:
 - For each slide, take its job and choose a component from that job's reverse index in `use-cases.md`; vary components across the deck.
@@ -373,7 +401,7 @@ The term sheet feeds the visible definitions (T3), the deck glossary (T5b) and t
 - Add the final quiz as the last topic, following `questions-rulebook.md`.
 - Add the `FACT-LEDGER`, `INDEPENDENT-CHECK`, `SOURCES`, `BUDGET` and `COURSE` comments (F1, F1b, W2b, W1b, §0).
 
-**W9 — Check** (§9): `validate.py`, `plain_check.py`, fact ledger, budget, cold read, visual check (phone first), checklist. Fix and re-run until clean, or until every remaining flag has a written reason.
+**W9 — Check** (§9): `validate.py`, `plain_check.py`, fact ledger, word ceiling and digestibility, cold read, visual check (phone first), checklist. Fix and re-run until clean, or until every remaining flag has a written reason.
 - **After every trimming pass, re-check the ledger** against the trimmed text: trimming is where facts get weakened ("generally", "may", "highly technical" were lost this way).
 - **Then the independent check (F1b),** last, on the finished deck including its quiz. Fix what it reports and send it the new text, until a pass reports nothing.
 
@@ -423,7 +451,7 @@ The term sheet feeds the visible definitions (T3), the deck glossary (T5b) and t
 - Positive statements. No double negatives. Use "not" only when no positive form exists.
 - No phrasal verbs or idioms: *set up → create*, *figure out → find*, *carry out → do*, *in a nutshell → in short*.
 - No noun stacks longer than 3 words: *"packet header length field" → "the length field in the packet header"* [STE].
-- Do not drop small words ("the", "a", "that") to save space. Telegraphic text is harder for second-language readers [STE]. Save words with L11 and V13 instead.
+- Do not drop small words ("the", "a", "that") to save space. Telegraphic text is harder for second-language readers [STE]. The word ceiling (G5) leaves room for full sentences; save words with L11 and V13 instead.
 
 **L4 — One concept, one word.** Pick one word for each concept and never switch to a synonym: "router" stays "router", never "the device", "the node" or "the box". Repeat the noun instead of "it / this / they" when the thing was named more than one sentence earlier.
 
@@ -495,7 +523,7 @@ The rest of this rule:
 - Words like *usually, typically, always, only, at most, at least* must survive simplification.
 - When the plain version loses precision, keep the original sentence in a **Formal version** box (F2) and explain it in plain words next to it.
 
-**L11 — Say it once, in its best place.** These cut words without cutting content:
+**L11 — Say it once, in its best place.** These cut words without cutting content or ease, so the room under the ceiling goes to explanations and examples (G5):
 - A fact that names or describes a part goes on the figure, next to that part (V13), not in a sentence that repeats the label.
 - Don't restate in prose what the figure already shows. The caption says what to *notice*.
 - Number steps only in real procedures. Digits count as words; elsewhere use plain bullets.
@@ -504,7 +532,7 @@ The rest of this rule:
 - Quiz feedback: short (the final quiz's own limit, `questions-rulebook.md` QW5). When a deck has the skill's answer box (§11), it refers to questions by number instead of repeating them.
 - Don't gloss a term the slide's figure already explains.
 
-*Why:* words that don't serve the learning goal lower learning (coherence), and words placed next to the parts they describe save search effort (spatial contiguity) [M]. Both principles point the same way as the budget.
+*Why:* words that don't serve the learning goal lower learning (coherence), and words placed next to the parts they describe save search effort (spatial contiguity) [M]. Both make a slide easier to digest, and both keep the deck under its ceiling.
 
 ---
 
@@ -538,7 +566,7 @@ Mark the defining use with `<dfn>`. Add `data-forms` for irregular forms: `<dfn 
 
 When a deck uses on-demand glosses, the cover's hint line says so: "Tap dotted words for their meaning."
 
-*Why:* students revise by topic: they jump in with the topic bar (N1). So a topic must stand alone, and a load-bearing term needs its meaning visible where a topic starts using it. On-demand glosses work for second-language readers: in a meta-analysis they had a medium effect on reading comprehension and a large effect on word learning [GL2]. But optional content is often never opened, so the main sentence where a topic starts using a term must not depend on one. Re-glossing every term visibly on every slide costs about 5 words per term per slide, which the budget (G5) cannot afford. The glossary gives every slide the meaning at about one word of cost per term.
+*Why:* students revise by topic: they jump in with the topic bar (N1). So a topic must stand alone, and a load-bearing term needs its meaning visible where a topic starts using it. On-demand glosses work for second-language readers: in a meta-analysis they had a medium effect on reading comprehension and a large effect on word learning [GL2]. But optional content is often never opened, so the main sentence where a topic starts using a term must not depend on one. Re-glossing every term visibly on every slide costs about 5 words per term per slide, and it fills slides with repeats the reader already knows (L11). The glossary gives every slide the meaning at about one word of cost per term, and leaves the room under the word ceiling (G5) for explanations and examples.
 
 **T5b — The deck glossary.**
 - The term sheet's cross-topic terms and every acronym go on one slide, **"Words in this deck"**, as `<dl id="glossary" class="glossary">`:
@@ -574,7 +602,7 @@ When a deck uses on-demand glosses, the cover's hint line says so: "Tap dotted w
 3. Say where the comparison stops working ("Unlike a post office, a router keeps no copy of the letter").
 4. Return to the real concept.
 
-Use one analogy per concept and keep it the same through the deck. Choose comparisons any university student knows anywhere: a phone, a map, a queue, a delivery, a timetable, a recipe. Avoid comparisons that need a specific culture, sport or idiom. Under the budget, use an analogy only where it carries a concept that the figure alone does not.
+Use one analogy per concept and keep it the same through the deck. Choose comparisons any university student knows anywhere: a phone, a map, a queue, a delivery, a timetable, a recipe. Avoid comparisons that need a specific culture, sport or idiom. Use an analogy where it carries a concept that the figure alone does not, or where students often find the concept hard. It is paid from the room under the word ceiling, after the concept's own example (G5, "Where the extra words go", item 6).
 
 *Why:* analogies help, but an unmapped analogy can plant a misconception, and the "where it breaks" step is the one most often skipped [TWA].
 
@@ -586,17 +614,17 @@ Use one analogy per concept and keep it the same through the deck. Choose compar
 
 Use this for every **load-bearing concept** (anything a student could be asked about), in this order. It is the skill's click trio (structure · mechanism · application) with research-backed steps added. Each step names its teaching job in the skill's vocabulary, so the component comes from that job's reverse index in `use-cases.md`.
 
-The **budget form** column shows how the step fits G5: steps share slides, and a typical concept takes **1–2 slides** *(target)*.
+The **deck form** column shows how each step appears in a deck under G5: steps may share a slide, no slide passes V5's word range, and a typical concept takes **1–3 slides** *(target)*, more for a long procedure.
 
-| # | Step | What to write | Budget form | Why |
+| # | Step | What to write | Deck form | Why |
 |---|---|---|---|---|
 | 1 | **Ask** *(optional)* · `predict-first` | A one-line prediction question before teaching | Usually the deck's opening challenge covers it; add more only for a counter-intuitive concept | Trying to answer before learning improves later learning, even when the guess is wrong, as long as teaching or feedback follows [PT] |
-| 2 | **Plain idea + one concrete case** · `define-term` or `build-intuition` | The idea in everyday words, shown on one specific example | 1–2 sentences next to the figure that shows the case | Content first [CFA]; concrete before general [CF] |
+| 2 | **Plain idea + one concrete case** · `define-term` or `build-intuition` | The idea in everyday words, shown on one specific example | **Required** for every load-bearing concept (G5): 1–3 plain sentences next to the figure that shows the case | Content first [CFA]; concrete before general [CF] |
 | 3 | **Name it** · `define-term` | `<dfn>` + definition (T3) | The `<dfn>` sits in the step-2 sentence | T1 |
 | 4 | **Picture** · `label-parts`, `explain-mechanism` or `compare-options` | The visual chosen by V7, with labels next to the parts (V2), colour links to the text and a "Notice:" caption (V8). For a process, a step-through (V9) | **Required.** The picture carries the facts (V13) | Words + pictures beat words alone; labels close to the parts and text–picture signals save search effort [M][SIG] |
 | 5 | **Why it works** · `explain-mechanism` | The mechanism | 1–2 sentences, or one caption per build step | The skill's click trio |
-| 6 | **Worked example** · `follow-procedure`, `walk-code` or `show-transformation` | Step by step, each step with a short label ("Step 2: find the column"). Then a similar problem for the student | **Required** for procedures, calculations and code; may take its own slide. Numbers go in a table, not in prose | Novices learn more from studying solved examples than from solving alone; step labels help them see the reusable steps [WE][SG] |
-| 7 | **Common mistake** · `correct-misconception` | "Many students think X. This is not true, because Y. The correct idea is Z." | **Required** where a known misconception exists: one sentence, or the eraser on the revisited challenge | Texts that name and refute a misconception correct it better than plain explanation. Some learners drift back later, so re-test it (TE7) [RT] |
+| 6 | **Worked example** · `follow-procedure`, `walk-code` or `show-transformation` | Step by step, each step with a short label ("Step 2: find the column"). Then a similar problem for the student | **Required** for procedures, calculations and code; usually its own slide. Numbers go in a table, not in prose | Novices learn more from studying solved examples than from solving alone; step labels help them see the reusable steps [WE][SG] |
+| 7 | **Common mistake** · `correct-misconception` | "Many students think X. This is not true, because Y. The correct idea is Z." | **Required** where a known misconception exists: one or two sentences, or the eraser on the revisited challenge | Texts that name and refute a misconception correct it better than plain explanation. Some learners drift back later, so re-test it (TE7) [RT] |
 | 8 | **Check** · `check-recall` | One quick question with feedback that explains why each wrong option is wrong | In the final quiz (`questions-rulebook.md`); or at the topic's end when mid-deck checks are on (§11) | Practice testing with feedback is one of the two highest-utility study techniques [D][R] |
 
 For a pure definition, steps 2–5 (and 8 in the final quiz) are enough.
@@ -623,7 +651,7 @@ For a pure definition, steps 2–5 (and 8 in the final quiz) are enough.
 - **On:** one question at the end of each topic, marked `data-budget="skip"` so it doesn't count toward the budget.
 - Core checks should be answerable by most careful readers (about 80% *(target)*); save hard items for `[stretch]` [R].
 
-*Why the default is off:* checks every 2–3 slides cost about 20 words each, which the budget cannot afford. Retrieval practice is still one of the highest-utility techniques [D], which is why the setting exists.
+*Why the default is off:* the final quiz already gives the deck its retrieval practice, and a check every 2–3 slides adds reading time and slides between the ideas. Retrieval practice is still one of the highest-utility techniques [D], which is why the setting exists. When it is on, the checks stay outside the word count (`data-budget="skip"`), like the final quiz.
 
 **TE5 — "Why…?" prompt.** With the final quiz (the default), the deck has no answer box, so this is optional: when space allows, add one in the deck, a text box and a model answer the student reveals after typing, using one of the skill's legal depth mechanics (outside the budget, `data-budget="skip"`). When the answer box is on (§11), put one open "Why…?" question in it.
 
@@ -756,7 +784,7 @@ the destination.</div>
 **F9 — "Trim" means emphasis, never deletion.**
 - The skill's catalogue often advises showing less at once: "three load-bearing rows" of an eight-row comparison, "the range that matters" of a long code listing, "pick one claim" for a thesis slide, at most six labels on a figure. Follow that advice for **what comes first and largest**.
 - Everything else the slides contain is still taught on the visible layer: in further builds (§25), in a second pane, or in a table.
-- Never move examinable content into hover/tap depth, and never drop it. The budget (G5) never overrides this.
+- Never move examinable content into hover/tap depth, and never drop it. The word ceiling (G5) never overrides this: when only cutting content would keep the deck under it, stop and ask (W5).
 - Record where each part went in the fact ledger.
 
 ---
@@ -790,7 +818,8 @@ Keep the linked colours `--k-a`, `--k-b`, `--k-c` for linked figures (V8), not f
 **V4 — Readable text blocks.** Lines no longer than about 70–80 characters, line height at least 1.5, left-aligned (never justified), sentence case [W].
 
 **V5 — Visible words per slide.**
-- About **50–70** *(target)* under the budget, averaging about 60; soft cap 110 (the checker's default).
+- About **50–70** *(target)*, averaging about 60; soft cap 110 (the checker's default).
+- This range keeps each slide one small chunk, which is part of being easy to digest (G5). The room under the word ceiling is spent across more slides, never by packing more words onto one.
 - More than that → move facts into the figure (V13), then split.
 - A slide that reproduces a source table may exceed the cap. Note it in the report; don't split the table.
 
@@ -920,7 +949,7 @@ These rules make the deck work well on a phone without changing it on a laptop. 
 - Add the course's field words with `--known`.
 - *If you cannot run code* (code execution is off, or the word-list download is blocked):
   - say so in the report's "Checker" line;
-  - check L1, L2, T5, T6 and the budget by a careful read instead;
+  - check L1, L2, T5, T6 by a careful read, and the word ceiling by a careful count, instead;
   - never report a percentage you did not measure.
   - The skill's `validate.py` needs code too; say the same for it.
 
@@ -937,13 +966,14 @@ These rules make the deck work well on a phone without changing it on a laptop. 
 - [ ] Every qualifier and modality of the slides survives (L10); the ledger was re-checked after the last trim.
 - [ ] The deck's own framing is labelled, and none of it contradicts a slide fact (F3b).
 - [ ] Independent check clean, passes recorded (F1b).
-- [ ] Every load-bearing concept follows the Concept Pattern (budget form).
+- [ ] Every load-bearing concept follows the Concept Pattern (deck form), with its plain idea, a concrete example, a picture and its "why" on the visible layer.
+- [ ] The words above the original's count went to §1's "Where the extra words go" list, not to padding or repeats.
 - [ ] Every procedure, calculation, or code block has a labelled worked example and a practice problem.
 - [ ] Known misconceptions are refuted and the main one is re-tested.
 - [ ] Opening challenge is attemptable from everyday knowledge and written at A2.
 - [ ] The final quiz follows `questions-rulebook.md` (with the question set on, §11: it follows TE7).
 - [ ] No decorative visuals (V1); every component does a job text cannot (V7).
-- [ ] No content dropped to fit the budget (precedence 2, F9).
+- [ ] No content dropped to fit the word ceiling (precedence 2, F9).
 - [ ] Slide problems are noted in the deck and in the report (F4).
 - [ ] Canvas and board match the COURSE record (first deck: the user chose them). The record is present, with the deck number raised by one (§0).
 - [ ] Phone first: M1–M8 pass in the Q7 checks; the phone layer (Appendix B4) is present.
@@ -955,10 +985,11 @@ These rules make the deck work well on a phone without changing it on a laptop. 
 - [ ] Glossary slide present; every acronym and cross-topic term is in it (T5b, T9).
 - [ ] Every improvement changed presentation only: no fact, formula or term changed (§1).
 
-**Q6 — Budget.**
-- Deck words (all readable text: visible text, labels, tables, gloss cards, quiz feedback; the fullest state of a magic board) ≤ the original's words (W1b). `plain_check.py` reports both when the deck has the `BUDGET` comment.
-- Slide count ≤ about 0.8 × the source's *(target)*.
-- Count after the first draft, not only at the end. Compressing a finished draft costs more than writing to the caps.
+**Q6 — Word ceiling and digestibility (G5).**
+- **Ceiling:** deck words (all readable text: visible text, labels, tables, gloss cards, quiz feedback; the fullest state of a magic board) ≤ **2 × the original's words** (W1b). `plain_check.py` reports the deck's words, the original's and the ceiling when the deck has the `BUDGET` comment, and flags a deck over it. A deck over the ceiling is not delivered (W4).
+- **No slide-count check.** The slide count is reported for information only.
+- **Digestibility:** pick 3 random load-bearing concepts. Each one has its plain idea, a concrete example, a picture and its "why" on the visible layer, in full sentences (Concept Pattern, deck form). No slide passes V5's soft cap, and no slide brings more new terms than T4 allows.
+- Count after the first draft, not only at the end. Cutting a finished draft back under the ceiling costs more than writing to the caps.
 
 **Q7 — Visual check (phone first).**
 - **Phone:** look at **every** slide fully built at 390 × 844 with touch turned on (Playwright `has_touch`, `is_mobile`). Then:
@@ -981,7 +1012,7 @@ These rules make the deck work well on a phone without changing it on a laptop. 
 Deck: <lecture title>, covers source slides 1–<n>.
 Course: <slug>, deck <NN> (case A/B/C) · shell: <file, or "skill template"> · notes: <updated, or "none attached">.
 Canvas: <paper, or chalkboard · board> (<chosen by the user now, or from the COURSE record>).
-Slides: <x> (source <y>). Words: <deck> / <original> (<pct>%); original = <text> text + <fig> in figures/tables. Over 100%: say how much of it is exact quotes and their glosses.
+Slides: <x> (source <y>, for information). Words: <deck> / <original> (<pct>% of the original; ceiling 200%); original = <text> text + <fig> in figures/tables. Over 100%: say in one line what the extra words went to (for example: examples, worked examples, exact quotes and their glosses, plain rewording).
 Topics: <name · slides> | …
 Coverage: <f>/<f> facts in the ledger (exact <e>, faithful <r>; admin skipped: <list or "none">).
 Standalone: independent check <n> passes; first pass <counts>; last pass <"nothing found" or what stands, and why>.
@@ -1005,7 +1036,7 @@ Departures: <procedures of this file done another way, and why, or "none">.
 | Field vocabulary (L1) | **Built-in computing list** | **Course list:** a `words.txt` passed with `--known`. **None:** stricter; field words must be glossed. |
 | Arabic support | **Off** | **On:** each definition and glossary entry adds the Arabic term in one line. In a meta-analysis, glosses in the reader's first language beat English-only glosses (g ≈ 0.33), mostly for immediate word learning and most for beginners. Cost: more words, and the deck is no longer English-only [GL]. |
 | Deck shape | **One deck per lecture file** | **Series:** several decks of 14–18 slides (cap 20), each a full arc, one per reply, with TE9. Use when the user wants shorter sittings. |
-| Word budget (G5) | **Deck ≤ original** | **Stricter:** deck ≤ 0.9 × original. **Off:** v1.2 behaviour; plain language may add words, paid in slides. |
+| Word ceiling (G5) | **2 × the original's words**, never passed; no slide-count limit | **Tighter:** 1.5 × the original (`plain_check.py --ceiling 1.5`); fewer examples and analogies, cut from the bottom of §1's list. **Shorter:** the v1.7 rule: no more words than the original (`--ceiling 1`) and about 0.8 × its slides, paid by compressing wording and moving facts into figures. Use it only when the user asks. |
 | What counts toward the budget | **Everything readable**, including copied code, formulas and tables (the original's count includes them too) | **Exclude added worked-example and trace tables:** mark them `data-budget="skip"`. They are still checked for language, and are listed in the report. |
 | Mid-deck checks (TE4) | **Off** | **On:** one question at the end of each topic, marked `data-budget="skip"`. |
 | Final quiz (`questions-rulebook.md`) | **On**, as the last topic | **Off:** the skill's question set and answer box come back (TE7). |
@@ -1014,7 +1045,7 @@ Departures: <procedures of this file done another way, and why, or "none">.
 | Phone first (G6) | **On** | **Off:** laptop-first, as before v1.5 (not recommended; phone checks become a sample). |
 | Glossary (T5b) | **On** | **Off:** v1.2 T5 (a visible or anchored gloss on every slide that uses a term). Costs about 5 words per term per slide. |
 | Navigation (N1) | **Topic bar** | **Dots:** the skill's default navigation. |
-| Exact wording (F2) | **Every definition and every review-question list** (since 1.7) | **Review lists only:** v1.6 behaviour; about 15–20% fewer words, but a student who must quote a definition needs the slides. **Every bullet:** the slides' sentence for every bullet with a plain reading beside it; safest for strict marking, far over the budget. |
+| Exact wording (F2) | **Every definition and every review-question list** (since 1.7) | **Review lists only:** v1.6 behaviour; about 15–20% fewer words, but a student who must quote a definition needs the slides. **Every bullet:** the slides' sentence for every bullet with a plain reading beside it; safest for strict marking, but it uses much of the room under the ceiling, leaving less for examples. |
 | Slide errors | **Note and teach the slide's version** | **Correct the content.** Risk: it may differ from what the exam expects. |
 
 ---
@@ -1060,11 +1091,11 @@ Departures: <procedures of this file done another way, and why, or "none">.
 - **Redundancy principle** (do not repeat narration as on-screen text): it applies to narrated media; these decks have no narration.
 - **"More animation is better":** the benefit over well-designed static frames is modest and depends on the content, so V9 prefers learner-paced step-throughs to autoplay.
 - **Full productive failure** (long, unguided problem solving before teaching): it works best with high design fidelity and a teacher who builds on student attempts. A self-paced deck cannot do that, so TE3 uses the lighter pretesting form.
-- **A word budget as a learning principle:** no study sets "shorter than the source" as a learning target. G5 is the user's product requirement. The rules that serve it (L11, V13) rest on coherence and contiguity [M], not on the budget itself.
+- **A word ceiling as a learning principle:** no study sets "at most twice the source's words" as a learning target. The 2 × ceiling is the user's product requirement: room for plain wording and examples, with a limit on reading time. What fills the room rests on evidence: plain words and full sentences [HN][STE], concrete and worked examples [CF][WE], signalling and contiguity [M]. The number itself does not.
 
 ---
 
-## Appendix A — `plain_check.py` (v1.5)
+## Appendix A — `plain_check.py` (v1.8)
 
 **What it checks, per slide:**
 - visible word count;
@@ -1079,7 +1110,7 @@ Departures: <procedures of this file done another way, and why, or "none">.
 **At deck level:**
 - word coverage (target ≥ 98%);
 - the topic list (N1);
-- **deck words vs the original's** (G5, from the `BUDGET` comment or `--budget`).
+- **deck words vs the original's and the word ceiling** (G5: 2 × the original by default, `--ceiling`; the original comes from the `BUDGET` comment or `--budget`). Only a deck over the ceiling is flagged.
 
 **The HTML contract it relies on** (also required by the rules above):
 
@@ -1100,7 +1131,7 @@ Departures: <procedures of this file done another way, and why, or "none">.
 | `<template>` runs (magic board) | Only the last state of each run is checked and counted |
 | `data-sec="Name"` on a slide | The first slide of a topic (N1) |
 | `data-budget="skip"` | Checked but not counted. Only for content the settings exclude (§11). On a `<section class="slide">` (the final quiz), the whole slide and its feedback stay outside the count |
-| `<!-- BUDGET original=N -->` | The original's total words (W1b) |
+| `<!-- BUDGET original=N -->` | The original's total words (W1b); the ceiling is N × `--ceiling` |
 
 **How to run it:**
 
@@ -1108,7 +1139,8 @@ Departures: <procedures of this file done another way, and why, or "none">.
 pip install wordfreq            # add --break-system-packages if pip asks
 python plain_check.py deck.html                         # B1 ceiling (default)
 python plain_check.py deck.html --known course-words.txt
-python plain_check.py deck.html --max-level A2          # stricter ceiling
+python plain_check.py deck.html --max-level A2          # stricter vocabulary ceiling
+python plain_check.py deck.html --ceiling 1.5           # the "Tighter" word ceiling (§11); --ceiling 1 = "Shorter"
 ```
 
 On its first run, it downloads the CEFR-J word list from GitHub and saves it next to the script. If the download fails, it prints the link so you can save the file by hand. Exit code 0 = clean, 1 = notes to fix or justify.
@@ -1122,14 +1154,16 @@ On its first run, it downloads the CEFR-J word list from GitHub and saves it nex
 
 ```python
 #!/usr/bin/env python3
-"""plain_check.py - language, independence and budget checker for slides-rulebook decks
-(rulebook v1.5, lesson-deck-builder v1.3).
+"""plain_check.py - language, independence and word-ceiling checker for slides-rulebook decks
+(rulebook v1.8, lesson-deck-builder v1.3).
 
 Usage:  python plain_check.py deck.html [--max-level A2|B1] [--max-sentence 20]
                                         [--max-words 110] [--known words.txt] [--budget N]
+                                        [--ceiling 2.0]
 Needs:  pip install wordfreq   (fallback for irregular word forms)
 Word list: CEFR-J Vocabulary Profile 1.5 (Tono Laboratory, TUFS), downloaded on first run.
-Budget: read from <!-- BUDGET original=N --> in the deck, or --budget N.
+Original: read from <!-- BUDGET original=N --> in the deck, or --budget N.
+Ceiling: N x --ceiling (default 2.0, G5); only a deck over it is flagged.
         Elements marked data-budget="skip" are checked but not counted (settings §11 only).
 """
 import csv, re, sys, os, argparse, urllib.request
@@ -1293,6 +1327,8 @@ def main():
     ap.add_argument("--max-words", type=int, default=110)
     ap.add_argument("--known", help="extra field words a student already owns, one per line")
     ap.add_argument("--budget", type=int, help="original's total words (overrides the BUDGET comment)")
+    ap.add_argument("--ceiling", type=float, default=2.0,
+                    help="word ceiling as a multiple of the original (G5; default 2.0)")
     o = ap.parse_args()
     try:
         from wordfreq import zipf_frequency as zipf
@@ -1414,9 +1450,12 @@ def main():
     print(f"{len(p.slides)} slides, {len(terms)} defined or glossary terms, {problems} items to fix or justify")
     print(f"deck word coverage: {dc:.1f}% at {o.max_level} or below (target >= 98%)")
     if budget:
-        print(f"deck words (all readable text): {deck_words} / original {budget} ({100.0*deck_words/budget:.0f}%)")
-        if deck_words > budget:
-            print("  * over the word budget (G5) - compress wording or move facts into figures")
+        cap = int(budget * o.ceiling)
+        print(f"deck words (all readable text): {deck_words} / original {budget} "
+              f"({100.0*deck_words/budget:.0f}%; ceiling {o.ceiling:g} x = {cap} words)")
+        if deck_words > cap:
+            print(f"  * over the word ceiling (G5) by {deck_words - cap} words - cut the deck's own "
+                  "additions (W4), never a fact or its exact wording")
             problems += 1
     else:
         print(f"deck words (all readable text): {deck_words} (no BUDGET comment - add <!-- BUDGET original=N -->)")
