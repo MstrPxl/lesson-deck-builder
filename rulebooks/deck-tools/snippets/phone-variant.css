@@ -1,0 +1,10 @@
+/* B5 · phone variants of wide figures: one set of labels, two drawings */
+.lf > svg.sv-ph{display:none}
+@media(max-width:880px){
+  .lf.pv{--vw:var(--pvw)!important;--vh:var(--pvh)!important;width:100%!important}   /* labels re-size with the phone viewBox */
+  .lf.pv > svg.sv-dk{display:none} .lf.pv > svg.sv-ph{display:block}
+  .lf.pv .lf-pin{left:calc(var(--px) / var(--vw) * 100%);top:calc(var(--py) / var(--vh) * 100%)}
+  .lf.pv .lf-pin.p-start{transform:translate(0,-50%);text-align:start}
+  .lf.pv .lf-pin.p-mid{transform:translate(-50%,-50%);text-align:center}
+  .lf.pv .lf-pin.p-end{transform:translate(-100%,-50%);text-align:end}
+}

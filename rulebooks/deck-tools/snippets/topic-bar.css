@@ -1,0 +1,25 @@
+/* N1 · topic bar — replaces the slide dots; reads only bridge tokens (style-system.md §7) */
+.nav .dots,.progress{display:none}                     /* the topic bar is the only position cue */
+.secbar{display:flex;gap:6px;align-items:stretch;flex:1;max-width:min(980px,calc(100vw - 290px));height:34px}
+.nav .sec{flex:var(--n) 1 0;min-width:0;padding:0;margin:0;border:1.6px solid var(--k-line);border-radius:10px;
+  background:var(--k-surface);color:var(--k-soft);opacity:.75;font-family:var(--font-body);font-weight:700;font-size:.66rem;
+  line-height:1.1;letter-spacing:0;text-transform:none;display:grid;place-items:center;text-align:center;overflow:hidden;
+  cursor:pointer;box-shadow:none;transform:none;transition:background .4s ease,border-color .4s ease,opacity .4s ease}
+.nav .sec span{display:block;padding:0 4px;overflow-wrap:anywhere}
+.nav .sec:hover{transform:none;opacity:1;background:var(--k-surface)}
+.nav .sec.done{opacity:1;border-color:var(--k-soft);background:color-mix(in srgb,var(--k-ink) 10%,transparent)}  /* passed topics: light fill */
+.nav .sec.now{opacity:1;background:var(--k-hi);border:2px solid var(--k-c);color:var(--k-ink)}
+.secname{display:none}
+@media(max-width:880px){
+  .secbar{height:12px;max-width:none;gap:4px}
+  .nav .sec{border-radius:6px} .nav .sec span{display:none}
+  .secname{display:block;position:fixed;bottom:58px;inset-inline:0;text-align:center;z-index:5;pointer-events:none;
+    font-family:var(--font-display);font-weight:700;font-size:1.05rem;color:var(--k-soft)}
+}
+
+/* Sketchbook: the hand-drawn look of the Applied OS decks (checked on the chalkboard; on paper it reads the paper tokens). */
+.nav .sec{border-radius:10px 13px 10px 12px/12px 10px 13px 10px;background:color-mix(in srgb,var(--paper) 88%,transparent);color:var(--pencil);opacity:1}
+.nav .sec:hover{background:color-mix(in srgb,var(--paper) 88%,transparent);color:var(--ink-soft);border-color:var(--ink-soft)}
+.nav .sec.done{color:var(--ink-soft)}
+.nav .sec.now{color:var(--ink)}
+@media(max-width:880px){.nav .sec{border-radius:6px}}

@@ -1,0 +1,25 @@
+/* ===== B4 · phone layer (slides-rulebook M1–M8): every rule is phone-only, or does nothing on a laptop ===== */
+@supports (height:100dvh){ .deck{height:100dvh} }          /* the visible height: browser bars no longer hide the nav */
+.nav{bottom:calc(14px + env(safe-area-inset-bottom,0px))}  /* above the home bar on notched phones */
+pre,.code,.tbl-wrap{overscroll-behavior-x:contain}
+@media (max-width:880px){
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  .slide{padding:58px 16px calc(118px + env(safe-area-inset-bottom,0px))}   /* content ends above the nav and the topic name */
+  .inner{max-width:100%}
+  p,li,dd,td,th,.opt,.fq-row{font-size:max(1em,15px)}                        /* body text never below 15 px (M4) */
+  .lead{font-size:16px}
+  .nav button{min-height:44px;min-width:72px}                                 /* thumb-size controls (M5) */
+  .secbar{height:24px} .nav .sec{min-height:24px}                             /* topic blocks are tap targets too */
+  .secname{bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+  .opt,.k-btn,.fq-it{min-height:44px}
+  .chip,.fq-grp button,.fq-ch{min-height:34px}
+  pre,.code{font-size:.8rem}
+  /* tables with 3+ columns: one block per row; put data-m="column name" on each <td> */
+  .tbl.stack thead{display:none} .tbl.stack tr{display:grid;grid-template-columns:1fr;padding:6px 0;border-bottom:1px dashed var(--line)}
+  .tbl.stack th,.tbl.stack td{border:0;padding:1px 0;text-align:start}
+  .tbl.stack td[data-m]::before{content:attr(data-m) ": ";font-family:var(--font-display);font-weight:700;color:var(--yellow)}
+}
+@media (max-width:880px) and (orientation:landscape){ .slide{padding-top:48px} .topbar{padding-block:6px} }
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}

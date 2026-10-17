@@ -1,0 +1,33 @@
+deck-tools 1.6 · 17 Oct 2026
+written for slides-rulebook v1.9, questions-rulebook v1.3, lesson-deck-builder v1.3 (engine v2)
+
+What the tools assume (if any of these changed, the tools need updating, not the deck):
+- engine globals: slides, go(k, true), next(), idx, buildStep, buildMax, total
+- markup: section.slide, data-sec, data-budget="skip", <span id="total">, the END SLIDES comment
+- quiz items: .fq[data-type], .drop[data-answer], .bank .chip (build: .chip[data-n], .fq-line, .fq-clear), .opt, .k-btn; nav: .nav, #prev, #next
+- the code the rulebooks point to lives here: plain_check.py, quiz_walk.py, checker-brief.txt and snippets/
+  (setup copies the two scripts next to the rulebooks; snippets/README.md says which rule each snippet serves)
+
+Self-test (run when setup warns about versions, or whenever a tool's output looks odd):
+  python3 deck-tools/checks.py PREVIOUS-DECK.html
+The previous deck passed when it was built. If the self-test reports a problem or COULD NOT CHECK,
+the tools are out of date: fix the tool, say so in the report under Departures, and update this file.
+
+Exit codes of checks.py, shots.py, measure.py: 0 clean · 1 a problem was found · 2 something could not be checked.
+A run that ends in COULD NOT CHECK is never a pass.
+
+1.2: quiz_walk_phone.py runs the rulebook quiz walk in a 390x844 touch context (it patches the page line of quiz_walk.py in memory).
+1.2: slide_text.py dumps each slide's readable text for the independent check (slides-rulebook v1.7 F1b).
+1.3: checks.py centres the chip (and the drop, when needed) before the drag tests; scroll_into_view_if_needed could leave the chip under the fixed nav, so the touch "drag" swiped the page (found on 210 ISY deck 5).
+1.4: quiz_walk_x.py runs the rulebook quiz walk plus branches for newer kinds (build: Build the answer), at laptop size or with --phone;
+     quiz_walk_phone.py now wraps it. slide_text.py unwraps <wbr> so Student_<wbr>number dumps as one word (Databases deck 1).
+1.5: er.py draws ER diagrams (entity, weak entity, relationship, identifying relationship, attribute, key, partial key,
+     multivalued, derived; single/double/dashed lines; free pins) as SVG shapes + HTML labels in one .lf, sized from a
+     character-width estimate at 14.6 viewBox units (the 11 px phone floor in a ~500-unit drawing at 358 px). Needs the CSS
+     block "ER diagrams" from the DB deck 3 shell (.erfig .lf-pin.er …). Use it from a figs.py of your own (Databases deck 3).
+     figshot.py DECK SLIDE OUT.png [W H scale selector index] screenshots one element of a slide at high scale, to inspect
+     label overlaps in a figure.
+1.6: holds the code that used to sit in the rulebooks' appendices (slides-rulebook 1.9, questions-rulebook 1.3):
+     plain_check.py, quiz_walk.py, checker-brief.txt and snippets/ (topic bar, glossary, figure labels, phone layer,
+     phone variants, quiz markup, quiz CSS, quiz script), byte for byte. setup_tools.sh copies the two scripts instead of
+     extracting them and checks the snippets. size_check.py reports the rulebooks' and the notes' sizes against their caps.

@@ -1,0 +1,4 @@
+.lf{container-type:inline-size}
+.lf-pin{font-size:min(1.3rem,max(12px,calc(20 * 100cqi / var(--vw))))}
+.lf-pin.s{font-size:min(1.16rem,max(11.5px,calc(17.5 * 100cqi / var(--vw))))}  /* smaller label */
+.lf-pin.xs{font-size:min(1.04rem,max(11px,calc(15.5 * 100cqi / var(--vw))))}   /* smallest label */

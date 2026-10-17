@@ -260,7 +260,7 @@ Copy-Item -Recurse lesson-deck-builder\lesson-deck-builder "$HOME\.claude\skills
     <div>
       <div class="code" style="margin-top:0"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">your prompt</span><button class="copy" id="pb-copy" type="button">Copy</button></div>
 <pre id="pb-out" aria-live="polite"></pre></div>
-      <p class="muted"><small>"From lecture slides" uses the two <a href="#rulebooks">rulebooks</a>: attach them, your lecture PDF or PPTX and any notes. For a later deck of the same course, also attach the newest earlier deck.</small></p>
+      <p class="muted"><small>"From lecture slides" uses the two <a href="#rulebooks">rulebooks</a>: attach them, <code>deck-tools.zip</code>, your lecture PDF or PPTX and any notes. For a later deck of the same course, also attach the newest earlier deck.</small></p>
     </div>
   </div>
 </section>
@@ -762,13 +762,13 @@ python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the rever
 
   <div class="grid g2">
     <div class="card">
-      <span class="tag">rulebooks/slides-rulebook.md · v1.8</span>
+      <span class="tag">rulebooks/slides-rulebook.md · v1.9</span>
       <h3>Slides Rulebook</h3>
       <p>How to turn one lecture into one deck that is <strong>complete</strong>, <strong>easier to digest</strong> than the slides (in <strong>at most twice their words</strong>), in <strong>plain English (A2–B1)</strong>, split into <strong>topics that each stand alone</strong>, taught with research-backed methods, and <strong>phone first</strong>. It also keeps every deck of a course consistent, from the first lecture to the last.</p>
       <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/slides-rulebook.md">Read it on GitHub ↗</a></p>
     </div>
     <div class="card">
-      <span class="tag">rulebooks/questions-rulebook.md · v1.2.1</span>
+      <span class="tag">rulebooks/questions-rulebook.md · v1.3</span>
       <h3>Questions Rulebook</h3>
       <p>How to add a <strong>final quiz</strong> to a deck: about 10 minutes, several kinds of questions, marked on the page with a reason for every answer, and a score slide that sends you back to the topics you missed. Works with the slides rulebook or on its own, for any subject.</p>
       <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/questions-rulebook.md">Read it on GitHub ↗</a></p>
@@ -785,7 +785,7 @@ python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the rever
   </div>
 
   <h3>How to use them</h3>
-  <p><strong>First deck of a course</strong> — attach the two rulebooks and the lecture file, then send:</p>
+  <p><strong>First deck of a course</strong> — attach the two rulebooks, <code>deck-tools.zip</code> and the lecture file, then send:</p>
   <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">prompt · first deck</span><button class="copy">Copy</button></div>
 <pre><code>/lesson-deck-builder
 Follow slides-rulebook.md for the attached lecture, and end the deck with a final quiz following questions-rulebook.md. Read the attached notes before planning.
@@ -804,7 +804,7 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
       <tr><td>The lecture (PDF or PPTX)</td><td>Always; one deck per lecture file</td><td>Yours</td></tr>
       <tr><td>Earlier decks of the course</td><td>From the 2nd deck on (at least the newest)</td><td>Yours (see the <a href="#example">example</a>)</td></tr>
       <tr><td><code>deck-notes-general.md</code>, <code>&lt;course&gt;-notes.md</code></td><td>Whenever they exist: experience notes, not rules</td><td>No — optional; the first deck of a course creates the course notes</td></tr>
-      <tr><td><code>deck-tools.zip</code></td><td>Whenever it exists: helper scripts</td><td>No — optional; the rulebooks carry the code they need</td></tr>
+      <tr><td><code>deck-tools.zip</code></td><td><strong>Always</strong>: the code both rulebooks point to, plus helper scripts. Unzip, then run <code>bash deck-tools/setup_tools.sh</code> once per session</td><td>Yes, <a href="https://github.com/MstrPxl/lesson-deck-builder/tree/main/rulebooks/deck-tools"><code>rulebooks/deck-tools/</code></a> and the zip in the <a href="https://github.com/MstrPxl/lesson-deck-builder/releases/latest">release</a></td></tr>
     </tbody>
   </table></div>
   <p>The attachments decide the case: <strong>A</strong> first deck of a course (asks the canvas gate and exam focus once), <strong>B</strong> a later deck (reuses the newest deck as the "shell" and asks only what's new), <strong>C</strong> decks of another course attached (settings don't carry over).</p>
@@ -841,14 +841,14 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
       <li><strong>Rule families</strong> with IDs you can cite in feedback: L (language), T (terms), TE (teaching), F (fidelity), V (visuals), M (phone), N (navigation), Q (checks).</li>
       <li><strong>The Concept Pattern</strong>: ask · plain idea + case · name it · picture · why it works · worked example · common mistake · check.</li>
       <li><strong>Settings</strong> (§11): vocabulary level, Arabic support, deck shape, word ceiling (2 × by default; Tighter 1.5 ×; Shorter, the old rule), quiz on/off, glossary, navigation, exact wording…</li>
-      <li><strong>Appendices</strong>: <code>plain_check.py</code> (language and word-ceiling checker, <code>--ceiling</code>), topic bar, glossary, phone layer code, and the independent checker's brief.</li>
+      <li><strong>Appendices</strong>: what the checker, topic bar, glossary, phone layer and checker's brief do and where they go; their code is in <code>deck-tools</code>.</li>
     </ul></div>
     <div class="card soft"><b>Questions rulebook</b><ul>
       <li><strong>Goals QG1–QG5</strong>: answerable from the deck alone, fair but challenging, ≈10 minutes, covers every topic, marks itself and teaches.</li>
       <li><strong>Method</strong>: list what the deck teaches by kind of knowledge, match each to the best question kinds, pick 6–9 kinds, about 2 items each.</li>
       <li><strong>Nine proven kinds</strong>: Choose one · True or false · Fill the gap (word bank) · Match · Put in order · Sort into groups · Find the mistake · Work it out · Label the figure. Plus six ready-to-build kinds and a list of rejected ones (with reasons).</li>
       <li><strong>Layout</strong>: intro slide, one slide per kind, a live score slide with "Revisit" buttons per missed topic, and "Try the quiz again".</li>
-      <li><strong>Appendices</strong>: markup, CSS and script for every kind, a Playwright browser walk, and a worked example.</li>
+      <li><strong>Appendices</strong>: the quiz markup, CSS, script and browser walk (code in <code>deck-tools</code>), and a worked example.</li>
     </ul></div>
   </div>
 
@@ -866,7 +866,7 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
     </tbody>
   </table></div>
 
-  <div class="note blue"><span class="nt">Tools the rulebooks may use</span>Python 3 for <code>validate.py</code> and <code>plain_check.py</code> (it needs <code>pip install wordfreq</code> and downloads the free CEFR-J word list on first run). Optional: <code>pdftotext</code> and <code>tesseract</code> for counting the source's words, and Playwright for the quiz's browser walk. If code can't run, Claude says so in the report instead of inventing numbers.</div>
+  <div class="note blue"><span class="nt">The rulebooks' code: deck-tools</span>Every run reads both rulebooks in full, so their code lives in <code>deck-tools</code> instead: <code>plain_check.py</code>, <code>quiz_walk.py</code>, the checker's brief, and <code>snippets/</code> (topic bar, glossary, phone layer, quiz markup/CSS/script). Setup copies the scripts into place. Both rulebooks have a <strong>size cap</strong> (110,000 and 32,000 characters) that <code>deck-tools/size_check.py</code> checks, and their version history lives in <code>rulebooks-changelog.md</code>. Since 1.9/1.3 a run reads about 104,000 + 29,000 characters instead of 140,126 + 65,805.<br><br><strong>Tools they use:</strong> Python 3 for <code>validate.py</code> and <code>plain_check.py</code> (it needs <code>pip install wordfreq</code> and downloads the free CEFR-J word list on first run). Optional: <code>pdftotext</code> and <code>tesseract</code> for counting the source's words, and Playwright for the quiz's browser walk. If code can't run, Claude says so in the report instead of inventing numbers.</div>
 </section>
 
 <!-- ============ EXAMPLE ============ -->
@@ -928,6 +928,8 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
 <span class="d">rulebooks/</span>
   slides-rulebook.md               <span class="m"># lecture slides → standalone study deck</span>
   questions-rulebook.md            <span class="m"># the self-marking final quiz</span>
+  rulebooks-changelog.md           <span class="m"># both rulebooks' version history (not read by runs)</span>
+  <span class="d">deck-tools/</span>                      <span class="m"># the rulebooks' code: checker, quiz walk, snippets/, setup, size_check</span>
 <span class="d">examples/</span>
   isy-05-cryptography.html         <span class="m"># a real deck built with the skill and both rulebooks</span>
 index.html, <span class="d">site/</span>                    <span class="m"># this documentation page (GitHub Pages)</span>
@@ -969,12 +971,13 @@ README.md · LICENSE</div>
       <tr><td><strong>Skill v1.3</strong></td><td>2026-10-09</td><td>Sketchbook only; canvas gate with paper and six chalkboard boards; template rebuilt; retired styles' mechanics ported to §32.</td></tr>
       <tr><td>Skill v1.2.1</td><td>2026-10-07</td><td>Chalk grain removed; chalkboard text renders clean.</td></tr>
       <tr><td>Skill v1.2</td><td>2026-10-06</td><td>Use-case system; engine v2 (builds, capture guard, events); components §22–§31; validator upgrades.</td></tr>
-      <tr><td><strong>Slides rulebook 1.8</strong></td><td>2026-10-16</td><td>Easier to digest, not shorter: up to 2 × the source's words, never more; size measured in words only, no slide-count limit; <code>plain_check.py --ceiling</code>.</td></tr>
+      <tr><td><strong>Slides rulebook 1.9 · Questions rulebook 1.3</strong></td><td>2026-10-17</td><td>Structure only, no rule changed: code moved to <code>deck-tools</code> 1.6, history to the rulebooks changelog, size caps with <code>size_check.py</code>.</td></tr>
+      <tr><td>Slides rulebook 1.8</td><td>2026-10-16</td><td>Easier to digest, not shorter: up to 2 × the source's words, never more; size measured in words only, no slide-count limit; <code>plain_check.py --ceiling</code>.</td></tr>
       <tr><td>Slides rulebook 1.7</td><td>2026-10-10</td><td>Fact ledger, required independent check, exact wording for every definition.</td></tr>
       <tr><td>Questions rulebook 1.2.1</td><td>2026-10-10</td><td>Goals over procedures; "Departures" line in the report.</td></tr>
     </tbody>
   </table></div>
-  <p>Full details: <a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/CHANGELOG.md">CHANGELOG.md</a> and the "Changes in…" notes at the top of each rulebook.</p>
+  <p>Full details: the skill's <a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/CHANGELOG.md">CHANGELOG.md</a> and the <a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/rulebooks-changelog.md">rulebooks changelog</a>.</p>
 
   <h3>Contributing</h3>
   <p>Issues and pull requests are welcome. If you change the skill: keep <code>SKILL.md</code> and the references consistent, run <code>scripts/use_cases.py</code> after touching component lists or use cases, run <code>validate.py</code> on the template and exemplars, and add a <code>CHANGELOG.md</code> entry.</p>

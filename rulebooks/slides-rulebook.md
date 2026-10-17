@@ -1,86 +1,8 @@
 # Slides Rulebook
 
-**Version 1.8 · 16 October 2026 · written against `lesson-deck-builder` v1.3 (Sketchbook: paper, or chalkboard in six boards)**
+**Version 1.9 · 17 October 2026 · written against `lesson-deck-builder` v1.3 (Sketchbook: paper, or chalkboard in six boards)**
 
-> **Changes in 1.8: easier to digest, not shorter.** G5 used to say "shorter than the slides". It now says **easier to digest than the slides, in at most twice their words**.
-> - **The word ceiling is 2 × the original's words** (W1b: its text plus the words inside its figures and tables). Plain words that are longer, full sentences instead of telegraphic bullets, the "why", and examples may use that room. The deck never passes the ceiling.
-> - **Words are the only measure of size.** There is no slide-count limit (the old "about 0.8 × the source's slides" is gone). The slide count follows from one idea per slide (TE1) and the words per slide (V5).
-> - **Where the room goes** is a ranked list (§1, "Where the extra words go"). When a plan passes the ceiling, cut from the bottom of that list up (W4). Facts and their exact wording are never cut. If they alone would pass the ceiling, stop and ask the user (precedence, W5).
-> - The Concept Pattern's "budget form" is now its **deck form** (§6): every load-bearing concept gets a concrete example, and a concept may take 1–3 slides.
-> - **Checks and report:** Q6 checks the ceiling and digestibility, not the slide count. The report shows words against the 200% ceiling and says what the room above 100% was spent on (§10).
-> - **`plain_check.py` v1.8** reports deck words against the ceiling (`--ceiling`, default 2.0) and flags only a deck over it.
-> - **Settings (§11):** the word ceiling is 2 × by default. **Tighter** (1.5 ×) and **Shorter** (the v1.7 rule: no more words than the source, about 0.8 × its slides) remain as options.
-> - **Courses started before 1.8** switch to the 2 × ceiling from their next deck, unless the user keeps the Shorter setting (§0).
-
-> **Changes in 1.7: the deck must stand alone, and that is now checked fact by fact.** G1 always said the student never needs the slides, but its check (a coverage map of slide units) let small losses through: a 210 ISY deck passed with 13 weakened facts, 2 contradictions and 9 quiz problems, all found by an independent reader.
-> - **F1 — Fact ledger** replaces the coverage map. Every bullet is split into single facts, qualifiers kept, each with its slide and a status. Re-run after every trimming pass (W9).
-> - **F1b — Independent check (new, required).** A separate agent that did not build the deck compares the PDF text with the deck's slide text and reports missing, weakened, contradicted, misquoted and unlabelled content. Fix and re-run until it reports nothing. Its brief is Appendix C.
-> - **F2 — Exact wording for every definition** (the user's choice): every sentence that says what a term is, means, includes or covers, and every list a review question asks, is quoted word for word, with a plain reading beside it.
-> - **F3 — The deck's own framing is labelled** (`class="ours"`), and framing that could contradict a slide fact is not used.
-> - **L10** lists the qualifiers that must survive. **TE7:** quiz items test the lecture, never the deck's own pictures, and feedback states slide facts at full strength.
-> - **The word budget gives way** to completeness and exact wording; the report gives the overrun (G5, precedence).
-> - The report has a **"Standalone"** line (§10); a new setting chooses how much wording is exact (§11).
-
-> **Changes in 1.6.1:** goals over procedures (§0). The goals, the user's choices and the limits that serve them are fixed. Every procedure is a tested default that may give way to a better method, reported on a new "Departures" line (§10). Review the procedures when the model or the skill changes.
->
-> **Changes in 1.6:**
-> - **The field notes are split.** A general notes file serves every course. Each course has its own notes file, which lives from the course's first deck to its last (§0 "Starting a run", W11).
-> - **W11 merges instead of appending.** It sorts each lesson into the general or the course notes, replaces outdated points, and caps the general file.
-> - **Deck tools:** the helper scripts (build and word count, screenshots, checks) travel as `deck-tools.zip`, attached with the notes.
-> - **First deck of a course:** the template's header comment contains the text `<script>`. Take the engine from the script tag itself (§0, case A).
-> - **Phone variants of wide figures** get a pattern and its code (M4, Appendix B5): one set of labels, two drawings, words counted once.
-> - **Two fixes for the deck glossary** (Appendix B2): gloss cards near the edge of a phone screen no longer make the slide scroll sideways, and glossary cards no longer split flex list items into columns.
-
-> **Changes in 1.5:**
-> - **Phone first (new goal G6, rules M1–M8, Appendix B4).** Every deck is designed and checked at phone size first, then at laptop size, and the laptop view stays as it was. A small phone layer (CSS + one script, Appendix B4) fixes the browser-bar height, the notch, tap-target sizes and builds that land below the fold. Q7 now checks the phone first.
-> - **The canvas is always the user's choice.** At the first deck of a course, the canvas gate (paper or chalkboard, then the board) is always asked before anything is built, and never decided silently (§0, W5). Skill v1.3 retired the other style families, so "style family" now means the canvas and board.
-> - **The final quiz is standard.** `questions-rulebook.md` is attached to every run, and its final quiz replaces the skill's end-of-deck question set and answer box (§2, TE5, TE7, §11).
-> - **Starting a run:** the attachment list includes `questions-rulebook.md`; sample prompts for a first and a later deck.
-> - **`plain_check.py` v1.5:** a slide marked `data-budget="skip"` (the quiz) now stays outside the word count, its feedback included.
-> - The glossary script skips quiz slides (Appendix B2); bridge tokens are `style-system.md §7` in skill v1.3.
->
-
-> **Changes in 1.4.3:** new field words found in a lecture are added by a set test, kept in the COURSE record so later decks inherit them, and listed in the report so the user can veto them (L1).
->
-> **Changes in 1.4.2:** the topic bar stays identical across a course's decks. Later decks copy the shell's code unchanged (§0, N1), and Appendix B's CSS reproduces the Applied OS look exactly in Sketchbook (checked in a browser).
->
-> **Changes in 1.4.1:** the field notes are read before planning (§0), and one notes file serves every course.
->
-> **Changes in 1.4** (one system for every course and every deck):
-> - **§0 "Starting a run" covers every case:** the first deck of a course, a later deck, or decks from another course attached. The prompt stays the same; the attachments decide the case.
-> - **COURSE record:** every deck carries the course's standing choices (style, canvas, exam focus, settings, decisions) in an HTML comment, so later decks don't ask them again.
-> - **Earlier decks:** the newest one is the shell, a source of code, not a list of allowed components. Components still come from the skill's full catalog.
-> - **Naming** `<course>-NN-<lecture>.html`, and a new step **W11**: update the field notes after each deck.
->
-> **Changes in 1.3** (what building the Applied OS chapter 1 deck showed):
-> - **One deck per lecture, shorter than the slides.** New goal G5, with a word budget (W1b, W4, Q6): the deck has fewer slides than the source, and no more words than the source's text plus the words inside its figures and tables. The old series model (14–18 slides per deck) is now a setting (§11).
-> - **New precedence.** Completeness still comes first. The cost is paid by compressing wording and moving facts into figures (L11, V13), not by adding slides.
-> - **Independence moves from the slide to the topic.** Each topic (N1) stands alone. On any slide, every term is explained either visibly or by a deck glossary card (T5, T5b). The glossary keeps the definitions once and makes per-slide glossing affordable.
-> - **New navigation rule N1.** A topic bar replaces the slide dots: rounded blocks named by topic, sized by slide count, marking only the current topic.
-> - **Smaller changes:**
->   - formal-version boxes only where the wording matters (F2);
->   - a field-vocabulary allowlist (L1);
->   - narrower research (W2b);
->   - a shorter confirmation step (W5);
->   - the Concept Pattern gets a budget form (§6);
->   - visual checks include phone width and arrowheads (Q7).
-> - **`plain_check.py` v1.3** now reports the word budget, the topics and the glossary, and accepts a known-words file. Appendix B holds the topic-bar and glossary code until the skill ships them.
->
-> **Changes in 1.2.1:**
-> - The rulebook carries its own start-up procedure (§0, "Starting a run").
-> - W5 asks for the exam focus when it was not given.
-> - Q2 says what to do when code cannot run.
->
-> **Changes in 1.2:**
-> - Aligned with lesson-deck-builder v1.2 (teaching jobs, components §22–§29, bridge tokens).
-> - On-demand glosses allowed for supporting terms.
-> - F9: "trim" means emphasis, never deletion.
->
-> **Changes in 1.1:**
-> - Decks improve on the slides instead of transcribing them.
-> - A research step for every concept.
-> - Concepts are ordered for learning.
-> - Evidence-based visual rules.
+> **New in 1.9 (structure only; no rule changed):** the code moved to `deck-tools` (the appendices name each file), the version history moved to `rulebooks-changelog.md`, and this file has a size cap (§0). The last rule change was 1.8: G5 became "easier to digest than the slides, in at most twice their words".
 
 This file tells you how to turn a set of university lecture slides into one lesson-deck-builder HTML deck that a student can study **instead of** the slides:
 - complete;
@@ -113,10 +35,14 @@ It also tells you how to keep all the decks of a course consistent, from the fir
   - A departure never trades away a goal or a choice.
   - Rules that cite evidence (§12) change only for a reason as strong as their evidence.
 - Every rule has an ID (F3, L2, T5, N1 …) so the user can point at it in feedback.
+- **Size cap.** Every run reads this file, so its size is a cost paid on every deck. It stays under **110,000 characters** (about 28K tokens). `questions-rulebook.md` stays under **32,000**, and the general notes under about 30,000 (their own rule).
+  - Code lives in `deck-tools`, and version history in `rulebooks-changelog.md`. Neither comes back into a rulebook: a new block of code becomes a file, and a new version adds one "New in" line here and its full entry to the changelog.
+  - A change that would pass a cap first merges or retires something, as the notes do (W11).
+  - Check with `python deck-tools/size_check.py` after every edit of a rulebook or the notes. The caps live in that script too; change both together.
 - "Why" lines give the mechanism. Tags in square brackets (for example [HN]) point to the evidence table in §12.
 - This file was written against **lesson-deck-builder v1.3** (engine v2, `use-cases.md`, components §1–§32). Component numbers (§22, §25 …) refer to that version's `components.md`. In v1.3 the only style is Sketchbook, on a **paper** canvas or a **chalkboard** in one of six boards (`style-system.md §5`); the bridge tokens are in `style-system.md §7`.
   - If your version of the skill renamed or replaced something named here, apply the rule to its current equivalent and mention the mismatch in the delivery report (§10).
-  - The topic bar (N1), the deck glossary (T5b), the phone layer (M1–M8) and phone-variant figures (M4) are not in the skill yet. Their code is in Appendix B.
+  - The topic bar (N1), the deck glossary (T5b), the phone layer (M1–M8) and phone-variant figures (M4) are not in the skill yet. Their code is in `deck-tools/snippets/`; Appendix B says where each file goes.
 - Numbers marked *(target)* are design choices, not research findings. They may be tuned. Numbers without that mark come from a standard or a study.
 - **When the model or the skill gets a new version, review the procedural parts of this file.** Ask: what here has become a workaround? Test it now and then: build one deck from the goals, the user's choices and the COURSE record alone, and compare it with a normal build. Keep a procedure only where it still makes the deck better.
 
@@ -150,7 +76,7 @@ Attach:
 | The lecture file (PDF or PPTX) | Always. One deck per lecture file. |
 | The general notes (`deck-notes-general.md`) | Whenever they exist. Read them after the rulebooks, before planning. They serve every course: experience that isn't a rule (word budgets, figure pitfalls, checks). |
 | The course's notes (`<course-slug>-notes.md`) | From the second deck of a course on. Facts about this course only: its status and newest deck, decisions, field words, the lecturer's slide habits, reusable figures, what comes next. The first deck of a course creates it (W11). |
-| The deck tools (`deck-tools.zip`) | Whenever they exist. Helper scripts for building and counting, screenshots and checks. Unzip, then run `bash deck-tools/setup_tools.sh` once per session. |
+| The deck tools (`deck-tools.zip`) | **Always.** The code both rulebooks point to (`plain_check.py`, `quiz_walk.py`, the checker's brief, the `snippets/` a deck pastes in), plus helper scripts for building and counting, screenshots and checks. Unzip, then run `bash deck-tools/setup_tools.sh` once per session. |
 | The earlier decks of the same course | From the second deck of a course on. All of them, or at least the newest one. |
 
 Anything the user writes in the prompt (a style, a setting, a skip) wins over everything below.
@@ -160,7 +86,7 @@ Anything the user writes in the prompt (a style, a setting, a skip) wins over ev
 - **A. First deck of a course.** No earlier deck of this course is attached.
   - Ask the course questions once, in the W5 message: the **canvas gate** (canvas, then board), the exam focus, and any §11 setting the slides make relevant.
   - **The canvas gate is always asked at the first deck, and nothing is built until the user answers** (W5). Use the skill's shape: suggest one canvas with a one-line reason and list both (Paper · Chalkboard); when the user picks the chalkboard, list all six boards with their few-word identities, suggested one first, and offer the skill's board preview (`assets/style-samples/sketchbook-chalkboard.html`, whose top-bar dots switch boards) as a file the user can open. Never pick on the user's behalf. Only a canvas and board named in the prompt skip the question.
-  - Build from the skill's template, with the phone layer (Appendix B4). Take every code block from the skill and the rulebooks with a script, never by retyping. The template's header comment contains the text `<script>`: take the engine from `<script>` followed by `/* ---- deck engine`, or the whole template lands in the deck (symptom: two `<html>`, two active slides).
+  - Build from the skill's template, with the phone layer (Appendix B4). Take every code block from the skill and from `deck-tools/snippets/` with a script, never by retyping. The template's header comment contains the text `<script>`: take the engine from `<script>` followed by `/* ---- deck engine`, or the whole template lands in the deck (symptom: two `<html>`, two active slides).
   - Start the COURSE record at deck 1, and the course's notes file at the end of the run (W11).
 - **B. Later deck of a course.** Earlier decks of the same course are attached: the same course appears in their COURSE record, or in their title.
   - Don't ask anything the COURSE record already answers.
@@ -397,7 +323,7 @@ The term sheet feeds the visible definitions (T3), the deck glossary (T5b) and t
 **W8 — Build** the deck with the skill (engine v2, canvas and board, bridge tokens). Start from the shell when there is one (case B, §0); otherwise from the skill's template. Then:
 - For each slide, take its job and choose a component from that job's reverse index in `use-cases.md`; vary components across the deck.
 - Write each slide's new CSS phone first (M1), and check the phone view as you go, not only at the end.
-- Add the topic bar (N1), the glossary (T5b) and the phone layer (M1–M8), all from Appendix B.
+- Add the topic bar (N1), the glossary (T5b) and the phone layer (M1–M8), all from `deck-tools/snippets/` (Appendix B says where each goes).
 - Add the final quiz as the last topic, following `questions-rulebook.md`.
 - Add the `FACT-LEDGER`, `INDEPENDENT-CHECK`, `SOURCES`, `BUDGET` and `COURSE` comments (F1, F1b, W2b, W1b, §0).
 
@@ -435,7 +361,7 @@ The term sheet feeds the visible definitions (T3), the deck glossary (T5b) and t
   - **When in doubt, it is a term.** Define it (§5). Never add a word to the field list just to pass the checker.
   - **Where they go:** the COURSE record's `field words:` line (§0), so every later deck of the course inherits them. They are never removed from the deck; the list only changes what the checker flags.
   - **Report** every word added (§10), so the user can veto it.
-  - A word that would help every course in the subject may be suggested for the built-in list in Appendix A. Only the user edits this file.
+  - A word that would help every course in the subject may be suggested for the built-in list in `deck-tools/plain_check.py` (Appendix A). Only the user edits the rulebooks and their tools.
 - Target: **at least 98% of running words known**, about one unknown word in fifty. A course term counts as known on slides where it is defined, glossed, or in the deck glossary (T5b).
 
 *Why:* readers need about 95% known words for minimal comprehension and about 98% for adequate comprehension. Going from 95% to 98% more than halves the unknown words the reader meets [HN]. The general word list rates field words such as *data* as B2. Without the allowlist, the target would push every course to re-teach its own field vocabulary.
@@ -719,7 +645,7 @@ totals: 82 lines · weakened 0 · missing 0
 
 **F1b — Independent check (required).** The author's own ledger misses what the author misread. Before delivery:
 1. Dump the deck's slide text as a student reads it (`deck-tools/slide_text.py`: labels, glossary and quiz feedback included; HTML comments, and so the ledger, left out). Quotes show as «…», the deck's framing as [ours: …].
-2. Give a separate agent, one that did not build the deck, only the PDF's text and that dump, with the brief in Appendix C. It builds its own fact list and reports: missing, weakened, contradicted, misquoted, not exact (a definition or review list not quoted), unlabelled claims, quiz items with a wrong or arguable key or unsourced feedback.
+2. Give a separate agent, one that did not build the deck, only the PDF's text and that dump, with the brief in `deck-tools/checker-brief.txt` (Appendix C). It builds its own fact list and reports: missing, weakened, contradicted, misquoted, not exact (a definition or review list not quoted), unlabelled claims, quiz items with a wrong or arguable key or unsourced feedback.
 3. Fix every finding, or write down why it stands. Send the new dump back for another pass. Stop when a pass reports nothing.
 4. Record the passes in an `<!-- INDEPENDENT-CHECK -->` comment (counts per pass, final verdict), and in the report's "Standalone" line.
 
@@ -880,7 +806,7 @@ Keep the linked colours `--k-a`, `--k-b`, `--k-c` for linked figures (V8), not f
 
 ### Phone first (G6)
 
-These rules make the deck work well on a phone without changing it on a laptop. The code that serves them is in Appendix B4.
+These rules make the deck work well on a phone without changing it on a laptop. The code that serves them is `deck-tools/snippets/phone-layer.css` and `phone-layer.js` (Appendix B4).
 
 **M1 — Design the phone view first; keep the laptop view.**
 - Plan and check each slide at **390 × 844**, held upright, before the laptop size (1280 × 800). The phone view is the base, and the laptop gets more room for the same content, never other content.
@@ -1152,424 +1078,39 @@ On its first run, it downloads the CEFR-J word list from GitHub and saves it nex
 - It cannot judge meaning, or whether a term is load-bearing (T5). Q3–Q5 still need a careful read.
 - The glossary cards are added at runtime. The checker trusts the glossary list; Q7's walk-through confirms that the cards appear.
 
-```python
-#!/usr/bin/env python3
-"""plain_check.py - language, independence and word-ceiling checker for slides-rulebook decks
-(rulebook v1.8, lesson-deck-builder v1.3).
-
-Usage:  python plain_check.py deck.html [--max-level A2|B1] [--max-sentence 20]
-                                        [--max-words 110] [--known words.txt] [--budget N]
-                                        [--ceiling 2.0]
-Needs:  pip install wordfreq   (fallback for irregular word forms)
-Word list: CEFR-J Vocabulary Profile 1.5 (Tono Laboratory, TUFS), downloaded on first run.
-Original: read from <!-- BUDGET original=N --> in the deck, or --budget N.
-Ceiling: N x --ceiling (default 2.0, G5); only a deck over it is flagged.
-        Elements marked data-budget="skip" are checked but not counted (settings §11 only).
-"""
-import csv, re, sys, os, argparse, urllib.request
-from html.parser import HTMLParser
-
-LIST_URL = ("https://raw.githubusercontent.com/openlanguageprofiles/"
-            "olp-en-cefrj/master/cefrj-vocabulary-profile-1.5.csv")
-LIST_FILE = "cefrj-vocabulary-profile-1.5.csv"
-SKIP = {"script", "style", "code", "pre", "kbd", "samp", "math", "svg", "var"}
-BLOCK = {"p", "li", "h1", "h2", "h3", "h4", "h5", "h6", "div", "td", "th", "dt", "dd",
-         "figcaption", "button", "label", "br", "blockquote", "aside", "section", "textarea"}
-PIECES = {"lf-pin"}                  # figure labels (components §22): separate pieces, not one sentence
-HIDDEN = {"gl-card"}                 # on-demand gloss cards (components §24): checked, not counted as visible
-VOID = {"br", "img", "input", "hr", "meta", "link", "source", "wbr", "area", "col", "embed", "track"}
-# field vocabulary a CS student already owns (L1); extend per course with --known FILE
-FIELD = set("""data hardware software computer computers file files byte bytes kilobyte megabyte gigabyte
-terabyte database databases compile compiled compiler code program programs programming network networks
-internet online app apps laptop laptops keyboard mouse printer monitor screen server servers website
-browser browsers download upload digital chip chips wireless click user users password email""".split())
-WORD = re.compile(r"[A-Za-z0-9][A-Za-z0-9'’\-\.]*")
-BACKREF = re.compile(r"\b(as (we|you) (saw|learned|learnt|discussed|said|explained|mentioned)"
-                     r"|as (mentioned|discussed|explained|shown) (before|earlier|above)"
-                     r"|(mentioned|discussed|explained|defined|shown) (earlier|before|above|previously)"
-                     r"|recall (that|from|the)|remember (that|from)|aforementioned|(?<!of )the above"
-                     r"|(earlier|previous|last|next) (slide|section|part|lesson|page)"
-                     r"|see (above|below|slide))\b", re.I)
-MCQ_FLAGS = re.compile(r"\b((?i:all of the above|none of the above)|NOT|EXCEPT)\b")
-CAPS_OK = {"NOT", "EXCEPT", "ALL", "NO", "OR", "AND", "I", "A", "OK"}
-PASSIVE = re.compile(r"\b(is|are|was|were|be|been|being)\s+(\w+ed|\w+en)\b", re.I)
-
-
-class Deck(HTMLParser):
-    def __init__(self):
-        super().__init__(convert_charrefs=True)
-        self.slides, self.stack, self.skip, self.hide, self.tmpl, self.unc = [], [], 0, 0, 0, 0
-        self.in_dfn = self.in_slide = False
-        self.gloss, self.in_gl, self.in_dt = [], False, False
-
-    def _nl(self):
-        self.slides[-1]["hid" if self.hide else "text"] += "\n"
-
-    def handle_starttag(self, tag, attrs):
-        a = dict(attrs)
-        cls = set((a.get("class") or "").split())
-        if tag == "section" and "slide" in cls:
-            self.slides.append({"text": "", "hid": "", "cnt": "", "dfn": [], "for": set(), "forms": set(),
-                                "sec": a.get("data-sec")})
-            u = int(a.get("data-budget") == "skip")     # a whole slide outside the budget (the final quiz)
-            self.stack, self.skip, self.hide, self.tmpl, self.unc, self.in_slide = [("section", 0, 0, 0, 0, u)], 0, 0, 0, u, True
-            return
-        if not self.in_slide:
-            return
-        skip = int(tag in SKIP or "formal" in cls)      # .formal = exact slide wording, not checked
-        hid = int(bool(HIDDEN & cls) or a.get("role") == "tooltip")
-        tm = int(tag == "template")
-        unc = int(tag in {"script", "style", "svg", "math"}     # not readable text: never counted
-                  or a.get("data-budget") == "skip")            # settings §11: content excluded from the budget
-        piece = int(tag in BLOCK or bool(PIECES & cls) or (tag == "b" and self.hide > 0) or self.tmpl > 0 or tm)
-        if tag not in VOID:
-            self.stack.append((tag, skip, hid, piece, tm, unc))
-            self.skip += skip; self.hide += hid; self.tmpl += tm; self.unc += unc
-        if a.get("data-for"):
-            self.slides[-1]["for"].add(a["data-for"].strip().lower())
-        if a.get("data-why"):                           # quiz feedback is readable text
-            self.slides[-1]["hid"] += "\n" + a["data-why"] + "\n"
-            if not self.unc:                            # feedback on a skipped (quiz) slide stays outside the budget too
-                self.slides[-1]["cnt"] += "\n" + a["data-why"] + "\n"
-        if tag == "dl" and (a.get("id") == "glossary" or "glossary" in cls):
-            self.in_gl = True
-        if tag == "dt" and self.in_gl:
-            self.in_dt = True
-            self.gloss.append({"key": a.get("data-term", ""), "text": "",
-                               "forms": [f.strip() for f in (a.get("data-forms") or "").split(",") if f.strip()]})
-        if tag == "dfn":
-            self.in_dfn = True
-            self.slides[-1]["dfn"].append("")
-            for f in (a.get("data-forms") or "").split(","):
-                if f.strip():
-                    self.slides[-1]["forms"].add(f.strip().lower())
-        if piece:
-            self._nl()
-
-    def handle_endtag(self, tag):
-        if tag == "dl":
-            self.in_gl = False
-        if tag == "dt":
-            self.in_dt = False
-        if not self.in_slide or not any(e[0] == tag for e in self.stack):
-            return
-        while self.stack:
-            t, skip, hid, piece, tm, unc = self.stack.pop()
-            self.skip -= skip; self.hide -= hid; self.tmpl -= tm; self.unc -= unc
-            if piece:
-                self._nl()
-            if t == "dfn":
-                self.in_dfn = False
-            if t == tag:
-                break
-        if not self.stack:          # the slide's own </section>
-            self.in_slide = False
-
-    def handle_data(self, data):
-        if self.in_dt and self.gloss:
-            self.gloss[-1]["text"] += data
-        if self.in_slide and not self.unc:              # budget count: formal wording and code count too (G5)
-            self.slides[-1]["cnt"] += " " + data
-        if not self.in_slide or self.skip:
-            return
-        if self.hide:
-            self.slides[-1]["hid"] += data
-            return
-        self.slides[-1]["text"] += data
-        if self.in_dfn:
-            self.slides[-1]["dfn"][-1] += data
-
-
-def load_levels():
-    if not os.path.exists(LIST_FILE):
-        try:
-            urllib.request.urlretrieve(LIST_URL, LIST_FILE)
-        except Exception as e:
-            sys.exit(f"Could not download the word list ({e}).\n"
-                     f"Download it by hand from {LIST_URL}\nand save it next to this script as {LIST_FILE}.")
-    lv = {}
-    with open(LIST_FILE, encoding="utf-8-sig") as f:
-        for r in csv.DictReader(f):
-            for h in r["headword"].split("/"):
-                h = h.strip().lower()
-                if h and " " not in h:
-                    lv[h] = min(lv.get(h, "C"), r["CEFR"])
-    return lv
-
-
-def lemmas(w):
-    c = [w]
-    for suf, rep in (("ies", "y"), ("ied", "y"), ("ier", "y"), ("iest", "y"), ("ily", "y"),
-                     ("es", ""), ("s", ""), ("ed", ""), ("ed", "e"), ("ing", ""), ("ing", "e"),
-                     ("er", ""), ("er", "e"), ("est", ""), ("est", "e"), ("ly", ""), ("'s", "")):
-        if w.endswith(suf) and len(w) - len(suf) >= 2:
-            stem = w[: -len(suf)] + rep
-            c.append(stem)
-            if rep == "" and len(stem) > 2 and stem[-1] == stem[-2]:
-                c.append(stem[:-1])  # stopped -> stop
-    return c
-
-
-def level_of(w, lv, zipf):
-    for c in lemmas(w):
-        if c in lv:
-            return lv[c]
-    if zipf and zipf(w, "en") >= 5.0:   # very common irregular forms: went, children
-        return "A2"
-    return None
-
-
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("html")
-    ap.add_argument("--max-level", default="B1", choices=["A2", "B1"])
-    ap.add_argument("--max-sentence", type=int, default=20)
-    ap.add_argument("--max-words", type=int, default=110)
-    ap.add_argument("--known", help="extra field words a student already owns, one per line")
-    ap.add_argument("--budget", type=int, help="original's total words (overrides the BUDGET comment)")
-    ap.add_argument("--ceiling", type=float, default=2.0,
-                    help="word ceiling as a multiple of the original (G5; default 2.0)")
-    o = ap.parse_args()
-    try:
-        from wordfreq import zipf_frequency as zipf
-    except ImportError:
-        zipf = None
-        print("note: wordfreq not installed; irregular forms may be flagged")
-    lv = load_levels()
-    known = set(FIELD)
-    if o.known:
-        known |= {l.strip().lower() for l in open(o.known, encoding="utf-8") if l.strip()}
-    raw = open(o.html, encoding="utf-8").read()
-    m = re.search(r"<!--\s*BUDGET\s+original=(\d+)", raw)
-    budget = o.budget or (int(m.group(1)) if m else None)
-    # a magic board shows one state at a time: keep only the last of each run of <template>s
-    raw = re.sub(r"(?:<template\b[^>]*>.*?</template>\s*)+",
-                 lambda g: re.findall(r"<template\b[^>]*>.*?</template>", g.group(0), re.S)[-1], raw, flags=re.S)
-    p = Deck()
-    p.feed(raw)
-    gl_terms = {x.strip().lower() for g in p.gloss for x in [g["key"] or g["text"], g["text"], *g["forms"]] if x.strip()}
-    terms = {t.strip().lower() for s in p.slides for t in s["dfn"] if t.strip()} | gl_terms
-    forms = {f for s in p.slides for f in s["forms"]}
-    term_words = {w for t in terms | forms for w in re.findall(r"[a-z]+", t)}
-    problems = 0
-    deck_known = deck_total = deck_words = 0
-    for i, s in enumerate(p.slides, 1):
-        visible = re.sub(r"[ \t]+", " ", s["text"])
-        text = visible + "\n" + re.sub(r"[ \t]+", " ", s["hid"])
-        lines = [l.strip() for l in text.split("\n") if l.strip()]
-        sents = [x for l in lines for x in re.split(r"(?<=[.!?])\s+", l) if x.strip()]
-        n_vis = len(WORD.findall(visible))
-        deck_words += len(WORD.findall(s["cnt"]))
-        notes = []
-        if n_vis > o.max_words:
-            notes.append(f"{n_vis} visible words (soft cap {o.max_words}) - split the slide or move facts into the figure")
-        for x in sents:
-            n = len(re.findall(r"[A-Za-z0-9]+", x))
-            if n > o.max_sentence:
-                notes.append(f"long sentence ({n} words): {x[:70]}...")
-        known_n = total = 0
-        hard, offlist, names, acr = set(), set(), set(), set()
-        for x in sents:
-            toks = re.findall(r"[A-Za-z][A-Za-z']*", x)
-            if toks and sum(t[0].isupper() for t in toks) >= 0.6 * len(toks):
-                toks = [t if t.isupper() else t.lower() for t in toks]  # Title Case heading
-            for j, t in enumerate(toks):
-                for part in t.split("-"):
-                    if not part:
-                        continue
-                    if len(part) >= 2 and part.isupper():
-                        if part not in CAPS_OK:
-                            acr.add(part)
-                        continue
-                    if j > 0 and part[0].isupper():
-                        names.add(part)
-                        continue
-                    w = part.lower().strip("'")
-                    total += 1
-                    if any(c in term_words or c in known for c in lemmas(w)):
-                        known_n += 1
-                        continue
-                    L = level_of(w, lv, zipf)
-                    if L and L <= o.max_level:
-                        known_n += 1
-                    elif L:
-                        hard.add(w)
-                    else:
-                        offlist.add(w)
-        deck_known += known_n
-        deck_total += total
-        cov = 100.0 * known_n / total if total else 100.0
-        if total >= 50 and cov < 98:   # short slides: judge coverage at deck level
-            notes.append(f"word coverage {cov:.1f}% (target >= 98%)")
-        if hard:
-            notes.append("above " + o.max_level + ": " + ", ".join(sorted(hard)))
-        if offlist:
-            notes.append("not in list (replace, define with <dfn>, or add to --known): " + ", ".join(sorted(offlist)))
-        covered = {t.strip().lower() for t in s["dfn"]} | s["for"] | gl_terms   # glossary terms are glossed at runtime (T5b)
-        low = text.lower()
-        for t in sorted(terms - covered):
-            if re.search(r"\b" + re.escape(t) + r"(s|es)?\b", low):
-                notes.append(f"term '{t}' used without a gloss on this slide (add it to the glossary or a data-for gloss)")
-        for a in sorted(acr):
-            if not any(a.lower() in c.split() or a.lower() == c for c in covered):
-                notes.append(f"acronym {a} not expanded on this slide (add it to the glossary or a data-for gloss)")
-        for mm in BACKREF.finditer(text):
-            notes.append(f"back-reference: '{mm.group(0)}' - restate the idea instead")
-        for mm in MCQ_FLAGS.finditer(text):
-            notes.append(f"question wording: '{mm.group(0)}' - avoid in questions")
-        pas = len(PASSIVE.findall(text))
-        if pas > 2:
-            notes.append(f"{pas} possible passive forms - prefer active voice")
-        if notes:
-            problems += 1
-            print(f"\n--- slide {i} ---")
-            for n in notes:
-                print("  * " + n)
-        if names:
-            print(f"  (slide {i} names, check they need no gloss: {', '.join(sorted(names))})")
-    # topics (N1)
-    sizes = []
-    for s in p.slides:
-        if s["sec"] is not None or not sizes:
-            sizes.append([s["sec"] or "(none)", 0])
-        sizes[-1][1] += 1
-    print()
-    if not any(s["sec"] for s in p.slides):
-        print("topics: none - mark the first slide of each topic with data-sec (N1)")
-        problems += 1
-    else:
-        print("topics: " + " | ".join(f"{n} {k}" for n, k in sizes))
-        tiny = [n for n, k in sizes if k < 2]
-        two = [n for n, k in sizes if k == 2]
-        if tiny:
-            print("  * topic with 1 slide - merge it (N1): " + ", ".join(tiny))
-            problems += 1
-        if two:
-            print("  note: 2-slide topic, keep its label very short (N1): " + ", ".join(two))
-    dc = 100.0 * deck_known / deck_total if deck_total else 100.0
-    print(f"{len(p.slides)} slides, {len(terms)} defined or glossary terms, {problems} items to fix or justify")
-    print(f"deck word coverage: {dc:.1f}% at {o.max_level} or below (target >= 98%)")
-    if budget:
-        cap = int(budget * o.ceiling)
-        print(f"deck words (all readable text): {deck_words} / original {budget} "
-              f"({100.0*deck_words/budget:.0f}%; ceiling {o.ceiling:g} x = {cap} words)")
-        if deck_words > cap:
-            print(f"  * over the word ceiling (G5) by {deck_words - cap} words - cut the deck's own "
-                  "additions (W4), never a fact or its exact wording")
-            problems += 1
-    else:
-        print(f"deck words (all readable text): {deck_words} (no BUDGET comment - add <!-- BUDGET original=N -->)")
-    if dc < 98:
-        problems += 1
-    sys.exit(1 if problems else 0)
-
-
-if __name__ == "__main__":
-    main()
-```
+**The script:** `deck-tools/plain_check.py`. `setup_tools.sh` copies it next to the rulebooks, so the commands above run as written. Open it only to change it.
 
 ---
 
 ## Appendix B — Topic bar (N1), deck glossary (T5b), label sizes (V14), phone layer (M1–M8) and phone-variant figures (M4)
 
-All of them work on both canvases and every board: they read only the canvas and bridge tokens (`style-system.md §7`). Their scripts go **after** the engine, inside the deck's single `<script>`. None of them edits the engine.
+All of them work on both canvases and every board: they read only the canvas and bridge tokens (`style-system.md §7`). Their scripts go **after** the engine, inside the deck's single `<script>`. None of them edits the engine. The code is in `deck-tools/snippets/`: copy each file into the deck with a script, never by retyping.
 
 ### B1. Topic bar
 
 HTML, replacing the skill's nav block (keep `#dots`, because the engine writes to it):
 
-```html
-<div class="nav">
-  <button id="prev">‹ Prev</button>
-  <div class="dots" id="dots" aria-hidden="true"></div>
-  <div class="secbar" id="secbar" role="navigation" aria-label="Topics"></div>
-  <button id="next">Next ›</button>
-</div>
-<div class="secname" id="secname" aria-hidden="true"></div>
-```
+→ `deck-tools/snippets/topic-bar.html`
 
 Mark topics on the slides: `<section class="slide active" data-sec="Start">`, `<section class="slide" data-sec="Storage">`, and so on.
 
 CSS (at the end of the style block):
 
-```css
-/* N1 · topic bar — replaces the slide dots; reads only bridge tokens (style-system.md §7) */
-.nav .dots,.progress{display:none}                     /* the topic bar is the only position cue */
-.secbar{display:flex;gap:6px;align-items:stretch;flex:1;max-width:min(980px,calc(100vw - 290px));height:34px}
-.nav .sec{flex:var(--n) 1 0;min-width:0;padding:0;margin:0;border:1.6px solid var(--k-line);border-radius:10px;
-  background:var(--k-surface);color:var(--k-soft);opacity:.75;font-family:var(--font-body);font-weight:700;font-size:.66rem;
-  line-height:1.1;letter-spacing:0;text-transform:none;display:grid;place-items:center;text-align:center;overflow:hidden;
-  cursor:pointer;box-shadow:none;transform:none;transition:background .4s ease,border-color .4s ease,opacity .4s ease}
-.nav .sec span{display:block;padding:0 4px;overflow-wrap:anywhere}
-.nav .sec:hover{transform:none;opacity:1;background:var(--k-surface)}
-.nav .sec.done{opacity:1;border-color:var(--k-soft);background:color-mix(in srgb,var(--k-ink) 10%,transparent)}  /* passed topics: light fill */
-.nav .sec.now{opacity:1;background:var(--k-hi);border:2px solid var(--k-c);color:var(--k-ink)}
-.secname{display:none}
-@media(max-width:880px){
-  .secbar{height:12px;max-width:none;gap:4px}
-  .nav .sec{border-radius:6px} .nav .sec span{display:none}
-  .secname{display:block;position:fixed;bottom:58px;inset-inline:0;text-align:center;z-index:5;pointer-events:none;
-    font-family:var(--font-display);font-weight:700;font-size:1.05rem;color:var(--k-soft)}
-}
-
-/* Sketchbook: the hand-drawn look of the Applied OS decks (checked on the chalkboard; on paper it reads the paper tokens). */
-.nav .sec{border-radius:10px 13px 10px 12px/12px 10px 13px 10px;background:color-mix(in srgb,var(--paper) 88%,transparent);color:var(--pencil);opacity:1}
-.nav .sec:hover{background:color-mix(in srgb,var(--paper) 88%,transparent);color:var(--ink-soft);border-color:var(--ink-soft)}
-.nav .sec.done{color:var(--ink-soft)}
-.nav .sec.now{color:var(--ink)}
-@media(max-width:880px){.nav .sec{border-radius:6px}}
-```
+→ `deck-tools/snippets/topic-bar.css`
 
 Script (after the engine):
 
-```js
-/* topic bar — replaces the dots: one rounded block per topic, width = its slide count;
-   only the current topic is marked (no progress inside a topic). Click a block to jump to its first slide. */
-(function(){
-  const bar=document.getElementById('secbar'), nameEl=document.getElementById('secname'); if(!bar) return;
-  const secs=[];
-  slides.forEach((s,k)=>{ if(s.dataset.sec||!secs.length) secs.push({name:s.dataset.sec||'',from:k,to:k}); else secs[secs.length-1].to=k; });
-  secs.forEach(sec=>{
-    const b=document.createElement('button'); b.className='sec'; b.style.setProperty('--n',sec.to-sec.from+1);
-    const t=document.createElement('span'); t.textContent=sec.name; b.appendChild(t);
-    b.setAttribute('aria-label',sec.name); b.addEventListener('click',()=>go(sec.from));
-    bar.appendChild(b); sec.el=b;
-  });
-  function mark(){
-    secs.forEach(sec=>{
-      const on=idx>=sec.from&&idx<=sec.to;
-      sec.el.classList.toggle('now',on); sec.el.classList.toggle('done',idx>sec.to);
-      if(on){ sec.el.setAttribute('aria-current','step'); if(nameEl) nameEl.textContent=sec.name; } else sec.el.removeAttribute('aria-current');
-    });
-  }
-  slides.forEach(s=>s.addEventListener('slideenter',mark)); mark();
-})();
-```
+→ `deck-tools/snippets/topic-bar.js`
 
 ### B2. Deck glossary
 
 The glossary slide (the last slide of the Review topic, before the final quiz):
 
-```html
-<section class="slide">
-  <div class="inner" style="max-width:820px">
-    <h2 class="reveal">Words in this deck</h2>
-    <dl class="glossary reveal" id="glossary" style="--d:.1s">
-      <dt>CPU</dt><dd>central processing unit: the chip that runs instructions</dd>
-      <dt data-forms="interrupts">interrupt</dt><dd>a signal that calls the CPU</dd>
-      <!-- one entry per acronym and cross-topic term, in the term sheet's wording (W6) -->
-    </dl>
-  </div>
-</section>
-```
+→ `deck-tools/snippets/glossary-slide.html`
 
 CSS:
 
-```css
-.glossary{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:.98rem}
-.glossary dt{font-weight:700;color:var(--k-c)}
-.glossary dd{color:var(--k-soft)}
-```
+→ `deck-tools/snippets/glossary.css`
 
 The cards reuse the skill's anchored-gloss CSS (components §24); paste it if the deck has no anchored glosses yet. Add one line, so that a card near the edge of a phone screen moves sideways instead of making the slide scroll sideways (a hidden card still counts toward the scroll width):
 
@@ -1589,49 +1130,13 @@ ul.points li > span.t{flex:1;min-width:0}
 
 Script (after the engine):
 
-```js
-/* deck glossary (rulebook T5b) — the first use of each glossary term on every other slide
-   becomes an anchored gloss (components §24). The definitions live once, on the glossary slide. */
-(function(){
-  const dl=document.getElementById('glossary'); if(!dl) return;
-  const esc=s=>s.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&');
-  const terms=[...dl.querySelectorAll('dt')].map(dt=>{
-    const name=dt.textContent.trim(), dd=dt.nextElementSibling;
-    const forms=[name,...(dt.dataset.forms||'').split(',').map(x=>x.trim()).filter(Boolean)];
-    const caps=/^[A-Z0-9\/]+$/.test(name);                       // acronyms match case-sensitively
-    return {name, def:dd?dd.textContent.trim():'', re:new RegExp('(?<![\\w/])('+forms.map(esc).join('|')+')(?![\\w/])', caps?'':'i')};
-  });
-  const SKIP='dfn,h1,h2,h3,.lf,button,.gl-w,.formal,.fbox .k,.lk-t,.er,.mb-mem,textarea,svg,template,code,pre,kbd,.tag,.badge,.hint,.verdict';
-  let n=0;
-  document.querySelectorAll('section.slide').forEach(sl=>{
-    if(sl.contains(dl)||sl.querySelector('.fq')) return;   // no glossary cards inside a quiz (questions-rulebook.md §6): they could give answers away
-    const defined=new Set([...sl.querySelectorAll('dfn')].map(d=>d.textContent.trim().toLowerCase()));
-    terms.forEach(t=>{
-      if(defined.has(t.name.toLowerCase())) return;               // the defining slide keeps its visible definition
-      const w=document.createTreeWalker(sl,NodeFilter.SHOW_TEXT,{acceptNode:x=>x.parentElement.closest(SKIP)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
-      for(let node=w.nextNode();node;node=w.nextNode()){
-        const m=t.re.exec(node.nodeValue); if(!m) continue;
-        const r=document.createRange(); r.setStart(node,m.index); r.setEnd(node,m.index+m[0].length);
-        const id='--gx'+(++n), g=document.createElement('span'); g.className='gl-w';
-        g.innerHTML=`<span class="gl-t" tabindex="0" style="anchor-name:${id}"></span><span class="gl-card" role="tooltip" style="position-anchor:${id}"><b></b></span>`;
-        g.firstChild.textContent=m[0]; g.querySelector('b').textContent=t.name; g.lastChild.append(t.def);
-        r.deleteContents(); r.insertNode(g); break;
-      }
-    });
-  });
-})();
-```
+→ `deck-tools/snippets/glossary.js`
 
 ### B3. Figure labels that scale with their figure (V14, M4)
 
 Add this to the §22 label CSS. Each label's size then follows the figure's own units, with an 11 px floor for phones (M4):
 
-```css
-.lf{container-type:inline-size}
-.lf-pin{font-size:min(1.3rem,max(12px,calc(20 * 100cqi / var(--vw))))}
-.lf-pin.s{font-size:min(1.16rem,max(11.5px,calc(17.5 * 100cqi / var(--vw))))}  /* smaller label */
-.lf-pin.xs{font-size:min(1.04rem,max(11px,calc(15.5 * 100cqi / var(--vw))))}   /* smallest label */
-```
+→ `deck-tools/snippets/figure-labels.css`
 
 Courses that started before v1.5 keep their shell's floors (9 / 8.5 px), so their decks look the same; new courses use these. A figure whose labels collide at the new floor gets a phone variant (M4).
 
@@ -1647,47 +1152,11 @@ The viewport tag (replace the template's):
 
 CSS (at the end of the style block, after the topic bar):
 
-```css
-/* ===== B4 · phone layer (slides-rulebook M1–M8): every rule is phone-only, or does nothing on a laptop ===== */
-@supports (height:100dvh){ .deck{height:100dvh} }          /* the visible height: browser bars no longer hide the nav */
-.nav{bottom:calc(14px + env(safe-area-inset-bottom,0px))}  /* above the home bar on notched phones */
-pre,.code,.tbl-wrap{overscroll-behavior-x:contain}
-@media (max-width:880px){
-  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-  .slide{padding:58px 16px calc(118px + env(safe-area-inset-bottom,0px))}   /* content ends above the nav and the topic name */
-  .inner{max-width:100%}
-  p,li,dd,td,th,.opt,.fq-row{font-size:max(1em,15px)}                        /* body text never below 15 px (M4) */
-  .lead{font-size:16px}
-  .nav button{min-height:44px;min-width:72px}                                 /* thumb-size controls (M5) */
-  .secbar{height:24px} .nav .sec{min-height:24px}                             /* topic blocks are tap targets too */
-  .secname{bottom:calc(66px + env(safe-area-inset-bottom,0px))}
-  .opt,.k-btn,.fq-it{min-height:44px}
-  .chip,.fq-grp button,.fq-ch{min-height:34px}
-  pre,.code{font-size:.8rem}
-  /* tables with 3+ columns: one block per row; put data-m="column name" on each <td> */
-  .tbl.stack thead{display:none} .tbl.stack tr{display:grid;grid-template-columns:1fr;padding:6px 0;border-bottom:1px dashed var(--line)}
-  .tbl.stack th,.tbl.stack td{border:0;padding:1px 0;text-align:start}
-  .tbl.stack td[data-m]::before{content:attr(data-m) ": ";font-family:var(--font-display);font-weight:700;color:var(--yellow)}
-}
-@media (max-width:880px) and (orientation:landscape){ .slide{padding-top:48px} .topbar{padding-block:6px} }
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
-}
-```
+→ `deck-tools/snippets/phone-layer.css`
 
 Script (after the engine and the other component code):
 
-```js
-/* B4 · phone layer — wide boxes scroll sideways without turning the page; a build that lands
-   below the fold scrolls into view (phones only) */
-document.querySelectorAll('pre,.code,.tbl-wrap').forEach(e=>{ if(e.scrollWidth>e.clientWidth+2||matchMedia('(max-width:880px)').matches) e.setAttribute('data-capture',''); });
-slides.forEach(s=>s.addEventListener('build',()=>{
-  if(!s.classList.contains('active')||!matchMedia('(max-width:880px)').matches) return;
-  const now=[...s.querySelectorAll('[data-build].now')].filter(e=>e.getBoundingClientRect().height>0).pop(); if(!now) return;
-  const r=now.getBoundingClientRect(), nav=document.querySelector('.nav'), lim=nav?nav.getBoundingClientRect().top-8:innerHeight;
-  if(r.bottom>lim||r.top<0) s.scrollBy({top:r.bottom>lim?Math.min(r.bottom-lim,r.top-60):r.top-60,behavior:'smooth'});
-}));
-```
+→ `deck-tools/snippets/phone-layer.js`
 
 Wrap a wide table in `<div class="tbl-wrap">` only when it must keep its columns on a phone; otherwise give it `class="tbl stack"`.
 
@@ -1697,30 +1166,11 @@ Tested on the 210 ISY deck 1 (four figures). A landscape figure at 390 px wide d
 
 The `.lf` gets class `pv` and the phone viewBox size. It holds both drawings, and every label carries both positions plus a phone anchor class (`p-start`, `p-mid` or `p-end`):
 
-```html
-<div class="lf pv" style="--vw:700;--vh:262;--pvw:380;--pvh:404;width:min(700px,100%)">
-  <svg class="sv-dk" viewBox="0 0 700 262" aria-hidden="true"><!-- laptop drawing --></svg>
-  <svg class="sv-ph" viewBox="0 0 380 404" aria-hidden="true"><!-- phone drawing --></svg>
-  <div class="lf-layer">
-    <span class="lf-pin end p-start s" style="--x:236;--y:48;--px:164;--py:48">data</span>
-  </div>
-</div>
-```
+→ `deck-tools/snippets/phone-variant.html`
 
 CSS (after B3 and B4):
 
-```css
-/* B5 · phone variants of wide figures: one set of labels, two drawings */
-.lf > svg.sv-ph{display:none}
-@media(max-width:880px){
-  .lf.pv{--vw:var(--pvw)!important;--vh:var(--pvh)!important;width:100%!important}   /* labels re-size with the phone viewBox */
-  .lf.pv > svg.sv-dk{display:none} .lf.pv > svg.sv-ph{display:block}
-  .lf.pv .lf-pin{left:calc(var(--px) / var(--vw) * 100%);top:calc(var(--py) / var(--vh) * 100%)}
-  .lf.pv .lf-pin.p-start{transform:translate(0,-50%);text-align:start}
-  .lf.pv .lf-pin.p-mid{transform:translate(-50%,-50%);text-align:center}
-  .lf.pv .lf-pin.p-end{transform:translate(-100%,-50%);text-align:end}
-}
-```
+→ `deck-tools/snippets/phone-variant.css`
 
 - Build groups (`data-build`) may sit in both drawings. Label layers that carry `data-build` are shared.
 - One `.live` per slide: boil the stroke in the laptop drawing only.
@@ -1732,39 +1182,7 @@ CSS (after B3 and B4):
 
 Run it with `deck-tools/slide_text.py DECK audit/deck_text.txt` and the PDF text (`pdftotext -layout`). Give the checker those two files only. Replace the parts in angle brackets. Tested on the 210 ISY deck 2 (three passes, from 41 findings to none).
 
-```text
-You are an independent examiner. A university student wants to throw away a lecture's PDF slides and study ONLY
-from a lesson deck that someone else wrote from them. Find every way the deck would fail that student. You did not
-write the deck; be strict and concrete.
-
-Read exactly these two files and nothing else:
-- <source_text.txt>: the text layer of the lecture PDF. Pages with only a title, a topics list, an objectives list
-  or "End of …" are admin. <The review questions: "…", "…">: the exam is likely to ask them.
-- <deck_text.txt>: every deck slide's readable text, in order. «…» marks text the deck presents as the slides' exact
-  words. [ours: …] marks the deck's own picture or framing. "QUIZ n" blocks are the final quiz; "(feedback: …)" is
-  shown after answering.
-
-Rewording into plain English is allowed only when it keeps the same claim at the same strength: qualifiers
-(generally, may, might, some, often, most, serious, nearly, increasingly, not only…but also) and modality must
-survive, nothing narrowed or widened. Exact wording, inside «…», is required for every sentence that defines a term
-(says what X is, means, applies to, involves, includes or covers) and for the items of lists the review questions
-ask. Glosses of hard words, a glossary of background terms, invented examples and an opening practice question are
-allowed, but list them.
-
-1. Build your own list of every atomic fact in the non-admin pages, qualifiers kept, numbered by page (p4.1 …).
-2. For each fact find where the deck teaches it: OK-exact, OK-faithful, WEAKENED, MISSING or CONTRADICTED.
-3. Check every «…» quote word for word (MISQUOTE), and report every defining sentence or review list not quoted
-   (NOT-EXACT).
-4. List every claim in the teaching slides that is not in the source: gloss/background, example, labelled framing,
-   or UNLABELLED CLAIM. A labelled framing that still contradicts a source fact counts as CONTRADICTED.
-5. Check every quiz item's key and feedback against the source and the deck.
-6. Answer: can a deck-only student answer the review questions fully and in the lecture's words? What would they
-   still need the PDF for?
-
-Output: a SUMMARY line with the count per category; one section per category, one line per finding:
-id · deck slide · source words · deck words · why it matters (≤20 words); then the full fact table, compactly.
-On later passes: mark each earlier finding FIXED or STILL OPEN by its id, and add a section NEW.
-```
+**The brief:** `deck-tools/checker-brief.txt`. Copy it with a script, fill the angle brackets, and send it to the checker as it is.
 
 - **Who checks:** a fresh agent with no access to the build files. Resuming the same checker for later passes is fine: it remembers its own earlier findings, not the author's reasoning.
 - **What to give it:** the two text files only. Never the ledger, the plan or the HTML: it must judge what the student sees.

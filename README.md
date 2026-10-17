@@ -64,7 +64,7 @@ Make an English teaching deck about how DNS finds a website. Canvas: chalkboard,
 - [`slides-rulebook.md`](rulebooks/slides-rulebook.md) — complete, **easier to digest than the slides in at most twice their words** (measured in words only, no slide-count limit), plain English (A2–B1), standalone topics, phone first, consistent across a course.
 - [`questions-rulebook.md`](rulebooks/questions-rulebook.md) — a self-marking ~10-minute final quiz in up to nine question kinds, with a score slide that sends you back to missed topics.
 
-Attach both plus the lecture and send:
+Attach both, `deck-tools.zip` (the code they point to: [`rulebooks/deck-tools/`](rulebooks/deck-tools/), also in the release) and the lecture, then send:
 
 ```text
 /lesson-deck-builder
@@ -83,7 +83,8 @@ lesson-deck-builder/     the skill — copy this folder to install
   assets/                template.html (deck engine) + exemplar decks
   references/            style-system, design-system, components (43), use-cases (19 jobs)
   scripts/               validate.py, use_cases.py
-rulebooks/               slides-rulebook.md, questions-rulebook.md
+rulebooks/               slides-rulebook.md, questions-rulebook.md, rulebooks-changelog.md
+  deck-tools/            the rulebooks' code: checker, quiz walk, snippets, helper scripts
 examples/                isy-05-cryptography.html
 index.html, site/        the documentation site (GitHub Pages)
 ```

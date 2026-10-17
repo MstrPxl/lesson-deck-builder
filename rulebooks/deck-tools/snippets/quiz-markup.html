@@ -1,0 +1,140 @@
+<!-- deck-tools/snippets/quiz-markup.html: markup templates for every proven quiz kind (questions-rulebook.md Appendix A).
+     Copy the part you need with a script; each part starts with a "part:" comment. -->
+
+<!-- ===== part: slide shell ===== -->
+<section class="slide" data-budget="skip">            <!-- first quiz slide also gets data-sec="Final quiz" -->
+  <div class="inner" style="max-width:1000px">
+    <span class="tag reveal">Kind 1 of 8 · choose one</span>
+    <h2 class="reveal" style="--d:.05s">Choose the best answer</h2>
+    <div class="row2 fq-pair">
+      <!-- two .fq items -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== part: mcq ===== -->
+<div class="fq reveal" style="--d:.1s" data-type="mcq" data-kind="Choose one" data-topic="CPUs"
+     data-why="The CPU always gets another job to run.">
+  <p class="stem">1 · Job 1 waits for the disk. In a multiprogramming system, what happens to the CPU?</p>
+  <div class="opts fq-col">
+    <button class="opt"><span class="box"></span>It waits until the disk finishes</button>
+    <button class="opt" data-ok="1"><span class="box"></span>The OS switches it to another job in memory</button>
+    <button class="opt"><span class="box"></span>The disk controller borrows it</button>
+    <button class="opt"><span class="box"></span>It turns off to save power</button>
+  </div>
+  <p class="verdict"></p>
+</div>
+
+<!-- ===== part: gap ===== -->
+<div class="fq reveal" style="--d:.1s" data-type="gap" data-kind="Fill the gap" data-topic="The OS"
+     data-answer="bootstrap" data-why="The bootstrap program (BIOS) is firmware in ROM.">
+  <p class="stem">5 · At power-up, the <span class="drop" data-capture tabindex="0" role="button"
+     aria-label="gap: drop a word here"></span> program runs from ROM and loads the kernel.</p>
+  <div class="bank" data-capture><button class="chip">kernel</button><button class="chip">bootstrap</button><button class="chip">application</button><button class="chip">service</button></div>
+  <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+  <p class="verdict"></p>
+</div>
+
+<!-- ===== part: match ===== -->
+<div class="fq reveal" style="--d:.1s" data-type="match" data-kind="Match" data-topic="Processes"
+     data-why="These are the OS's process jobs.">
+  <p class="stem">8 · What the OS does for processes</p>
+  <div class="fq-rows">
+    <div class="fq-row" data-key="a"><span class="fq-term">Synchronization</span><select></select></div>
+    <div class="fq-row" data-key="b"><span class="fq-term">Communication</span><select></select></div>
+    <!-- 4 rows (target) -->
+  </div>
+  <ul class="fq-choices" hidden>
+    <li data-key="a">processes act in the right order</li>
+    <li data-key="b">processes exchange data</li>
+  </ul>
+  <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+  <p class="verdict"></p>
+</div>
+
+<!-- ===== part: order ===== -->
+<div class="fq reveal" style="--d:.1s" data-type="order" data-kind="Put in order" data-topic="Devices"
+     data-why="Save, look up, run, return.">
+  <p class="stem">9 · An interrupt arrives. What does the CPU do, first to last?</p>
+  <div class="fq-items">
+    <button class="fq-it" data-n="3"><span class="fq-num"></span>Run the interrupt service routine</button>
+    <button class="fq-it" data-n="1"><span class="fq-num"></span>Save the address of the interrupted instruction</button>
+    <button class="fq-it" data-n="4"><span class="fq-num"></span>Return to the saved address</button>
+    <button class="fq-it" data-n="2"><span class="fq-num"></span>Find the routine in the interrupt vector</button>
+  </div>
+  <div class="k-ctrls"><button class="k-btn fq-check">Check</button><button class="k-btn fq-clear">Clear</button></div>
+  <p class="verdict"></p>
+</div>
+
+<!-- ===== part: sort ===== -->
+<div class="fq reveal" style="--d:.1s" data-type="sort" data-kind="Sort" data-groups="Volatile|Nonvolatile"
+     data-topic="Storage" data-why="Data in volatile storage is lost without power.">
+  <p class="stem">11 · Volatile or nonvolatile?</p>
+  <div class="fq-rows">
+    <div class="fq-row" data-g="Volatile"><span class="fq-term">Registers</span></div>
+    <div class="fq-row" data-g="Nonvolatile"><span class="fq-term">Hard disk</span></div>
+    <!-- 5–6 rows -->
+  </div>
+  <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+  <p class="verdict"></p>
+</div>
+
+<!-- ===== part: spot ===== -->
+<div class="fq reveal" style="--d:.1s" data-type="spot" data-kind="Find the mistake" data-topic="Devices"
+     data-why="With DMA, there is one interrupt per block, not per byte.">
+  <p class="stem">13 · DMA</p>
+  <p class="fq-sent"><button class="fq-ch">With DMA, the device controller</button> <button class="fq-ch">moves whole blocks</button> <button class="fq-ch">from its buffer to memory,</button> <button class="fq-ch">and the CPU gets one interrupt</button> <button class="fq-ch" data-ok="1">for every byte.</button></p>
+  <p class="verdict"></p>
+</div>
+
+<!-- ===== part: num ===== -->
+<div class="fq reveal" style="--d:.1s" data-type="num" data-kind="Work it out" data-answer="4" data-topic="Devices"
+     data-why="16,384 ÷ 4,096 = 4 blocks, one interrupt each.">
+  <p class="stem">15 · A device sends 16,384 bytes by DMA, in blocks of 4,096 bytes. How many interrupts does the CPU get?</p>
+  <div class="k-ctrls"><input class="gap num" type="text" inputmode="numeric" aria-label="your answer" autocomplete="off"><button class="k-btn fq-check">Check</button></div>
+  <p class="verdict"></p>
+</div>
+
+<!-- ===== part: label ===== -->
+<div class="fq reveal" style="--d:.1s" data-type="label" data-kind="Label the figure" data-topic="Threads"
+     data-why="Stacks at the top, then the heap, static data and code at the bottom.">
+  <p class="stem">15 · One process with three threads, in memory</p>
+  <div class="lf fq-fig" style="--vw:360;--vh:300;width:72%">
+    <svg viewBox="0 0 360 300" aria-hidden="true"><!-- the deck's figure, redrawn without the tested labels --></svg>
+    <div class="lf-layer">
+      <span class="lf-pin mid fq-mark" style="--x:180;--y:66">1</span>
+      <span class="lf-pin mid fq-mark" style="--x:180;--y:172">2</span>
+    </div>
+  </div>
+  <div class="fq-slots" data-capture>
+    <div class="fq-slot"><span class="fq-mark">1</span><span class="drop" data-answer="stack" tabindex="0" role="button" aria-label="slot 1: drop a label here"></span></div>
+    <div class="fq-slot"><span class="fq-mark">2</span><span class="drop" data-answer="heap" tabindex="0" role="button" aria-label="slot 2: drop a label here"></span></div>
+  </div>
+  <div class="bank" data-capture><button class="chip">heap</button><button class="chip">PCB</button><button class="chip">stack</button></div>
+  <div class="k-ctrls"><button class="k-btn fq-check">Check</button></div>
+  <p class="verdict"></p>
+</div>
+
+<!-- ===== part: intro and score slides ===== -->
+<section class="slide" data-sec="Final quiz" data-budget="skip">
+  <div class="inner" style="max-width:980px">
+    <span class="tag reveal">Final quiz · about 10 minutes</span>
+    <h2 class="reveal" style="--d:.05s">Sixteen questions, eight kinds</h2>
+    <p class="lead reveal" style="--d:.1s">Everything you need is in this deck. Each question has <b>one check</b>. Your score waits on the final slide.</p>
+    <div class="row4 fq-kinds reveal" style="--d:.16s">
+      <div class="card"><span class="n">1</span><p><b>Choose one</b><br>Pick the best answer.</p></div>
+      <!-- one card per kind -->
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-budget="skip" id="fq-score">
+  <div class="inner" style="max-width:900px">
+    <span class="tag reveal">Final quiz · your score</span>
+    <h2 class="reveal" style="--d:.05s"><span id="fq-total">0</span> / <span id="fq-of">16</span></h2>
+    <p class="lead reveal" style="--d:.1s" id="fq-msg">Answer the questions, then come back here.</p>
+    <div class="fq-grid reveal" style="--d:.16s" id="fq-grid"></div>
+    <div class="reveal" style="--d:.22s" id="fq-review"></div>
+    <div class="k-ctrls reveal" style="--d:.28s"><button class="k-btn" id="fq-retry">Try the quiz again</button></div>
+  </div>
+</section>

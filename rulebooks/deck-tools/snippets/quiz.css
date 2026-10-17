@@ -1,0 +1,96 @@
+/* ===== FINAL QUIZ (9 question kinds) — reads only canvas and bridge tokens ===== */
+.fq-pair{align-items:start;gap:26px;margin-top:6px}
+.fq{background:var(--surface);border:1.6px solid var(--ink-soft);border-radius:var(--wob-r,14px 22px 16px 24px/22px 14px 24px 16px);padding:14px 16px}
+.fq .stem{font-weight:700;line-height:1.45}
+.fq .opts.fq-col{grid-template-columns:1fr;gap:8px}
+.fq .opts.fq-tf{grid-template-columns:1fr 1fr}
+.fq .opt{font-size:.92rem;padding:8px 12px}
+.fq .verdict{font-size:1.2rem;line-height:1.25}
+.fq.locked .opt,.fq.locked .fq-it,.fq.locked .fq-ch{cursor:default}
+.fq.locked .opt:hover{transform:none}
+.fq-kinds{margin-top:14px}
+.fq-kinds .card{padding:10px 12px} .fq-kinds .card p{font-size:.86rem;line-height:1.35}
+input.gap{font:inherit;font-weight:700;color:var(--ink);background:var(--surface-2);border:none;border-bottom:2px dashed var(--yellow);
+  width:9.5em;padding:0 6px;margin:0 2px;border-radius:4px 4px 0 0;outline:none}
+input.gap:focus{border-bottom-style:solid;background:var(--marker)}
+input.gap.num{width:8em;border:1.6px solid var(--ink-soft);border-radius:8px 12px 9px 13px;padding:4px 10px}
+input.gap.ok{background:var(--marker);border-bottom:2px solid var(--yellow)}
+input.gap.no{border-bottom:2px solid var(--red);text-decoration:line-through;text-decoration-color:var(--red)}
+.fq-rows{display:grid;gap:7px;margin-top:10px}
+.fq-row{display:grid;grid-template-columns:minmax(7.5em,auto) 1fr;gap:10px;align-items:center;font-size:.92rem;
+  padding:4px 6px;border-radius:8px 12px 9px 13px;transition:background .3s ease}
+.fq-term{font-weight:700}
+.fq-row select{font:inherit;font-size:.88rem;color:var(--ink);background:var(--paper-2);border:1.4px solid var(--ink-soft);border-radius:8px;padding:4px 6px;min-width:0;width:100%}
+.fq-row.ok{background:var(--marker)}
+.fq-row.no{box-shadow:inset 3px 0 0 var(--red)}
+.fq-row .fix{grid-column:1/-1;font-size:.82rem;color:var(--red);padding-inline-start:4px}
+.fq[data-type="sort"] .fq-row{grid-template-columns:1fr;gap:4px;padding:3px 6px}   /* sort: the item above its group buttons */
+.fq-grp{display:flex;flex-wrap:wrap;gap:6px}
+.fq-grp button{font:inherit;font-size:.82rem;font-weight:700;color:var(--ink-soft);background:transparent;border:1.4px dashed var(--ink-soft);
+  border-radius:999px;padding:2px 11px;cursor:pointer;transition:background .25s ease,color .25s ease}
+.fq-grp button.on{color:var(--ink);background:var(--marker);border-style:solid;border-color:var(--yellow)}
+.fq-items{display:grid;gap:7px;margin-top:10px}
+.fq-it{display:flex;gap:10px;align-items:center;font:inherit;font-size:.92rem;text-align:start;color:var(--ink);background:var(--surface);
+  border:1.6px solid var(--ink-soft);border-radius:10px 16px 12px 18px/16px 10px 18px 12px;padding:7px 12px;cursor:pointer;transition:background .25s ease}
+.fq-num{flex:none;width:26px;height:26px;display:grid;place-items:center;border:1.6px dashed var(--ink-soft);border-radius:50%;
+  font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:var(--yellow)}
+.fq-it.picked .fq-num{border-style:solid;border-color:var(--yellow)}
+.fq-it.ok{background:var(--marker)}
+.fq-it.no{box-shadow:inset 3px 0 0 var(--red)}
+.fq-it .fix{margin-inline-start:auto;font-size:.8rem;color:var(--red);white-space:nowrap}
+.fq-sent{margin-top:10px;line-height:2.1;font-size:1rem}
+.fq-ch{font:inherit;color:var(--ink);background:transparent;border:none;border-bottom:2px dotted var(--ink-soft);padding:0 2px;cursor:pointer;
+  border-radius:3px;transition:background .25s ease}
+.fq-ch:hover{background:var(--surface)}
+.fq-ch.ok{background:var(--marker);border-bottom:2px solid var(--yellow);text-decoration:line-through;text-decoration-color:var(--red)}   /* found the mistake */
+.fq-ch.no{border-bottom:2px dashed var(--red)}                                                                                          /* your pick: this part was fine */
+.fq-ch.ans{background:color-mix(in srgb,var(--red) 18%,transparent);border-bottom:2px solid var(--red);text-decoration:line-through;text-decoration-color:var(--red)} /* the real mistake */
+.fq .k-ctrls{margin-top:10px}
+.k-btn:disabled{opacity:.45;cursor:default}
+.fq-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.fq-cell{background:var(--surface);border:1.6px solid var(--ink-soft);border-radius:10px 16px 12px 18px/16px 10px 18px 12px;padding:8px 10px;font-size:.84rem}
+.fq-cell b{display:block;font-size:.8rem;color:var(--ink-soft);font-weight:700}
+.fq-cell .marks{font-family:var(--font-display);font-weight:700;font-size:1.35rem;letter-spacing:.06em}
+.fq-cell .m-ok{color:var(--yellow)} .fq-cell .m-no{color:var(--red)} .fq-cell .m-skip{color:var(--pencil)}
+#fq-review{margin-top:14px;font-size:.92rem}
+/* fill the gap: word bank + drop gap */
+.drop{display:inline-flex;align-items:center;justify-content:center;min-width:7.5em;min-height:1.9em;vertical-align:middle;margin:0 3px;padding:1px 4px;
+  border:1.8px dashed var(--yellow);border-radius:8px 12px 9px 13px;background:var(--surface-2);cursor:pointer;transition:background .2s ease}
+.drop.over{background:var(--marker);border-style:solid}
+.drop.full{border-style:solid;border-color:var(--ink-soft);padding:0}
+.drop.full .chip{margin:0;box-shadow:none;transform:none}
+.drop.ok{background:var(--marker);border-color:var(--yellow)}
+.drop.no{border-color:var(--red)} .drop.no .chip{text-decoration:line-through;text-decoration-color:var(--red)}
+.bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;min-height:2.2em}
+.chip{font:inherit;font-weight:700;font-size:.92rem;color:var(--k-card-ink);background:var(--k-card);border:1.4px solid var(--k-card-ink);
+  border-radius:6px 10px 7px 11px;padding:3px 12px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+  box-shadow:var(--shadow);transform:rotate(-1deg);transition:opacity .2s ease,transform .2s ease}
+.chip:nth-child(even){transform:rotate(1deg)}
+.chip:hover{transform:translateY(-2px) rotate(-1deg)}
+.chip.lifted{opacity:.3}
+.chip.ghost{position:fixed;z-index:50;pointer-events:none;cursor:grabbing;transform:rotate(-3deg) scale(1.06);opacity:.95}
+.chip:disabled{cursor:default;opacity:.55}
+.chip.ans{opacity:1;outline:2px solid var(--yellow);outline-offset:2px}
+@media(min-width:881px){.nav .sec{min-width:80px}}   /* keeps short topics legible now the quiz topic is long */
+#fq-review .k-btn{font-size:1.05rem;margin:4px 6px 0 0}
+@media(max-width:880px){
+  .fq-kinds{grid-template-columns:repeat(2,1fr)}
+  .fq-grid{grid-template-columns:repeat(2,1fr)}
+  .fq-row{grid-template-columns:1fr}
+  .fq .opts.fq-tf{grid-template-columns:1fr 1fr}
+}
+/* label the figure (new kind, deck 2): numbered marks on the figure, one drop per number below it */
+.fq-fig{margin-top:8px}
+.fq-mark{display:inline-grid;place-items:center;flex:none;width:1.6em;height:1.6em;border:1.6px solid var(--yellow);border-radius:50%;
+  background:var(--paper);color:var(--yellow);font-family:var(--font-display);font-weight:700;font-size:1.05rem;line-height:1}
+.lf-pin.fq-mark{font-size:min(1.05rem,max(11px,calc(17 * 100cqi / var(--vw))))}
+.fq-slots{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:8px}
+.fq-slot{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.fq-slot .drop{flex:1;min-width:0;margin:0}
+.fq-slot .fix{flex-basis:100%;font-size:.8rem;color:var(--red);padding-inline-start:2.2em}
+.drop.sel{border-style:solid;background:var(--marker)}
+@media(max-width:880px){.fq-slots{grid-template-columns:1fr}}
+/* figure labels with a backing (.lf-pin.chip) are not quiz word chips: undo the quiz .chip look on them */
+.lf-layer .lf-pin.chip{color:var(--k-ink);background:var(--paper);font-family:var(--font-display);font-weight:600;line-height:1.02;border:none;border-radius:5px;
+  padding:0 5px;cursor:auto;touch-action:auto;user-select:auto;-webkit-user-select:auto;box-shadow:none;transition:none;transform:translate(0,-50%)}
+.lf-layer .lf-pin.chip.mid{transform:translate(-50%,-50%)} .lf-layer .lf-pin.chip.end{transform:translate(-100%,-50%)}

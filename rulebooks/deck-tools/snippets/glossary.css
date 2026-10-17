@@ -1,0 +1,3 @@
+.glossary{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:.98rem}
+.glossary dt{font-weight:700;color:var(--k-c)}
+.glossary dd{color:var(--k-soft)}
