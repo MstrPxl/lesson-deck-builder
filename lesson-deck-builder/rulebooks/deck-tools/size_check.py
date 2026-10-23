@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""size_check.py - the rulebooks' and the general notes' sizes against their caps   (deck-tools 1.6)
+"""size_check.py - the rulebooks' and the general notes' sizes against their caps   (deck-tools 1.7)
 
 Usage:  python3 deck-tools/size_check.py [FOLDER] [--sections]
 Run it after every edit of a rulebook or the notes (slides-rulebook.md §0, "Size cap").
-FOLDER holds the rulebooks (default: the current folder). For each file it prints the characters, about how
+FOLDER holds the rulebooks (default: the rulebooks folder this script ships in). For each file it prints the characters, about how
 many tokens a run spends reading it (characters / 4), and its cap. --sections adds every "## " section's share.
 It also flags what the caps exist to keep out of the rulebooks:
   - a code block longer than MAX_BLOCK_LINES lines (code belongs in deck-tools, as a file);
@@ -13,12 +13,14 @@ Exit codes: 0 all clean · 1 a cap passed or something to move out · 2 a rulebo
 import re, sys, pathlib
 
 # keep these in step with slides-rulebook.md §0 ("Size cap")
-CAPS = {'slides-rulebook.md': 110_000, 'questions-rulebook.md': 32_000, 'deck-notes-general.md': 30_000}
-REQUIRED = {'slides-rulebook.md', 'questions-rulebook.md'}   # the notes exist only once a course has started
+CAPS = {'slides-rulebook.md': 110_000, 'questions-rulebook.md': 32_000, 'lessons-rulebook.md': 75_000,
+        'deck-notes-general.md': 30_000}
+REQUIRED = set(CAPS)                    # all of them ship with the skill (rulebooks/)
+RULEBOOKS = {'slides-rulebook.md', 'questions-rulebook.md', 'lessons-rulebook.md'}   # code and history stay out of these
 MAX_BLOCK_LINES = 40
 
 args = [a for a in sys.argv[1:] if not a.startswith('--')]
-folder = pathlib.Path(args[0] if args else '.')
+folder = pathlib.Path(args[0]) if args else pathlib.Path(__file__).resolve().parent.parent
 sections = '--sections' in sys.argv
 problems = missing = 0
 
@@ -37,7 +39,7 @@ for name, cap in CAPS.items():
     if n > cap:
         problems += 1
         print('  * merge or retire something before adding more (slides-rulebook section 0, notes W11)')
-    if name in REQUIRED:
+    if name in RULEBOOKS:
         lines = text.split('\n')
         i = 0
         while i < len(lines):

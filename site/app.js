@@ -103,36 +103,43 @@
       const mode = val('mode');
       const topic = (form.querySelector('#pb-topic').value || '').trim() || '<your topic>';
       const lang = val('lang'), canvas = val('canvas'), board = val('board'), level = val('level'), len = val('len');
+      const elevel = val('elevel');
       boardRow.classList.toggle('hidden', canvas !== 'chalkboard');
       teachOnly.forEach(el => el.classList.toggle('hidden', mode === 'rulebook'));
+      const canvasText = canvas === 'paper' ? 'Canvas: paper.' : canvas === 'chalkboard' ? 'Canvas: chalkboard, board ' + BOARD_NAMES[board] + '.' : '';
+      const english = mode === 'rulebook' || lang !== 'Arabic';      // the level applies to English decks
+      const levelText = english && elevel !== 'ask' ? 'English level: ' + elevel + '.' : '';
+      const asked = [];
       let lines = [];
       if (mode === 'rulebook') {
-        lines.push('/lesson-deck-builder');
-        lines.push('Follow slides-rulebook.md for the attached lecture, and end the deck with a final quiz following questions-rulebook.md. Read the attached notes before planning.');
-        if (canvas === 'ask') lines.push('This is the first deck of a new course: ask me the canvas and board before building.');
-        else lines.push('Canvas: ' + (canvas === 'paper' ? 'paper' : 'chalkboard, board ' + BOARD_NAMES[board]) + '.');
+        // the lecture route needs nothing but the file (and the previous deck for a later lecture)
+        lines.push('use /lesson-deck-builder to explain the attached file');
+        const bits = [canvasText, levelText].filter(Boolean);
+        if (bits.length) lines.push(bits.join(' '));
+        if (canvas === 'ask') asked.push('the canvas');
+        if (elevel === 'ask') asked.push('the English level');
+        if (asked.length) lines.push('(First deck of a course: Claude asks ' + asked.join(' and ') + '. Later decks remember them.)');
         out.textContent = lines.join('\n');
         return;
       }
       const kind = mode === 'present' ? 'a presentation deck' : mode === 'journey' ? 'a learning journey (roadmap + lesson 1)' : 'a teaching deck';
-      lines.push('/lesson-deck-builder');
-      lines.push('Make ' + kind + ' about ' + topic + '.');
+      lines.push('use /lesson-deck-builder to make ' + kind + ' about ' + topic + '.');
       const bits = [];
       if (lang !== 'ask') bits.push('Language: ' + lang + '.');
-      if (canvas === 'paper') bits.push('Canvas: paper.');
-      else if (canvas === 'chalkboard') bits.push('Canvas: chalkboard, board ' + BOARD_NAMES[board] + '.');
+      if (levelText) bits.push(levelText);
+      if (canvasText) bits.push(canvasText);
       if (level !== 'ask') bits.push('Audience: ' + level + '.');
       if (len !== 'ask' && mode !== 'journey') bits.push('Length: about ' + len + ' minutes.');
       if (bits.length) lines.push(bits.join(' '));
-      const asked = [];
       if (lang === 'ask') asked.push('the language');
       if (canvas === 'ask') asked.push('the canvas');
-      if (asked.length) lines.push('(Claude will ask you ' + asked.join(' and ') + ' first.)');
+      if (english && elevel === 'ask') asked.push('the English level');
+      if (asked.length) lines.push('(Claude will ask you ' + asked.join(', ') + ' first.)');
       out.textContent = lines.join('\n');
     }
     form.addEventListener('input', build); form.addEventListener('change', build);
     build();
     const cp = document.getElementById('pb-copy');
-    if (cp) cp.addEventListener('click', () => copyText(out.textContent.replace(/\n\(Claude will ask[^)]*\)$/, '')));
+    if (cp) cp.addEventListener('click', () => copyText(out.textContent.replace(/\n\((Claude will ask|First deck of a course)[^)]*\)$/, '')));
   }
 })();

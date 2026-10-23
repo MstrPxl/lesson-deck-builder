@@ -1,13 +1,13 @@
 # Slides Rulebook
 
-**Version 1.9 · 17 October 2026 · written against `lesson-deck-builder` v1.3 (Sketchbook: paper, or chalkboard in six boards)**
+**Version 2.0 · 23 October 2026 · written against `lesson-deck-builder` v1.4 (Sketchbook: paper, or chalkboard in six boards)**
 
-> **New in 1.9 (structure only; no rule changed):** the code moved to `deck-tools` (the appendices name each file), the version history moved to `rulebooks-changelog.md`, and this file has a size cap (§0). The last rule change was 1.8: G5 became "easier to digest than the slides, in at most twice their words".
+> **New in 2.0:** this file ships inside the skill (`rulebooks/`), and the skill routes an attached lecture here by itself, so a run starts from one line ("use /lesson-deck-builder to explain the attached file"). Nothing else is attached but the previous deck, and no Markdown file goes back: the course's memory lives in the COURSE record (§0, W11). English decks can be written at A2–C1 (G2). Full history: `rulebooks-changelog.md`.
 
 This file tells you how to turn a set of university lecture slides into one lesson-deck-builder HTML deck that a student can study **instead of** the slides:
 - complete;
 - **easier to digest than the slides**, in **no more than twice their words**;
-- in plain English at A2–B1 level;
+- in plain English at the course's level (A2–C1; B1 unless the user picks another);
 - organised in topics that each stand alone;
 - taught with methods that have research behind them.
 
@@ -17,30 +17,30 @@ It also tells you how to keep all the decks of a course consistent, from the fir
 
 ## 0. How to use this file
 
-- Read this whole file, then the notes if they are attached (the general notes, then the course's notes), then the lesson-deck-builder `SKILL.md` and the references it tells you to read, **before** you plan anything. When there is a shell (case B, "Starting a run"), the skill's `template.html` and example decks are optional.
+- Read this whole file and the lesson-deck-builder `SKILL.md` with the references it tells you to read, **before** you plan anything. The general notes (`deck-notes-general.md`, beside this file) record experience, not rules: read the parts that help. When there is a shell (case B, "Starting a run"), the skill's `template.html` and example decks are optional.
 - This file **adds to** the skill. Where §2 says so, it **overrides** the skill. Where this file says nothing, follow the skill.
 - **Who wins:**
   1. The user's instructions.
   2. The course's choices in the COURSE record.
   3. This file.
-  4. The notes (general and course), which record experience, not rules.
+  4. The general notes, which record experience, not rules.
   5. How an earlier deck happened to be built.
 - **Goals over procedures.** Some parts of this file are fixed:
   - the goals (§1, G1–G6) and their precedence;
   - the user's choices, here and in the COURSE record;
   - the limits that serve the user: completeness, the word ceiling (2 × the original's words, G5), the deck shape the user picked (§11), the canvas gate.
 
-  Everything that says *how* is a tested default, written for the models and the skill of its date: the workflow steps, the numbers marked *(target)*, the appendix code, the checks.
+  Everything that says *how* is a tested default, written for the models and the skill of its date: the workflow steps, the numbers marked *(target)*, the tools it names, the code in `deck-tools`, the checks.
   - If you can meet the goals better another way, do it, and name the change and its reason on the report's "Departures" line (§10).
   - A departure never trades away a goal or a choice.
   - Rules that cite evidence (§12) change only for a reason as strong as their evidence.
 - Every rule has an ID (F3, L2, T5, N1 …) so the user can point at it in feedback.
-- **Size cap.** Every run reads this file, so its size is a cost paid on every deck. It stays under **110,000 characters** (about 28K tokens). `questions-rulebook.md` stays under **32,000**, and the general notes under about 30,000 (their own rule).
+- **Size cap.** Every run reads this file, so its size is a cost paid on every deck. It stays under **110,000 characters** (about 28K tokens). `questions-rulebook.md` stays under **32,000**, `lessons-rulebook.md` under **75,000**, and the general notes under about 30,000 (their own rule).
   - Code lives in `deck-tools`, and version history in `rulebooks-changelog.md`. Neither comes back into a rulebook: a new block of code becomes a file, and a new version adds one "New in" line here and its full entry to the changelog.
-  - A change that would pass a cap first merges or retires something, as the notes do (W11).
+  - A change that would pass a cap first merges or retires something (the general notes work the same way, their §0).
   - Check with `python deck-tools/size_check.py` after every edit of a rulebook or the notes. The caps live in that script too; change both together.
 - "Why" lines give the mechanism. Tags in square brackets (for example [HN]) point to the evidence table in §12.
-- This file was written against **lesson-deck-builder v1.3** (engine v2, `use-cases.md`, components §1–§32). Component numbers (§22, §25 …) refer to that version's `components.md`. In v1.3 the only style is Sketchbook, on a **paper** canvas or a **chalkboard** in one of six boards (`style-system.md §5`); the bridge tokens are in `style-system.md §7`.
+- This file was written against **lesson-deck-builder v1.4** (engine v2, `use-cases.md`, components §1–§32). Component numbers (§22, §25 …) refer to that version's `components.md`. In v1.3 the only style is Sketchbook, on a **paper** canvas or a **chalkboard** in one of six boards (`style-system.md §5`); the bridge tokens are in `style-system.md §7`.
   - If your version of the skill renamed or replaced something named here, apply the rule to its current equivalent and mention the mismatch in the delivery report (§10).
   - The topic bar (N1), the deck glossary (T5b), the phone layer (M1–M8) and phone-variant figures (M4) are not in the skill yet. Their code is in `deck-tools/snippets/`; Appendix B says where each file goes.
 - Numbers marked *(target)* are design choices, not research findings. They may be tuned. Numbers without that mark come from a standard or a study.
@@ -48,47 +48,32 @@ It also tells you how to keep all the decks of a course consistent, from the fir
 
 ### Starting a run
 
-**What the user sends.** The same short prompt for every deck of every course.
-
-First deck of a course:
+**What the user sends.** One line, for every deck of every course, for example:
 
 ```
-/lesson-deck-builder
-Follow slides-rulebook.md for the attached lecture, and end the deck with a final quiz following questions-rulebook.md. Read the attached notes before planning.
-This is the first deck of a new course: ask me the canvas and board before building.
+use /lesson-deck-builder to explain the attached file
 ```
 
-Later decks of the same course (attach the course's newest deck too):
+with the lecture (PDF or PPTX) attached and, from the second deck of a course on, the previous deck (HTML). The skill routes here by itself (SKILL.md, step 0b). Nothing else is attached, and no Markdown file goes back to the user. Anything the user writes (a canvas, a level, an exam focus, a §11 setting, a skip) wins over everything below and is not asked again.
 
-```
-/lesson-deck-builder
-Follow slides-rulebook.md for the attached lecture, and end the deck with a final quiz following questions-rulebook.md. Read the attached notes before planning. The newest deck of this course is attached.
-```
-
-The user may add any course choice to the prompt (exam focus, a §11 setting). A choice given in the prompt is not asked again.
-
-Attach:
-
-| File | When |
+| Input | Where it comes from |
 |---|---|
-| `slides-rulebook.md` (this file) | Always |
-| `questions-rulebook.md` | Always. Its final quiz ends every deck (§2). |
-| The lecture file (PDF or PPTX) | Always. One deck per lecture file. |
-| The general notes (`deck-notes-general.md`) | Whenever they exist. Read them after the rulebooks, before planning. They serve every course: experience that isn't a rule (word budgets, figure pitfalls, checks). |
-| The course's notes (`<course-slug>-notes.md`) | From the second deck of a course on. Facts about this course only: its status and newest deck, decisions, field words, the lecturer's slide habits, reusable figures, what comes next. The first deck of a course creates it (W11). |
-| The deck tools (`deck-tools.zip`) | **Always.** The code both rulebooks point to (`plain_check.py`, `quiz_walk.py`, the checker's brief, the `snippets/` a deck pastes in), plus helper scripts for building and counting, screenshots and checks. Unzip, then run `bash deck-tools/setup_tools.sh` once per session. |
-| The earlier decks of the same course | From the second deck of a course on. All of them, or at least the newest one. |
-
-Anything the user writes in the prompt (a style, a setting, a skip) wins over everything below.
+| The lecture | Attached. One deck per lecture file. |
+| The course's choices and memory | The previous deck's COURSE record. No previous deck: case A. |
+| The shell | The previous deck (case B), or the skill's template (case A). |
+| Older decks | Not attached. Ask for one only when you need a figure or a glossary wording from it. |
+| `questions-rulebook.md` | Beside this file. Its final quiz ends every deck (§2). |
+| General notes (`deck-notes-general.md`) | Beside this file. Experience that isn't a rule (word budgets, figure pitfalls, checks): read the parts that help, before planning. |
+| `deck-tools/` | Beside this file: the checker, the quiz walk, the checker's brief, the `snippets/` a deck pastes in, and helpers for building, screenshots and checks. Run `setup_tools.sh` once per session from your working folder. |
 
 **Which case is this?** The attachments decide.
 
 - **A. First deck of a course.** No earlier deck of this course is attached.
-  - Ask the course questions once, in the W5 message: the **canvas gate** (canvas, then board), the exam focus, and any §11 setting the slides make relevant.
+  - Ask the course questions once, in the W5 message: the **canvas gate** (canvas, then board), the **English level** (SKILL.md step 2b; suggest B1), the exam focus, and any §11 setting the slides make relevant.
   - **The canvas gate is always asked at the first deck, and nothing is built until the user answers** (W5). Use the skill's shape: suggest one canvas with a one-line reason and list both (Paper · Chalkboard); when the user picks the chalkboard, list all six boards with their few-word identities, suggested one first, and offer the skill's board preview (`assets/style-samples/sketchbook-chalkboard.html`, whose top-bar dots switch boards) as a file the user can open. Never pick on the user's behalf. Only a canvas and board named in the prompt skip the question.
   - Build from the skill's template, with the phone layer (Appendix B4). Take every code block from the skill and from `deck-tools/snippets/` with a script, never by retyping. The template's header comment contains the text `<script>`: take the engine from `<script>` followed by `/* ---- deck engine`, or the whole template lands in the deck (symptom: two `<html>`, two active slides).
-  - Start the COURSE record at deck 1, and the course's notes file at the end of the run (W11).
-- **B. Later deck of a course.** Earlier decks of the same course are attached: the same course appears in their COURSE record, or in their title.
+  - Start the COURSE record at deck 1, its memory lines included (W11).
+- **B. Later deck of a course.** The previous deck of the same course is attached: the same course appears in its COURSE record, or in its title.
   - Don't ask anything the COURSE record already answers.
   - Use the newest deck as the shell (see "Earlier decks" below).
   - Ask in W5 only what is new in this lecture.
@@ -105,18 +90,22 @@ Course and lecture names come from the slides' title page or headers.
 <!-- COURSE
 course: Applied Operating Systems · slug: applied-os
 deck: 2 · source: Lecture_3_ch2_OS_Structures.pdf
-style: Sketchbook · canvas: chalkboard · board: slate-reinked
+style: Sketchbook · canvas: chalkboard · board: slate-reinked · english level: B1
 exam focus: none (every unit equally examinable)
 settings changed (§11): none
 standing decisions: admin slides skipped; agenda topics with no slides skipped and named in the report; final quiz, no question set or answer box; phone first
 field words: none beyond the checker's built-in list
+lecturer's habits: review questions on the last page; agenda slides name topics the lecture never reaches
+reusable figures: deck 2 · slide 9 · the memory hierarchy (a pyramid)
+next: Lecture 4, processes (from the slides' last page)
 -->
 ```
 
-- The record holds the **user's choices** for the course. They win over this file's defaults (§11).
+- The record holds the **user's choices** for the course and, since 2.0, its **memory**: the lecturer's habits, the figures later decks can reuse, and what comes next (the lines a course notes file used to hold). The next deck reads it first, so keep it short. The choices win over this file's defaults (§11).
 - **This file wins over how an older deck was built.** A deck made under an older version may lack a newer part, such as a glossary slide or a `BUDGET` comment. Build the new deck to this version: **add** the missing parts, but don't rewrite the code the shell already has (see "Earlier decks").
-- **Decks made before v1.4 have no record.** Take the settings from the course's notes (in notes made before v1.6: the course's section of the field notes). Anything the notes don't answer, ask in W5. Then write the record into the new deck.
+- **Decks made before v1.4 have no record.** Take what the deck shows (canvas, board, deck number), ask the rest in W5, then write the record into the new deck.
 - **Records without a `board:`** (made before v1.5): the board is the `data-board` attribute on the deck's `<html>`, or Slate re-inked when the attribute is absent. Write the `board:` into the new record.
+- **Records made before 2.0** have no `english level:` (it was B1) and no memory lines: write `english level: B1` and the memory lines you can fill into the new record. The course notes file is retired; if the user offers one anyway, move its facts into the record once.
 - **Shells made before v1.5 have no phone layer.** Add Appendix B4 to the new deck (it adds code, it rewrites nothing), and check the phone view (Q7).
 - **Courses started before v1.8** built their decks to be shorter than the slides. Their next deck follows the 2 × word ceiling (G5) unless the record's `settings changed` line or the prompt keeps the **Shorter** setting (§11). Don't ask about it in W5. Say it on the report's "Settings changed" line ("word ceiling: 2 × from this deck (v1.8)"), and write it into the new record. Notes written before v1.8 may give advice that only served the old rule (fewer slides than the source, compressing to stay under 100%). This file wins over them.
 - **Field words** beyond the checker's built-in list, for any course: list them in the record, write them to a file, and pass it to the checker with `--known` (Q2). Each deck inherits the list with the record and may add to it (L1).
@@ -124,13 +113,13 @@ field words: none beyond the checker's built-in list
 **Earlier decks.**
 - **The shell is the newest deck**: the highest deck number in the COURSE records, or, for a deck with no record, the number in its file name.
   - Split off everything except the slides and reuse it **unchanged**: styles, shared SVG defs, engine, component code, topic bar and glossary code. Copying the code, not re-writing it from a description, is what keeps every deck of a course looking and behaving the same.
-  - Use the newest deck even when the notes name an older file.
+  - When several decks are attached, the newest is the shell.
 - **The shell is a source of code, not a list of allowed components.**
   - Choose each slide's component from the skill's full catalog, by teaching job (W8).
   - When a component comes back, reuse its code from the shell.
   - When it is new, take its code from the skill and add it to the shell, so the next deck inherits it.
-- **Older decks:** open them only to copy a figure the course's notes point to. Don't read them in full.
-- **Glossary wording:** reuse the earlier decks' glossary text for terms that come back (W6), so a term reads the same in every deck of the course. Pull the `dl#glossary` entries out of every earlier deck with a short script; there's no need to read the decks.
+- **Older decks** are not attached. When the record's `reusable figures` line points to one you need, ask the user for that deck; don't read it in full.
+- **Glossary wording:** reuse the attached deck's glossary text for terms that come back (W6), so a term reads the same in every deck of the course; pull its `dl#glossary` entries with a short script. For a term that only an older deck glossed, ask for that deck when its exact wording matters.
 - **Skill files:** read `SKILL.md`, `use-cases.md` and `components.md` in every case. With a shell, the skill's `template.html` and example decks are optional.
 
 **Naming.**
@@ -142,7 +131,7 @@ field words: none beyond the checker's built-in list
 1. Run W1–W4.
 2. Run W5 only if it has something to ask (W5 lists what counts).
 3. Build the deck, check it (W9, ending with the independent check F1b), and deliver it with the §10 report.
-4. Update the notes (W11).
+4. Update the COURSE record (W11).
 
 ---
 
@@ -151,7 +140,7 @@ field words: none beyond the checker's built-in list
 | Goal | What it means here | How it is checked |
 |---|---|---|
 | **G1 — Replace the slides** | Every piece of content in the slides (text, figures, formulas, code, examples, speaker notes) is taught in the deck, **every fact at its full strength**, and every definition in the slides' own words. The student never needs to open the slides. | Fact ledger at 100% (F1) and a clean independent check (F1b) |
-| **G2 — English at A2–B1** | Everyday words, short sentences, simple grammar. | `plain_check.py`: ≥ 98% of running words at B1 or below (field words allowed, L1); no sentence over 20 words (§9) |
+| **G2 — English at the course's level** (A2–C1, default B1) | Words and sentences that a reader at that level takes in with ease; simple grammar. | `plain_check.py --max-level <level>`: ≥ 98% of running words at the level or below (field words allowed, L1); no sentence over the level's cap (SKILL.md step 2b: 15 · 20 · 25 · 30 words) |
 | **G3 — Independent topics, no jargon** | Any topic (N1) can be understood without the other topics. On any slide, every term is explained, visibly or by its glossary card. "No jargon" means **no unexplained word**, not "no technical word": the course terms that exams use are still taught. | `plain_check.py` gloss, acronym and back-reference checks; cold read (Q4) |
 | **G4 — The best ways to teach** | The Concept Pattern (§6) and the teaching rules TE1–TE10. | Checklist Q5 (§9) |
 | **G5 — Easier to digest than the slides, in at most twice their words** | One deck per lecture. Each concept is easier to take in than on the slides: plain words even when they are longer, full sentences instead of telegraphic bullets, the "why", a concrete example for every load-bearing concept, and small steps (one idea per slide, few new terms at a time). **The word ceiling:** the deck's words are at most **2 ×** the source's, counting its text and the words inside its figures and tables. The ceiling is never passed. **Size is measured in words only:** there is no slide-count limit. | Word ceiling (W1b, Q6): `plain_check.py` reports deck words / original ≤ 200%. Digestibility (Q6): the Concept Pattern in its deck form (§6), words per slide (V5), new-term load (T4), cold read (Q4) |
@@ -215,8 +204,9 @@ Every improvement must rest on research (W2b) and must not change what the stude
 | **Topic conversation (step 1)** | Replaced by W5, which runs only when there is something to decide. The slides already define the topic. |
 | **Canvas gate (step 1b)** | Unchanged in shape: always the skill's exact question (canvas, then board on the chalkboard). Ask **once per course**, at its first deck (case A, §0), **always**, and build nothing until the user answers. Later decks read the canvas and board from the COURSE record. |
 | **Language (step 2)** | Already answered: **English**, `dir="ltr" lang="en"`. Do not ask. |
+| **English level (step 2b)** | Asked once per course, at its first deck, with the canvas gate (B1 suggested). Later decks read it from the COURSE record. |
 | **Scope & mode (step 3)** | Not used. The slides define the scope. |
-| **Intake (step 4)** | Already answered. Audience: newcomers to the subject who read English at A2–B1, often on a phone (G6). Length: the word ceiling, at most 2 × the source's words (G5, W4). |
+| **Intake (step 4)** | Already answered. Audience: newcomers to the subject who read English at the course's level (the COURSE record; first deck: asked, B1 suggested), often on a phone (G6). Length: the word ceiling, at most 2 × the source's words (G5, W4). |
 | **Teaching arc (step 5)** | Keep it, compactly. Order: cover · opening challenge · map (the topics, named as in the topic bar) · the topics · challenge revisited · recap (with a one-line closing) · glossary slide "Words in this deck" (T5b) · **final quiz** (its own topic, `questions-rulebook.md`). **The skill's question set and answer box are left out:** the final quiz does their job (§11 brings them back). The arc costs about 250 words *(target)*; the quiz is outside the word count (`data-budget="skip"`). Inside "one idea per slide", use the Concept Pattern in its deck form (§6). |
 | **Length** | **One deck per lecture file**, measured in **words only**: at most 2 × the original's words (G5), never more. There is no slide-count limit, and the skill's reading-time budget and its slides-per-minute table (`design-system.md` §5) do not apply. The slide count follows from TE1 and V5. The validator's "> 20 slides" note is expected; mention it, don't act on it. |
 | **Law 5: little text** | Applies fully. The always-visible layer carries the complete plain explanation and every gloss that the slide's main sentence depends on (T5). Hover/tap depth is only for supporting-term glosses (T5, T5b) and extras ("Extra: not in your slides"). Examinable content is never hidden (F9). |
@@ -235,11 +225,11 @@ Every improvement must rest on research (W2b) and must not change what the stude
 
 **W1 — Read everything.**
 - Extract the text **and** render every slide page to an image and look at it. Diagrams, arrows, tables, formulas, code, colour highlights and speaker notes carry content that text extraction loses.
-- Use the `pdf-reading` skill for PDFs and the `pptx` skill for `.pptx` files.
+- Read PDFs and `.pptx` files with the best reader you have (for example, the environment's PDF or PPTX skill).
 - If a page is unreadable or seems to be missing, ask the user before you continue.
 
 **W1b — Measure the original's words (the base of the word ceiling).**
-- **Text:** count the words in the slides' text layer, without repeated footer and header lines. For a PDF: `pdftotext -layout`, then drop footer lines, then count with the regex `[A-Za-z0-9][A-Za-z0-9'’\-\.]*`.
+- **Text:** count the words in the slides' text layer, without repeated footer and header lines. One tested way for a PDF: `pdftotext -layout`, then drop footer lines, then count with the regex `[A-Za-z0-9][A-Za-z0-9'’\-\.]*`.
 - **Figures and tables:** count the words inside them, which the text layer misses. Use OCR (`tesseract page.png - --psm 11`) on the figure and table pages, minus those pages' text-layer words, or count by hand.
 - **Record it** in the deck as `<!-- BUDGET original=<text+figures> (text <a> + figures/tables <b>) -->`. The ceiling is not written down: it is always 2 × `original` (or the §11 setting's multiple), and `plain_check.py` computes it. In this file, "counts toward the budget" means: counts toward the deck's words, which are measured against the ceiling.
 - *Why:* the student compares the deck with everything they would otherwise read, including the words in pictures and tables. The ch1 deck: text 1,864 + figures/tables about 295 = about 2,160, so its ceiling would be about 4,320 words.
@@ -299,7 +289,7 @@ misconceptions: <URL> (students think one CPU runs all programs at the same mome
 - **Write a draft opening challenge** (TE3).
 
 **W5 — Confirm only what needs a decision.** Send **one** message, and only if at least one of these applies:
-- the canvas gate, at the first deck of a course (case A, §0), **always**, in the skill's exact shape. When it is the only question, ask it alone, and build nothing until the user answers;
+- the canvas gate and the English level, at the first deck of a course (case A, §0), **always**, in the skill's shape. When they are the only questions, ask them alone, and build nothing until the user answers;
 - the exam focus, once per course, if not given: "Does your exam stress anything in particular? (You can skip this.)";
 - a slide error that changes what would be taught (F4), when the right handling is unclear;
 - agenda topics with no content slides: skip them, or add them as "Extra: not in your slides"?
@@ -308,10 +298,10 @@ misconceptions: <URL> (students think one CPU runs all programs at the same mome
 
 Never ask what the COURSE record already answers.
 
-Otherwise, don't stop: build the deck, and put the plan's essentials (topics, slide count, words against the ceiling) in the delivery report. At a first deck, the canvas gate always stops the run once.
+Otherwise, don't stop: build the deck, and put the plan's essentials (topics, slide count, words against the ceiling) in the delivery report. At a first deck, the canvas gate and the level always stop the run once.
 
 **W6 — Write the term sheet.** For every term:
-- the plain meaning (≤ 12 words, A2 words);
+- the plain meaning (≤ 12 words, in the simplest words that say it: A2 words in A2 and B1 courses);
 - one everyday comparison, if a good one exists (T10);
 - the exact formal wording or notation from the slides;
 - the forms that appear (plural, verb).
@@ -333,26 +323,18 @@ The term sheet feeds the visible definitions (T3), the deck glossary (T5b) and t
 
 **W10 — Deliver** with the short report (§10).
 
-**W11 — Update the notes: merge, don't append.**
-- **Sort each lesson.** Would it help a different course? Yes: the general notes. No: the course's notes.
-- **A rule, or code every deck needs:** suggest it for this file in the report, and list it in the general notes' "proposed for the rulebooks" section. It is deleted there once a rulebook adopts it.
-- **Merge into the point it improves.** When this deck proved a number or a method wrong, replace it. Keep no history of how a point got there, and no per-deck logs.
-- **The course's notes:**
-  - replace their status (the newest deck, which is now the shell), this lecture's slide errors and the "next lecture" part;
-  - add only what later decks will reuse: decisions, field words, reusable figures by deck and slide;
-  - drop the details of chapters already delivered.
-  The first deck of a course creates the file. After the course's last deck it is archived; nothing else reads it.
-- **The general notes stay under about 30,000 characters.** An addition that would go over that means something older is merged or retired first.
-- The notes record experience; they don't add rules.
-- Send the updated notes with the deck. If the chat belongs to a project that holds them, replace that copy too.
+**W11 — Update the COURSE record: merge, don't append.** The record is the course's memory: the next deck reads it first, and no notes file travels between runs.
+- **Into the record** (facts about this course only): new decisions and settings, field words (L1), the lecturer's slide habits that change how to read the next lecture, figures a later lecture can reuse (deck · slide · what), and what the next lecture covers when the slides say. Replace what this deck proved wrong; drop details that only this deck needed.
+- **Keep it short:** about 15 lines *(target)*, one line per item.
+- **Lessons for every course** (a better method, a pitfall, a rule worth adding, a tool fix): don't write them into any file. List them on the report's "Proposed for the skill" line (§10). The user brings them to a maintenance session, where the rulebooks, the general notes and `deck-tools` change. Send nothing back with the deck but the deck.
 
 ---
 
 ## 4. Language rules (G2)
 
 **L1 — Words.**
-- Use A1–A2 everyday words first. A B1 word is fine when no simpler word says the same thing.
-- A word above B1 is either a course term (teach it, §5), a field word, or it gets replaced (L5).
+- Use the most common word that says it. A word at the course's level is fine when no simpler word says the same thing (at A2: A1–A2 words only).
+- A word above the course's level is either a course term (teach it, §5), a field word, or it gets replaced (L5).
 - **Field words** are the general computing words a student of the subject already owns (data, hardware, file, database, byte, network, server, laptop …). They count as known. `plain_check.py` has a built-in list; extend it per course with `--known words.txt`. A field word is not a course term: if the lecture *teaches* it, it is a term (§5).
   - **New field words.** When the checker flags a word, add it to the course's field words only if all three hold:
     1. the lecture uses it without teaching it;
@@ -366,16 +348,16 @@ The term sheet feeds the visible definitions (T3), the deck glossary (T5b) and t
 
 *Why:* readers need about 95% known words for minimal comprehension and about 98% for adequate comprehension. Going from 95% to 98% more than halves the unknown words the reader meets [HN]. The general word list rates field words such as *data* as B2. Without the allowlist, the target would push every course to re-teach its own field vocabulary.
 
-**L2 — Sentences.** One idea per sentence. **Maximum 20 words.** Aim for an average of about 10–14 *(target)*. Split long sentences instead of chaining them with "which", "that", "and", semicolons or colons. Splitting at a period costs no words.
+**L2 — Sentences.** One idea per sentence, within **the level's cap** (SKILL.md step 2b): 15 words at A2, **20 at B1**, 25 at B2, 30 at C1. Aim for the level's usual range *(target)*. Split long sentences instead of chaining them with "which", "that", "and", semicolons or colons. Splitting at a period costs no words.
 
-*Why:* Simplified Technical English, a standard written for second-language readers of technical manuals, caps procedures at 20 words and descriptions at 25. We use the stricter cap for both [STE].
+*Why:* Simplified Technical English, a standard written for second-language readers of technical manuals, caps procedures at 20 words and descriptions at 25 [STE]: the B1 and B2 caps. The A2 and C1 caps are design choices.
 
 **L3 — Grammar.**
 - Present simple tense where possible.
 - Active voice: "The router reads the address", not "The address is read by the router". Use passive only when the actor truly does not matter.
 - Talk to the reader with "you" and "we" [M].
 - Positive statements. No double negatives. Use "not" only when no positive form exists.
-- No phrasal verbs or idioms: *set up → create*, *figure out → find*, *carry out → do*, *in a nutshell → in short*.
+- No idioms (*in a nutshell → in short*). No phrasal verbs at A2–B1 (*set up → create*, *figure out → find*, *carry out → do*); from B2, common ones are fine where they are the clearest way to say it.
 - No noun stacks longer than 3 words: *"packet header length field" → "the length field in the packet header"* [STE].
 - Do not drop small words ("the", "a", "that") to save space. Telegraphic text is harder for second-language readers [STE]. The word ceiling (G5) leaves room for full sentences; save words with L11 and V13 instead.
 
@@ -383,7 +365,7 @@ The term sheet feeds the visible definitions (T3), the deck glossary (T5b) and t
 
 *Why:* for second-language readers, repeating key content words makes text easier to process; a synonym looks like a new thing [CO][STE].
 
-**L5 — Replace formal words.** Use the right column. **Exception:** if the course uses the word as a technical term (for example *implement* in programming, *yield* in Python, *allocate* in operating systems), it is a term: teach it (§5), do not replace it.
+**L5 — Replace formal words.** Use the right column (at C1 it is advice: keep a formal word when it is the precise one). **Exception:** if the course uses the word as a technical term (for example *implement* in programming, *yield* in Python, *allocate* in operating systems), it is a term: teach it (§5), do not replace it.
 
 | Instead of | Write |
 |---|---|
@@ -565,7 +547,7 @@ For a pure definition, steps 2–5 (and 8 in the final quiz) are enough.
 
 **TE3 — The opening challenge** (skill arc, step 2) must:
 - be answerable from **everyday knowledge** (no course terms);
-- be written at A2;
+- be written one level below the course's (A2 for A2 and B1 courses);
 - ask for a **committed answer** (a tappable MCQ);
 - be "attemptable but uncertain", as the skill says;
 - ideally touch **several topics** of the lecture, so that the revisited challenge pulls them together.
@@ -871,7 +853,7 @@ These rules make the deck work well on a phone without changing it on a laptop. 
 
 **Q1 —** `python scripts/validate.py deck.html` (the skill's validator) passes. Its "more than 20 slides" note is expected for single-deck lectures.
 
-**Q2 —** `python plain_check.py deck.html` (Appendix A) runs. Fix every flag, or list it in the report with a reason (for example: "kept *algorithm*: course term, defined on slide 4").
+**Q2 —** `python plain_check.py deck.html --max-level <the course's level>` (Appendix A) runs. Fix every flag, or list it in the report with a reason (for example: "kept *algorithm*: course term, defined on slide 4").
 - Add the course's field words with `--known`.
 - *If you cannot run code* (code execution is off, or the word-list download is blocked):
   - say so in the report's "Checker" line;
@@ -896,12 +878,12 @@ These rules make the deck work well on a phone without changing it on a laptop. 
 - [ ] The words above the original's count went to §1's "Where the extra words go" list, not to padding or repeats.
 - [ ] Every procedure, calculation, or code block has a labelled worked example and a practice problem.
 - [ ] Known misconceptions are refuted and the main one is re-tested.
-- [ ] Opening challenge is attemptable from everyday knowledge and written at A2.
+- [ ] Opening challenge is attemptable from everyday knowledge and written one level below the course's (TE3).
 - [ ] The final quiz follows `questions-rulebook.md` (with the question set on, §11: it follows TE7).
 - [ ] No decorative visuals (V1); every component does a job text cannot (V7).
 - [ ] No content dropped to fit the word ceiling (precedence 2, F9).
 - [ ] Slide problems are noted in the deck and in the report (F4).
-- [ ] Canvas and board match the COURSE record (first deck: the user chose them). The record is present, with the deck number raised by one (§0).
+- [ ] Canvas, board and English level match the COURSE record (first deck: the user chose them). The record is present, with the deck number raised by one and its memory lines updated (§0, W11).
 - [ ] Phone first: M1–M8 pass in the Q7 checks; the phone layer (Appendix B4) is present.
 - [ ] Research done for every load-bearing concept; `SOURCES` comment present (W2b).
 - [ ] Every slide's job is named and its component comes from `use-cases.md`; components vary across the deck.
@@ -936,13 +918,13 @@ These rules make the deck work well on a phone without changing it on a laptop. 
 
 ```
 Deck: <lecture title>, covers source slides 1–<n>.
-Course: <slug>, deck <NN> (case A/B/C) · shell: <file, or "skill template"> · notes: <updated, or "none attached">.
+Course: <slug>, deck <NN> (case A/B/C) · shell: <file, or "skill template"> · level: <A2–C1> · record: <what changed in it>.
 Canvas: <paper, or chalkboard · board> (<chosen by the user now, or from the COURSE record>).
 Slides: <x> (source <y>, for information). Words: <deck> / <original> (<pct>% of the original; ceiling 200%); original = <text> text + <fig> in figures/tables. Over 100%: say in one line what the extra words went to (for example: examples, worked examples, exact quotes and their glosses, plain rewording).
 Topics: <name · slides> | …
 Coverage: <f>/<f> facts in the ledger (exact <e>, faithful <r>; admin skipped: <list or "none">).
 Standalone: independent check <n> passes; first pass <counts>; last pass <"nothing found" or what stands, and why>.
-Checker: word coverage <c>% at B1; kept flags: <word or rule — reason>.
+Checker: word coverage <c>% at <the course's level>; kept flags: <word or rule — reason>.
 Slide issues: <F4 notes or "none">.
 Phone: checked at 390×844 (all slides), 360, 320, sideways; slides over 1.5 screens: <list or "none">; laptop unchanged ✓.
 Quiz: <the questions-rulebook §8 report lines>.
@@ -950,6 +932,7 @@ Settings changed: <list or "none">.
 Field words added: <list, or "none"> (L1).
 Skill mismatches: <parts of this file that did not match the skill, or "none">.
 Departures: <procedures of this file done another way, and why, or "none">.
+Proposed for the skill: <lessons for every course (W11), or "none">.
 ```
 
 ---
@@ -958,7 +941,7 @@ Departures: <procedures of this file done another way, and why, or "none">.
 
 | Setting | Default | Other options and their effect |
 |---|---|---|
-| Vocabulary ceiling | **B1** | **A2:** stricter; run the checker with `--max-level A2`. |
+| English level | **B1** (asked at the first deck) | **A2 · B2 · C1:** SKILL.md step 2b sets the words and the sentence caps; the checker runs with `--max-level`. Recorded as `english level:` in the COURSE record. |
 | Field vocabulary (L1) | **Built-in computing list** | **Course list:** a `words.txt` passed with `--known`. **None:** stricter; field words must be glossed. |
 | Arabic support | **Off** | **On:** each definition and glossary entry adds the Arabic term in one line. In a meta-analysis, glosses in the reader's first language beat English-only glosses (g ≈ 0.33), mostly for immediate word learning and most for beginners. Cost: more words, and the deck is no longer English-only [GL]. |
 | Deck shape | **One deck per lecture file** | **Series:** several decks of 14–18 slides (cap 20), each a full arc, one per reply, with TE9. Use when the user wants shorter sittings. |
@@ -1017,6 +1000,7 @@ Departures: <procedures of this file done another way, and why, or "none">.
 - **Redundancy principle** (do not repeat narration as on-screen text): it applies to narrated media; these decks have no narration.
 - **"More animation is better":** the benefit over well-designed static frames is modest and depends on the content, so V9 prefers learner-paced step-throughs to autoplay.
 - **Full productive failure** (long, unguided problem solving before teaching): it works best with high design fidelity and a teacher who builds on student attempts. A self-paced deck cannot do that, so TE3 uses the lighter pretesting form.
+- **The level caps beyond B1 and B2** (15 words at A2, 30 at C1) and the checker's C1 frequency rule are design choices. The 98% coverage target applies at any level [HN].
 - **A word ceiling as a learning principle:** no study sets "at most twice the source's words" as a learning target. The 2 × ceiling is the user's product requirement: room for plain wording and examples, with a limit on reading time. What fills the room rests on evidence: plain words and full sentences [HN][STE], concrete and worked examples [CF][WE], signalling and contiguity [M]. The number itself does not.
 
 ---
@@ -1063,9 +1047,9 @@ Departures: <procedures of this file done another way, and why, or "none">.
 
 ```bash
 pip install wordfreq            # add --break-system-packages if pip asks
-python plain_check.py deck.html                         # B1 ceiling (default)
+python plain_check.py deck.html --max-level B1          # the course's English level (B1 is the default)
 python plain_check.py deck.html --known course-words.txt
-python plain_check.py deck.html --max-level A2          # stricter vocabulary ceiling
+python plain_check.py deck.html --max-level C1          # another level: A2, B1, B2 or C1
 python plain_check.py deck.html --ceiling 1.5           # the "Tighter" word ceiling (§11); --ceiling 1 = "Shorter"
 ```
 

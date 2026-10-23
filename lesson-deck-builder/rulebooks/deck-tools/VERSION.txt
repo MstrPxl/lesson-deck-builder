@@ -1,12 +1,13 @@
-deck-tools 1.6 · 17 Oct 2026
-written for slides-rulebook v1.9, questions-rulebook v1.3, lesson-deck-builder v1.3 (engine v2)
+deck-tools 1.7 · 23 Oct 2026
+written for slides-rulebook v2.0, questions-rulebook v1.4, lessons-rulebook v2.0, lesson-deck-builder v1.4 (engine v2)
 
 What the tools assume (if any of these changed, the tools need updating, not the deck):
 - engine globals: slides, go(k, true), next(), idx, buildStep, buildMax, total
 - markup: section.slide, data-sec, data-budget="skip", <span id="total">, the END SLIDES comment
 - quiz items: .fq[data-type], .drop[data-answer], .bank .chip (build: .chip[data-n], .fq-line, .fq-clear), .opt, .k-btn; nav: .nav, #prev, #next
 - the code the rulebooks point to lives here: plain_check.py, quiz_walk.py, checker-brief.txt and snippets/
-  (setup copies the two scripts next to the rulebooks; snippets/README.md says which rule each snippet serves)
+  (setup copies the two scripts into the working folder; snippets/README.md says which rule each snippet serves).
+  Since 1.7 deck-tools ships inside the skill (rulebooks/deck-tools/); setup finds the rulebooks beside it.
 
 Self-test (run when setup warns about versions, or whenever a tool's output looks odd):
   python3 deck-tools/checks.py PREVIOUS-DECK.html
@@ -31,3 +32,8 @@ A run that ends in COULD NOT CHECK is never a pass.
      plain_check.py, quiz_walk.py, checker-brief.txt and snippets/ (topic bar, glossary, figure labels, phone layer,
      phone variants, quiz markup, quiz CSS, quiz script), byte for byte. setup_tools.sh copies the two scripts instead of
      extracting them and checks the snippets. size_check.py reports the rulebooks' and the notes' sizes against their caps.
+1.7: ships inside the skill (lesson-deck-builder v1.4, rulebooks/deck-tools/). setup_tools.sh runs from the working folder
+     and finds the rulebooks beside deck-tools (lessons-rulebook included). plain_check.py serves every route: --max-level
+     A2|B1|B2|C1 (the sentence cap follows the level; at C1 common off-list words count as known), --cs-grad for the
+     lessons rulebook's graduate field words, and no ceiling check without a BUDGET comment. size_check.py checks the
+     lessons rulebook and the bundled notes too, and defaults to the rulebooks folder it ships in.

@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
-"""plain_check.py - language, independence and word-ceiling checker for slides-rulebook decks
-(rulebook v1.8, lesson-deck-builder v1.3).
+"""plain_check.py - language, independence and word-ceiling checker for every route of lesson-deck-builder
+(slides-rulebook 2.0, lessons-rulebook 2.0, lesson-deck-builder v1.4).
 
-Usage:  python plain_check.py deck.html [--max-level A2|B1] [--max-sentence 20]
-                                        [--max-words 110] [--known words.txt] [--budget N]
-                                        [--ceiling 2.0]
+Usage:  python plain_check.py deck.html [--max-level A2|B1|B2|C1] [--max-sentence N]
+                                        [--max-words 110] [--known words.txt] [--cs-grad]
+                                        [--budget N] [--ceiling 2.0]
+Level:  the course's English level (SKILL.md, "English level"). The sentence cap follows it unless
+        --max-sentence is given: A2 15 · B1 20 · B2 25 · C1 30.
+        The word list stops at B2. At C1 every listed word counts as known, and so does any other
+        word at least as common as wordfreq Zipf 3.5 (needs wordfreq); rarer words are flagged.
+--cs-grad: also count as known the words a computer-science graduate uses daily (lessons-rulebook L1).
 Needs:  pip install wordfreq   (fallback for irregular word forms)
 Word list: CEFR-J Vocabulary Profile 1.5 (Tono Laboratory, TUFS), downloaded on first run.
-Original: read from <!-- BUDGET original=N --> in the deck, or --budget N.
-Ceiling: N x --ceiling (default 2.0, G5); only a deck over it is flagged.
+Original (lecture decks): read from <!-- BUDGET original=N --> in the deck, or --budget N.
+Ceiling: N x --ceiling (default 2.0, slides-rulebook G5); only a deck over it is flagged.
+        Without a BUDGET comment (lessons) the checker reports the deck's word count only.
         Elements marked data-budget="skip" are checked but not counted (settings §11 only).
 """
 import csv, re, sys, os, argparse, urllib.request
@@ -28,6 +34,13 @@ FIELD = set("""data hardware software computer computers file files byte bytes k
 terabyte database databases compile compiled compiler code program programs programming network networks
 internet online app apps laptop laptops keyboard mouse printer monitor screen server servers website
 browser browsers download upload digital chip chips wireless click user users password email""".split())
+# --cs-grad: words a computer-science graduate owns (lessons-rulebook L1)
+CS_GRAD = set("""algorithm algorithms function functions variable variables loop loops array arrays string strings integer integers
+boolean input inputs output outputs debug debugging install installed update updates version versions folder folders
+smartphone smartphones pixel pixels binary bit bits processor processors interface interfaces parallel sequential
+reboot startup cloud dataset datasets repository repositories script scripts terminal petabyte petabytes""".split())
+SENTENCE_CAP = {"A2": 15, "B1": 20, "B2": 25, "C1": 30}
+C1_ZIPF = 3.5   # C1 (design choice): an off-list word at least this common (wordfreq Zipf) counts as known
 WORD = re.compile(r"[A-Za-z0-9][A-Za-z0-9'’\-\.]*")
 BACKREF = re.compile(r"\b(as (we|you) (saw|learned|learnt|discussed|said|explained|mentioned)"
                      r"|as (mentioned|discussed|explained|shown) (before|earlier|above)"
@@ -167,21 +180,24 @@ def level_of(w, lv, zipf):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("html")
-    ap.add_argument("--max-level", default="B1", choices=["A2", "B1"])
-    ap.add_argument("--max-sentence", type=int, default=20)
+    ap.add_argument("--max-level", default="B1", choices=["A2", "B1", "B2", "C1"])
+    ap.add_argument("--max-sentence", type=int, default=None, help="default: the level's cap (A2 15, B1 20, B2 25, C1 30)")
     ap.add_argument("--max-words", type=int, default=110)
     ap.add_argument("--known", help="extra field words a student already owns, one per line")
     ap.add_argument("--budget", type=int, help="original's total words (overrides the BUDGET comment)")
+    ap.add_argument("--cs-grad", action="store_true", help="also count a computer-science graduate's daily words as known")
     ap.add_argument("--ceiling", type=float, default=2.0,
                     help="word ceiling as a multiple of the original (G5; default 2.0)")
     o = ap.parse_args()
+    if o.max_sentence is None:
+        o.max_sentence = SENTENCE_CAP[o.max_level]
     try:
         from wordfreq import zipf_frequency as zipf
     except ImportError:
         zipf = None
         print("note: wordfreq not installed; irregular forms may be flagged")
     lv = load_levels()
-    known = set(FIELD)
+    known = set(FIELD) | (CS_GRAD if o.cs_grad else set())
     if o.known:
         known |= {l.strip().lower() for l in open(o.known, encoding="utf-8") if l.strip()}
     raw = open(o.html, encoding="utf-8").read()
@@ -239,6 +255,8 @@ def main():
                         known_n += 1
                     elif L:
                         hard.add(w)
+                    elif o.max_level == "C1" and zipf and zipf(w, "en") >= C1_ZIPF:
+                        known_n += 1        # C1: past the B2 list, a common word counts as known
                     else:
                         offlist.add(w)
         deck_known += known_n
@@ -303,7 +321,7 @@ def main():
                   "additions (W4), never a fact or its exact wording")
             problems += 1
     else:
-        print(f"deck words (all readable text): {deck_words} (no BUDGET comment - add <!-- BUDGET original=N -->)")
+        print(f"deck words (all readable text): {deck_words} (no BUDGET comment: no word ceiling to check)")
     if dc < 98:
         problems += 1
     sys.exit(1 if problems else 0)

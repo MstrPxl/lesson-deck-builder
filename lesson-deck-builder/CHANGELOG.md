@@ -95,3 +95,31 @@ families are noted.
 
 **Decks built before v1.3** keep working: they carry their own tokens. A course that copies its shell from
 an earlier deck keeps that deck's colours until the shell's tokens are replaced.
+
+## v1.4 — one-line requests, bundled rulebooks, English level — 2026-10-23
+
+**Routing (SKILL.md step 0b).** "use /lesson-deck-builder to explain the attached file" is a complete request. An attached
+lecture or document (PDF or PPTX) takes the **lecture route** (`rulebooks/slides-rulebook.md`, ending with the final quiz of
+`rulebooks/questions-rulebook.md`); a teaching request without one takes the **lesson route** (`rulebooks/lessons-rulebook.md`);
+pitches and showcases keep the base workflow. The user's words beat the files.
+
+**Bundled rulebooks and tools.** The slides, questions and lessons rulebooks, the general notes (`deck-notes-general.md`) and
+`deck-tools/` now ship in `rulebooks/`. Nothing is attached but the file to explain and the previous deck.
+
+**No Markdown back and forth.** A course's memory lives in its decks: the COURSE record (lecture route; it absorbs the retired
+course notes file) or DECK-SETTINGS (lesson route); in a chat-mode series the roadmap spec and the learner notes travel as
+`ROADMAP-SPEC` and `LEARNER-NOTES` comments. General lessons go on the report's "Proposed for the skill" line and change the
+skill's files only in a maintenance session.
+
+**English level (step 2b).** English decks are written at A2, B1, B2 or C1, asked once per course or journey with the canvas
+(lecture route suggests B1, lesson route and presentations B2) and recorded in the deck. A level table sets words and sentence
+caps (15 · 20 · 25 · 30). `plain_check.py --max-level` measures any level; at C1, common words past the CEFR-J list count as
+known.
+
+**Goals first.** A new "How to read this skill" section: goals, user choices and technical contracts are fixed; workflows,
+numbers, tools, rulebook procedures and notes are tested defaults that a better method may replace (named on the report's
+"Departures" line). The lessons rulebook gains the same principle.
+
+**Versions.** slides-rulebook 2.0, questions-rulebook 1.4, lessons-rulebook 2.0 (from 1.1), deck-tools 1.7. Details in
+`rulebooks/rulebooks-changelog.md`.
+

@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# setup_tools.sh [slides-rulebook.md] [questions-rulebook.md]   (deck-tools 1.6)
-# Run once per session, from the folder that holds the rulebooks.
-#  1. copies plain_check.py and quiz_walk.py from deck-tools next to the rulebooks (the rulebooks' commands expect them
-#     there) and checks that deck-tools/snippets/ and the checker brief are complete. Before 1.6 they were extracted
-#     from the rulebooks' appendices; since slides-rulebook 1.9 / questions-rulebook 1.3 the code ships here.
+# setup_tools.sh [slides-rulebook.md] [questions-rulebook.md] [lessons-rulebook.md]   (deck-tools 1.7)
+# Run once per session from your WORKING folder (it writes plain_check.py, quiz_walk.py, fonts/ and the word list there).
+# The rulebooks are found beside deck-tools (the skill's rulebooks/ folder); pass their paths to use other copies.
+#  1. copies plain_check.py and quiz_walk.py from deck-tools into the working folder (the rulebooks' commands expect
+#     them there) and checks that deck-tools/snippets/ and the checker brief are complete.
 #  2. compares the rulebook versions with the ones these tools were written for (VERSION.txt)
 #  3. local fonts for screenshots, wordfreq + bs4, the CEFR-J word list
 # Step 1 must succeed (exit 1 if not). Step 2 only warns. Step 3 warns and carries on: the scripts still run without it.
-SR=${1:-slides-rulebook.md}; QR=${2:-questions-rulebook.md}
 HERE=$(cd "$(dirname "$0")" && pwd)
+SR=${1:-$HERE/../slides-rulebook.md}; QR=${2:-$HERE/../questions-rulebook.md}; LR=${3:-$HERE/../lessons-rulebook.md}
 
 # ---- 1 + 2 · copy the scripts, check the snippets, compare versions
-python3 - "$SR" "$QR" "$HERE" <<'PY' || exit 1
+python3 - "$SR" "$QR" "$HERE" "$LR" <<'PY' || exit 1
 import re, sys, os, shutil
-sr, qr, here = sys.argv[1:4]
+sr, qr, here, lr = sys.argv[1:5]
 vf = os.path.join(here, 'VERSION.txt')
 bad = False
 for book in (sr, qr):
     if not os.path.exists(book):
-        print(f'ERROR: {book} not found. Run from the folder that holds the rulebooks, or pass their paths.'); bad = True
+        print(f"ERROR: {book} not found (expected beside deck-tools, in the skill's rulebooks/ folder); pass the rulebooks' paths."); bad = True
 for out in ('plain_check.py', 'quiz_walk.py'):
     src = os.path.join(here, out)
     if not os.path.exists(src):
@@ -44,10 +44,12 @@ def ver(book):
 want = {}
 if os.path.exists(vf):
     t = open(vf, encoding='utf-8').read()
-    for key in ('slides-rulebook', 'questions-rulebook'):
+    for key in ('slides-rulebook', 'questions-rulebook', 'lessons-rulebook'):
         m = re.search(key + r'\s+v([0-9][0-9.]*)', t)
         if m: want[key] = m.group(1)
-for key, book in (('slides-rulebook', sr), ('questions-rulebook', qr)):
+for key, book in (('slides-rulebook', sr), ('questions-rulebook', qr), ('lessons-rulebook', lr)):
+    if not os.path.exists(book):
+        print(f'note: {book} not found; its version is not compared.'); continue
     have, need = ver(book), want.get(key)
     if have and need and have != need:
         print(f'WARNING: deck-tools was written for {key} v{need}; this one is v{have}.')

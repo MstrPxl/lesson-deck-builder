@@ -1,8 +1,8 @@
 # Questions Rulebook
 
-**Version 1.3 · 17 October 2026 · written against `lesson-deck-builder` v1.3 (Sketchbook: paper or six chalkboard boards) · first used on Applied OS · Chapter 1**
+**Version 1.4 · 23 October 2026 · written against `lesson-deck-builder` v1.4 (Sketchbook: paper or six chalkboard boards) · first used on Applied OS · Chapter 1**
 
-> **New in 1.3 (structure only; no rule changed):** the code moved to `deck-tools` (Appendices A–D name each file), the version history moved to `rulebooks-changelog.md`, and this file has a size cap (§0).
+> **New in 1.4:** this file ships inside the skill (`rulebooks/`). Every lecture deck ends with this quiz without being asked, and nothing is attached but the deck or the lecture (and the course's previous deck). Full history: `rulebooks-changelog.md`.
 
 This file tells you how to add a **final quiz** to a lesson deck: about 10 minutes, several kinds of questions, marked on the page, with a score slide that sends the learner back to what they missed.
 
@@ -15,7 +15,7 @@ It is **not a menu**. Section 3 records the question kinds already designed, wri
 ## 0. How to use this file
 
 - **Read order:**
-  1. the main rulebook, if one is attached;
+  1. the main rulebook of the route (SKILL.md, step 0b), if one applies;
   2. this file;
   3. the deck the quiz is for (or build the deck first, then come back);
   4. an earlier deck with a quiz, if attached. Reuse its quiz code unchanged.
@@ -36,22 +36,11 @@ It is **not a menu**. Section 3 records the question kinds already designed, wri
 - **Size cap:** this file stays under **32,000 characters**. Code stays in `deck-tools`, history in `rulebooks-changelog.md` (`slides-rulebook.md` §0 has the full rule; `deck-tools/size_check.py` checks it).
 - Numbers marked *(target)* are design choices that may be tuned. They are not research findings.
 
-**A prompt can be as short as:**
+**Starting.** The skill routes here by itself: every lecture deck ends with this quiz. To add a quiz to a deck that has none, one line is enough: "use /lesson-deck-builder to add a final quiz to the attached deck".
 
-```
-Add a final quiz to the attached deck, following questions-rulebook.md.
-```
+**Nothing else to attach:** this file, the main rulebook and `deck-tools` ship with the skill. `deck-tools/snippets/` holds the code of every proven kind (K1–K9): `quiz-markup.html`, `quiz.css` and `quiz.js` (Appendices A–C), so the first deck of a new course needs no earlier deck. An attached earlier deck that already has a quiz is the better source: reuse its quiz code unchanged.
 
-or, while building a deck:
-
-```
-/lesson-deck-builder
-Follow slides-rulebook.md for the attached lecture, and end the deck with a final quiz following questions-rulebook.md.
-```
-
-**What to attach:** this file; the main rulebook; the deck or the lecture; `deck-tools.zip`; optionally an earlier deck of the course that already has a quiz. `deck-tools/snippets/` holds the code of every proven kind (K1–K9): `quiz-markup.html`, `quiz.css` and `quiz.js` (Appendices A–C). So the first deck of a new course needs no earlier deck.
-
-**What the quiz replaces.** When this file is attached, the quiz is the deck's end-of-deck check: the skill's question set ("Check yourself") and its answer box are left out. The user can bring them back (`slides-rulebook.md` §11); then QW10 applies.
+**What the quiz replaces.** When this file applies (every lecture deck), the quiz is the deck's end-of-deck check: the skill's question set ("Check yourself") and its answer box are left out. The user can bring them back (`slides-rulebook.md` §11); then QW10 applies.
 
 ---
 

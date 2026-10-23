@@ -66,11 +66,11 @@
   <!-- ============ HERO ============ -->
   <section class="hero" aria-labelledby="hero-title">
     <div>
-      <span class="eyebrow">A Claude skill · v1.3</span>
+      <span class="eyebrow">A Claude skill · v1.4</span>
       <h1 id="hero-title">Lesson-<span class="u">Deck<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 13 C 50 6, 120 5, 197 11" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></span>-Builder</h1>
       <p class="tagline">Ask Claude for a lesson on <em>any</em> topic and get back <strong>one HTML file</strong>: a calm, hand-drawn slide deck that teaches, opens in any browser, and works on a phone.</p>
       <ul class="chips">
-        <li>One self-contained .html</li><li>Paper or 6 chalkboards</li><li>Arabic (RTL) or English</li>
+        <li>One self-contained .html</li><li>Paper or 6 chalkboards</li><li>Arabic (RTL) or English</li><li>English level A2–C1</li><li>One-line requests</li>
         <li>43 slide components</li><li>Challenge-first teaching</li><li>Built-in validator</li>
       </ul>
       <div class="cta">
@@ -147,7 +147,7 @@
     <div class="card"><div class="ico"><svg><use href="#i-file"/></svg></div><h3>One file, any device</h3><p>All styles, scripts and drawings live inside the file. It runs in any modern browser, on a laptop or a phone, with keyboard, mouse or swipe.</p></div>
     <div class="card b"><div class="ico"><svg><use href="#i-pen"/></svg></div><h3>Hand-drawn and calm</h3><p>The <strong>Sketchbook</strong> look: ruled paper or a chalkboard, wobbly ink frames, sticky notes and drawings that draw themselves. No neon, no clutter.</p></div>
     <div class="card c"><div class="ico"><svg><use href="#i-bulb"/></svg></div><h3>Built to teach</h3><p>Teaching decks open with a challenge, explain each idea with a picture, its "why" and a real use, then return to the challenge and end with questions.</p></div>
-    <div class="card c"><div class="ico"><svg><use href="#i-globe"/></svg></div><h3>Arabic or English</h3><p>Right-to-left Arabic or left-to-right English. Fonts, layout, arrow keys and swipes all follow the language you choose.</p></div>
+    <div class="card c"><div class="ico"><svg><use href="#i-globe"/></svg></div><h3>Arabic or English</h3><p>Right-to-left Arabic or left-to-right English. Fonts, layout, arrow keys and swipes all follow the language you choose, and English decks are written at the reader's level, A2 to C1.</p></div>
     <div class="card"><div class="ico"><svg><use href="#i-grid"/></svg></div><h3>43 components</h3><p>Covers, maps, timelines, comparisons, code windows, charts, steppers, sliders, quizzes and more, each matched to a "teaching job".</p></div>
     <div class="card b"><div class="ico"><svg><use href="#i-check"/></svg></div><h3>Checked before delivery</h3><p>A small Python validator catches broken decks: two active slides, a missing engine, a wrong board, a widget that would flip slides while you drag it.</p></div>
   </div>
@@ -180,7 +180,7 @@ Copy-Item -Recurse lesson-deck-builder\lesson-deck-builder "$HOME\.claude\skills
   <ol>
     <li>Download <strong><code>lesson-deck-builder.zip</code></strong> from the <a href="https://github.com/MstrPxl/lesson-deck-builder/releases/latest">latest release</a>. (Or zip the <code>lesson-deck-builder/</code> folder yourself: the zip must contain that folder, with <code>SKILL.md</code> inside it.)</li>
     <li>In Claude, open <strong>Settings → Capabilities</strong>, make sure code execution is on, and upload the zip under <strong>Skills</strong>.</li>
-    <li>Start a new chat and ask for a lesson. In the apps the skill runs in <a href="#modes">chat mode</a>: one complete deck per request.</li>
+    <li>Start a new chat and ask for a lesson, or attach a lecture and say "use /lesson-deck-builder to explain the attached file". In the apps the skill runs in <a href="#modes">chat mode</a>: one complete deck per request. The zip already contains the rulebooks and their tools.</li>
   </ol>
 
   <h3>Check that it works</h3>
@@ -204,11 +204,13 @@ Copy-Item -Recurse lesson-deck-builder\lesson-deck-builder "$HOME\.claude\skills
     <div class="card soft"><span class="tag">Learning journey</span><p class="mt0">"I want to learn machine learning from zero. Start a learning path for me." (best in Claude Code, inside a folder)</p></div>
   </div>
 
+  <div class="aside ok"><strong>Explaining a file?</strong> Attach the lecture (PDF or PPTX) and send one line: <code>use /lesson-deck-builder to explain the attached file</code>. The skill takes the <a href="#rulebooks">lecture route</a> by itself. For the next lecture of the same course, also attach the previous deck.</div>
+
   <h3>A typical conversation</h3>
   <ol class="steps">
     <li data-n="1"><h4>You ask</h4><span class="say"><b>You</b>/lesson-deck-builder Make slides explaining how vaccines work.</span></li>
     <li data-n="2"><h4>Claude maps the topic and asks you to confirm it</h4><span class="say"><b>Claude</b>Here are the nearby topics: how a vaccine trains your immune system · the main vaccine types · how vaccines are tested · herd immunity. I'll restate your aim: "understand how one shot teaches the body to fight a germ it has never met". Is that right?</span></li>
-    <li data-n="3"><h4>Claude asks the canvas and the language</h4><span class="say"><b>Claude</b>Canvas? I suggest <strong>Paper</strong> (bright, good for daytime reading) · or <strong>Chalkboard</strong>. And: Arabic or English?</span></li>
+    <li data-n="3"><h4>Claude asks the canvas, the language and the level</h4><span class="say"><b>Claude</b>Canvas? I suggest <strong>Paper</strong> (bright, good for daytime reading) · or <strong>Chalkboard</strong>. Arabic or English? And for English, your reading level: <strong>A2 · B1 · B2 · C1</strong>?</span></li>
     <li data-n="4"><h4>A short intake</h4><span class="say"><b>Claude</b>Who is it for (complete beginner · generally informed · expert), and how long (≈10 · 20 · 30 min)?</span></li>
     <li data-n="5"><h4>Claude plans, builds and checks</h4><p>It sketches the slide list, fills slides from the component library, and runs <code>validate.py</code>.</p></li>
     <li data-n="6"><h4>You get one file</h4><p><code>vaccines.html</code>. Open it in a browser; use the arrow keys, the Prev/Next buttons, or swipe. Ask for changes any time: "make it chalkboard", "shorter", "add a slide on boosters".</p></li>
@@ -223,13 +225,20 @@ Copy-Item -Recurse lesson-deck-builder\lesson-deck-builder "$HOME\.claude\skills
         <label><input type="radio" name="mode" value="teach" checked><span>Teaching deck</span></label>
         <label><input type="radio" name="mode" value="present"><span>Presentation</span></label>
         <label><input type="radio" name="mode" value="journey"><span>Learning journey</span></label>
-        <label><input type="radio" name="mode" value="rulebook"><span>From lecture slides</span></label>
+        <label><input type="radio" name="mode" value="rulebook"><span>Explain a file</span></label>
       </div></fieldset>
       <div class="field" data-teach-only><label for="pb-topic">Topic</label><input type="text" id="pb-topic" placeholder="e.g. how DNS finds a website" /></div>
       <fieldset class="field" data-teach-only><legend>Language</legend><div class="seg">
         <label><input type="radio" name="lang" value="ask" checked><span>Ask me</span></label>
         <label><input type="radio" name="lang" value="English"><span>English</span></label>
         <label><input type="radio" name="lang" value="Arabic"><span>Arabic</span></label>
+      </div></fieldset>
+      <fieldset class="field"><legend>English level</legend><div class="seg">
+        <label><input type="radio" name="elevel" value="ask" checked><span>Ask me</span></label>
+        <label><input type="radio" name="elevel" value="A2"><span>A2</span></label>
+        <label><input type="radio" name="elevel" value="B1"><span>B1</span></label>
+        <label><input type="radio" name="elevel" value="B2"><span>B2</span></label>
+        <label><input type="radio" name="elevel" value="C1"><span>C1</span></label>
       </div></fieldset>
       <fieldset class="field"><legend>Canvas</legend><div class="seg">
         <label><input type="radio" name="canvas" value="ask" checked><span>Ask me</span></label>
@@ -260,7 +269,7 @@ Copy-Item -Recurse lesson-deck-builder\lesson-deck-builder "$HOME\.claude\skills
     <div>
       <div class="code" style="margin-top:0"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">your prompt</span><button class="copy" id="pb-copy" type="button">Copy</button></div>
 <pre id="pb-out" aria-live="polite"></pre></div>
-      <p class="muted"><small>"From lecture slides" uses the two <a href="#rulebooks">rulebooks</a>: attach them, <code>deck-tools.zip</code>, your lecture PDF or PPTX and any notes. For a later deck of the same course, also attach the newest earlier deck.</small></p>
+      <p class="muted"><small>"Explain a file" takes the <a href="#rulebooks">lecture route</a>: attach the PDF or PPTX and, for a later deck of the same course, the previous deck. Nothing else: the rulebooks and tools ship inside the skill.</small></p>
     </div>
   </div>
 </section>
@@ -272,9 +281,11 @@ Copy-Item -Recurse lesson-deck-builder\lesson-deck-builder "$HOME\.claude\skills
   <p class="lead">Claude follows the same steps every time. Knowing them helps you answer quickly and know what to expect.</p>
   <ol class="steps">
     <li data-n="0"><h4>Detect the environment</h4><p><strong>Repo mode</strong> (Claude Code, inside a folder) or <strong>chat mode</strong> (the Claude apps). It changes where lessons and notes are kept. <a href="#modes">More below.</a></p></li>
+    <li data-n="0b"><h4>Choose the route</h4><p>A file attached to explain → the <strong>lecture route</strong> (slides rulebook + final quiz). A teaching request without one → the <strong>lesson route</strong> (lessons rulebook). A pitch or showcase → the base workflow. Your words beat the files. <a href="#rulebooks">Routes &amp; rulebooks.</a></p></li>
     <li data-n="1"><h4>The topic conversation (required)</h4><p>Every new learning journey starts here. Claude assumes you know nothing, lists the topics near what you said (with one plain line each), and asks you to confirm <strong>one</strong> topic or one exact learning aim. Even a precise request gets restated and confirmed. Nothing is built before you say yes.</p></li>
     <li data-n="1b"><h4>The canvas gate (required)</h4><p>Paper or chalkboard; on the chalkboard, which of the six boards. Claude suggests one with a one-line reason, always shows the full menu, and never picks for you. <a href="#canvases">See the boards.</a></p></li>
-    <li data-n="2"><h4>The language (required)</h4><p>"Arabic or English?" Asked every time unless you already said it. It sets direction, fonts, button labels and arrow keys.</p></li>
+    <li data-n="2"><h4>The language (required)</h4><p>"Arabic or English?" Asked unless you already said it or the route fixes it (both rulebooks build English decks). It sets direction, fonts, button labels and arrow keys.</p></li>
+    <li data-n="2b"><h4>The English level</h4><p>For English decks: <strong>A2 · B1 · B2 · C1</strong>, asked once per course or journey with the canvas, and remembered in the deck. It sets the words and how long sentences may be. <a href="#language">The level table.</a></p></li>
     <li data-n="3"><h4>Scope (broad subjects only)</h4><p>If you could spend weeks on the subject ("DevOps", "personal finance"), Claude offers three ways in: an <strong>Overview</strong> deck (at most ~30 minutes), a <strong>Roadmap + Lesson 1</strong>, or a <strong>Deep dive</strong> on one subtopic. Narrow topics skip this.</p></li>
     <li data-n="4"><h4>Intake</h4><p>One quick round: the angle, the audience level (default: "a newcomer gains real understanding"), and the length (default ≈20 minutes).</p></li>
     <li data-n="5"><h4>Plan the outline</h4><p>Claude chooses the arc (teaching or presentation), turns the time budget into a slide count, and names each slide's <a href="#use-cases">teaching job</a> before choosing its <a href="#components">component</a>.</p></li>
@@ -363,6 +374,18 @@ Copy-Item -Recurse lesson-deck-builder\lesson-deck-builder "$HOME\.claude\skills
     </div>
   </div>
   <p>Layouts use CSS <em>logical properties</em> (<code>margin-inline</code>, <code>inset-inline-start</code>…), so everything mirrors by itself, including the notebook's red margin line. <strong>Bilingual lessons</strong> (say, English taught with Arabic support) pick one base language for direction and fonts and mix the other inside the content, using less of the support language as the level rises.</p>
+  <h3>English level: A2 to C1</h3>
+  <p>English decks are written for the reader's level, chosen once per course or journey (the lecture route suggests B1, the lesson route and presentations B2). It is about the reader's English, not their knowledge of the subject.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Level</th><th>Reader</th><th>Words</th><th>Sentences: cap · usual</th></tr></thead>
+    <tbody>
+      <tr><td><strong>A2</strong></td><td>basic</td><td>everyday words; anything harder is a taught term</td><td>15 · 8–12</td></tr>
+      <tr><td><strong>B1</strong></td><td>independent, early</td><td>common words; a B1 word when no simpler one fits</td><td>20 · 10–14</td></tr>
+      <tr><td><strong>B2</strong></td><td>independent</td><td>common words; B2 words freely</td><td>25 · 12–18</td></tr>
+      <tr><td><strong>C1</strong></td><td>proficient</td><td>precise and formal words where they are the right ones; no idioms</td><td>30 · 15–20</td></tr>
+    </tbody>
+  </table></div>
+  <p>At every level at least 98% of the words are ones the reader knows (taught terms count), and every term is taught before it is used. <code>plain_check.py --max-level</code> measures it.</p>
   <div class="aside warn"><strong>Rule:</strong> text never goes inside <code>&lt;svg&gt;</code>. Arabic shaping and direction break there. Text is HTML; SVG is only for shapes and icons.</div>
 </section>
 
@@ -447,7 +470,7 @@ Copy-Item -Recurse lesson-deck-builder\lesson-deck-builder "$HOME\.claude\skills
     <tbody>
       <tr><td><strong>Where</strong></td><td>Claude apps (claude.ai, desktop, mobile)</td><td>Claude Code, or any session with a working folder</td></tr>
       <tr><td><strong>Default output</strong></td><td>One complete teaching deck per request</td><td>A learning environment: folders, roadmap, notes, lessons</td></tr>
-      <tr><td><strong>Memory between lessons</strong></td><td>You keep it: the roadmap spec rides inside each deck as an HTML comment, and you save and re-attach <code>NOTES.md</code></td><td>On disk: Claude reads <code>docs/</code> before building and writes back after</td></tr>
+      <tr><td><strong>Memory between lessons</strong></td><td>Inside the decks: the roadmap spec and your learner notes ride in each lesson as hidden comments; you re-attach only the latest lesson</td><td>On disk: Claude reads <code>docs/</code> before building and writes back after</td></tr>
       <tr><td><strong>Series</strong></td><td>Possible as a fallback, but "works best from a folder with Claude Code"</td><td>Native, and committed to git after each artifact</td></tr>
     </tbody>
   </table></div>
@@ -756,27 +779,55 @@ python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the rever
 
 <!-- ============ RULEBOOKS ============ -->
 <section class="doc" id="rulebooks">
-  <span class="eyebrow">rulebooks/</span>
-  <h2>The rulebooks</h2>
-  <p class="lead">Two optional companion files for one specific, demanding job: turning <strong>university lecture slides</strong> (PDF or PPTX) into a deck that a student can study <strong>instead of</strong> the slides, ending with a self-marking quiz. You attach them to your request; they add to the skill and, where they say so, override it.</p>
+  <span class="eyebrow">lesson-deck-builder/rulebooks/</span>
+  <h2>Routes &amp; rulebooks</h2>
+  <p class="lead">The skill carries three rulebooks and picks the right one by itself. You send one line, and attach only the file to explain and, for a later deck, the previous deck.</p>
 
-  <div class="grid g2">
+  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">the whole request</span><button class="copy">Copy</button></div>
+<pre><code>use /lesson-deck-builder to explain the attached file</code></pre></div>
+
+  <div class="grid g3">
+    <div class="card"><span class="tag">Lecture route</span><h3>A file is attached</h3><p>A PDF or PPTX to explain: lecture slides or a document. Follows the <strong>slides rulebook</strong> and ends with the <strong>questions rulebook</strong>'s self-marking quiz. The result replaces the source: complete, easier to digest, at most twice its words.</p></div>
+    <div class="card b"><span class="tag" style="color:var(--blue)">Lesson route</span><h3>No file, a topic</h3><p>"Teach me &lt;topic&gt;", "the next lesson", a learning journey. Follows the <strong>lessons rulebook</strong>: researched, at the length you choose, with topic checks, a question set and an answer box.</p></div>
+    <div class="card c"><span class="tag" style="color:var(--yellow)">Presentation</span><h3>Inform or persuade</h3><p>A pitch, a product intro, a showcase, a report. The skill's base workflow, no rulebook.</p></div>
+  </div>
+  <p>Your words beat the files: "a short pitch from this PDF" is a presentation. When the route is unclear, Claude asks one question.</p>
+
+  <h3>What you attach, and what you don't</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Attach</th><th>When</th></tr></thead>
+    <tbody>
+      <tr><td>The file to explain (PDF or PPTX)</td><td>Lecture route; one deck per file</td></tr>
+      <tr><td>The previous deck (HTML)</td><td>From the second deck of a course or journey on. Its hidden record holds your choices (canvas, board, English level) and the course's memory, and its code is reused.</td></tr>
+      <tr><td>An older deck</td><td>Only when Claude asks for one, to reuse a figure or a glossary wording</td></tr>
+      <tr><td>Rulebooks, notes, tools</td><td><strong>Never.</strong> They ship inside the skill.</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>No Markdown goes back and forth.</strong> The first deck of a course asks the canvas, the board and the English level once; later decks read them from the previous deck. A course's memory (decisions, field words, the lecturer's habits, reusable figures, what comes next) lives in the deck's <code>COURSE</code> record. Anything that would help every deck appears on a "Proposed for the skill" line in the report: bring those lines to a maintenance session to improve the skill.</p>
+
+  <div class="grid g3">
     <div class="card">
-      <span class="tag">rulebooks/slides-rulebook.md · v1.9</span>
+      <span class="tag">slides-rulebook.md · v2.0</span>
       <h3>Slides Rulebook</h3>
-      <p>How to turn one lecture into one deck that is <strong>complete</strong>, <strong>easier to digest</strong> than the slides (in <strong>at most twice their words</strong>), in <strong>plain English (A2–B1)</strong>, split into <strong>topics that each stand alone</strong>, taught with research-backed methods, and <strong>phone first</strong>. It also keeps every deck of a course consistent, from the first lecture to the last.</p>
-      <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/slides-rulebook.md">Read it on GitHub ↗</a></p>
+      <p>One lecture → one deck that is <strong>complete</strong>, <strong>easier to digest</strong> than the slides in <strong>at most twice their words</strong>, at the course's <strong>English level</strong> (A2–C1, default B1), in <strong>topics that each stand alone</strong>, <strong>phone first</strong>, and consistent across a course.</p>
+      <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/rulebooks/slides-rulebook.md">Read it ↗</a></p>
     </div>
     <div class="card">
-      <span class="tag">rulebooks/questions-rulebook.md · v1.3</span>
+      <span class="tag">questions-rulebook.md · v1.4</span>
       <h3>Questions Rulebook</h3>
-      <p>How to add a <strong>final quiz</strong> to a deck: about 10 minutes, several kinds of questions, marked on the page with a reason for every answer, and a score slide that sends you back to the topics you missed. Works with the slides rulebook or on its own, for any subject.</p>
-      <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/questions-rulebook.md">Read it on GitHub ↗</a></p>
+      <p>The <strong>final quiz</strong> that ends every lecture deck: about 10 minutes, several kinds of questions, marked on the page with a reason for every answer, and a score slide that sends you back to the topics you missed.</p>
+      <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/rulebooks/questions-rulebook.md">Read it ↗</a></p>
+    </div>
+    <div class="card">
+      <span class="tag">lessons-rulebook.md · v2.0</span>
+      <h3>Lessons Rulebook</h3>
+      <p>One <strong>researched lesson</strong> on a topic: correct and current, at the chosen <strong>English level</strong> (A2–C1, default B2), within a <strong>length preset</strong>, built like your reference decks, with a "Go deeper" slide of the best next sources.</p>
+      <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/rulebooks/lessons-rulebook.md">Read it ↗</a></p>
     </div>
   </div>
 
-  <div class="note"><span class="nt">New in 1.8: easier to digest, not shorter</span>
-    The goal is no longer a deck <em>shorter</em> than the slides. It is a deck that is <strong>easier to digest</strong>: plain words even when they're longer, full sentences instead of bullet fragments, the "why", and a concrete example for every key idea.
+  <div class="note"><span class="nt">Lecture decks: easier to digest, not shorter</span>
+    A lecture deck is not shorter than the slides; it is <strong>easier to digest</strong>: plain words even when they're longer, full sentences instead of bullet fragments, the "why", and a concrete example for every key idea.
     <ul>
       <li><strong>Ceiling:</strong> at most <strong>2 ×</strong> the source's words (its text plus the words in its figures and tables). Never more.</li>
       <li><strong>Words only:</strong> there is no limit on the number of slides. Each slide stays a small chunk (about 50–70 words), so more explanation means more slides, not denser ones.</li>
@@ -784,37 +835,12 @@ python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the rever
     </ul>
   </div>
 
-  <h3>How to use them</h3>
-  <p><strong>First deck of a course</strong> — attach the two rulebooks, <code>deck-tools.zip</code> and the lecture file, then send:</p>
-  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">prompt · first deck</span><button class="copy">Copy</button></div>
-<pre><code>/lesson-deck-builder
-Follow slides-rulebook.md for the attached lecture, and end the deck with a final quiz following questions-rulebook.md. Read the attached notes before planning.
-This is the first deck of a new course: ask me the canvas and board before building.</code></pre></div>
-  <p><strong>Later decks of the same course</strong> — also attach the newest deck of the course (its code and choices are reused):</p>
-  <div class="code"><div class="bar"><i style="background:#d98b78"></i><i style="background:#dcc06a"></i><i style="background:#8bb088"></i><span class="t">prompt · later deck</span><button class="copy">Copy</button></div>
-<pre><code>/lesson-deck-builder
-Follow slides-rulebook.md for the attached lecture, and end the deck with a final quiz following questions-rulebook.md. Read the attached notes before planning. The newest deck of this course is attached.</code></pre></div>
-  <p><strong>Quiz only</strong> — for any existing deck: <code>Add a final quiz to the attached deck, following questions-rulebook.md.</code></p>
-
-  <div class="tbl"><table>
-    <thead><tr><th>Attach</th><th>When</th><th>In this repo?</th></tr></thead>
-    <tbody>
-      <tr><td><code>slides-rulebook.md</code></td><td>Always</td><td>Yes, <code>rulebooks/</code></td></tr>
-      <tr><td><code>questions-rulebook.md</code></td><td>Always (its quiz ends every deck)</td><td>Yes, <code>rulebooks/</code></td></tr>
-      <tr><td>The lecture (PDF or PPTX)</td><td>Always; one deck per lecture file</td><td>Yours</td></tr>
-      <tr><td>Earlier decks of the course</td><td>From the 2nd deck on (at least the newest)</td><td>Yours (see the <a href="#example">example</a>)</td></tr>
-      <tr><td><code>deck-notes-general.md</code>, <code>&lt;course&gt;-notes.md</code></td><td>Whenever they exist: experience notes, not rules</td><td>No — optional; the first deck of a course creates the course notes</td></tr>
-      <tr><td><code>deck-tools.zip</code></td><td><strong>Always</strong>: the code both rulebooks point to, plus helper scripts. Unzip, then run <code>bash deck-tools/setup_tools.sh</code> once per session</td><td>Yes, <a href="https://github.com/MstrPxl/lesson-deck-builder/tree/main/rulebooks/deck-tools"><code>rulebooks/deck-tools/</code></a> and the zip in the <a href="https://github.com/MstrPxl/lesson-deck-builder/releases/latest">release</a></td></tr>
-    </tbody>
-  </table></div>
-  <p>The attachments decide the case: <strong>A</strong> first deck of a course (asks the canvas gate and exam focus once), <strong>B</strong> a later deck (reuses the newest deck as the "shell" and asks only what's new), <strong>C</strong> decks of another course attached (settings don't carry over).</p>
-
   <h3>The six goals of the slides rulebook</h3>
   <div class="tbl"><table>
     <thead><tr><th>Goal</th><th>Meaning</th><th>How it's checked</th></tr></thead>
     <tbody>
       <tr><td><strong>G1</strong> Replace the slides</td><td>Every fact taught at full strength; definitions in the slides' own words</td><td>Fact ledger at 100% + a clean independent check</td></tr>
-      <tr><td><strong>G2</strong> English at A2–B1</td><td>Everyday words, short sentences</td><td><code>plain_check.py</code>: ≥98% known words, no sentence over 20 words</td></tr>
+      <tr><td><strong>G2</strong> English at the course's level</td><td>A2–C1 (default B1): words and sentence lengths that a reader at that level takes in with ease</td><td><code>plain_check.py --max-level</code>: ≥98% known words; sentences within the level's cap</td></tr>
       <tr><td><strong>G3</strong> Independent topics</td><td>Any topic understood alone; no unexplained word</td><td>Gloss and acronym checks; a "cold read"</td></tr>
       <tr><td><strong>G4</strong> Best ways to teach</td><td>The Concept Pattern and teaching rules TE1–TE10</td><td>Checklist</td></tr>
       <tr><td><strong>G5</strong> Easier to digest, in at most twice the words</td><td>Plain, full explanations with an example for every key idea, in small chunks; at most 2 × the source's words, with no slide-count limit</td><td><code>plain_check.py</code>: words ≤ 200% of the source; Concept Pattern, words per slide, cold read</td></tr>
@@ -835,38 +861,42 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
   <p>Never padding, repeats or decorative stories: the ceiling is a limit, not a goal.</p>
 
   <h3>What's inside each file</h3>
-  <div class="grid g2">
+  <div class="grid g3">
     <div class="card soft"><b>Slides rulebook</b><ul>
-      <li><strong>Workflow W1–W11</strong>: read every page (text and images), measure the source's words, build a fact ledger, research every key concept, order for learning, plan, confirm only real decisions, write a term sheet, draft, build, check, deliver, update notes.</li>
+      <li><strong>Workflow W1–W11</strong>: read every page, measure the source's words, build a fact ledger, research, order for learning, plan, confirm only real decisions, write a term sheet, draft, build, check, deliver, update the COURSE record.</li>
       <li><strong>Rule families</strong> with IDs you can cite in feedback: L (language), T (terms), TE (teaching), F (fidelity), V (visuals), M (phone), N (navigation), Q (checks).</li>
       <li><strong>The Concept Pattern</strong>: ask · plain idea + case · name it · picture · why it works · worked example · common mistake · check.</li>
-      <li><strong>Settings</strong> (§11): vocabulary level, Arabic support, deck shape, word ceiling (2 × by default; Tighter 1.5 ×; Shorter, the old rule), quiz on/off, glossary, navigation, exact wording…</li>
-      <li><strong>Appendices</strong>: what the checker, topic bar, glossary, phone layer and checker's brief do and where they go; their code is in <code>deck-tools</code>.</li>
+      <li><strong>Settings</strong> (§11): English level, Arabic support, deck shape, word ceiling (2 × by default; Tighter 1.5 ×; Shorter), quiz on/off, glossary, navigation, exact wording…</li>
     </ul></div>
     <div class="card soft"><b>Questions rulebook</b><ul>
       <li><strong>Goals QG1–QG5</strong>: answerable from the deck alone, fair but challenging, ≈10 minutes, covers every topic, marks itself and teaches.</li>
-      <li><strong>Method</strong>: list what the deck teaches by kind of knowledge, match each to the best question kinds, pick 6–9 kinds, about 2 items each.</li>
-      <li><strong>Nine proven kinds</strong>: Choose one · True or false · Fill the gap (word bank) · Match · Put in order · Sort into groups · Find the mistake · Work it out · Label the figure. Plus six ready-to-build kinds and a list of rejected ones (with reasons).</li>
+      <li><strong>Nine proven kinds</strong>: Choose one · True or false · Fill the gap · Match · Put in order · Sort into groups · Find the mistake · Work it out · Label the figure; six more ready to build, and the rejected ones with reasons.</li>
       <li><strong>Layout</strong>: intro slide, one slide per kind, a live score slide with "Revisit" buttons per missed topic, and "Try the quiz again".</li>
-      <li><strong>Appendices</strong>: the quiz markup, CSS, script and browser walk (code in <code>deck-tools</code>), and a worked example.</li>
+    </ul></div>
+    <div class="card soft"><b>Lessons rulebook</b><ul>
+      <li><strong>Goals G1–G5</strong>: correct and complete for the scope, clear English at the chosen level, independent topics, the best ways to teach, the house style at the chosen length.</li>
+      <li><strong>Research</strong>: about 10–15 strong sources on a source ladder (official docs first), two sources for every load-bearing claim, dates on anything that changes.</li>
+      <li><strong>Length presets</strong>: short, medium, long or "topic"; core concepts are never cut to fit.</li>
+      <li><strong>Records</strong>: <code>DECK-SETTINGS</code>, a coverage map, and the sources.</li>
     </ul></div>
   </div>
 
   <h3>Records kept inside each deck</h3>
-  <p>Rulebook decks carry their own paper trail as HTML comments (invisible, ignored by the validator):</p>
+  <p>Every deck carries its own memory and paper trail as HTML comments (invisible, ignored by the validator). This is how the next deck knows what came before:</p>
   <div class="tbl"><table>
     <thead><tr><th>Comment</th><th>What it holds</th></tr></thead>
     <tbody>
-      <tr><td><code>&lt;!-- COURSE --&gt;</code></td><td>The course's standing choices: canvas and board, exam focus, settings, field words, deck number. Later decks copy it, so nothing is asked twice.</td></tr>
+      <tr><td><code>&lt;!-- COURSE --&gt;</code></td><td>Lecture route: the course's choices (canvas, board, English level, exam focus, settings, field words) and its memory (the lecturer's habits, reusable figures, what comes next). The next deck copies it, so nothing is asked twice.</td></tr>
+      <tr><td><code>&lt;!-- DECK-SETTINGS --&gt;</code></td><td>Lesson route: the subject's choices (canvas, board, level, length default, field words, reusable figures).</td></tr>
       <tr><td><code>&lt;!-- BUDGET --&gt;</code></td><td>The source's word count (text + words inside figures). The deck's ceiling is twice this number.</td></tr>
-      <tr><td><code>&lt;!-- FACT-LEDGER --&gt;</code></td><td>Every fact of the lecture, by page, with where the deck teaches it.</td></tr>
-      <tr><td><code>&lt;!-- SOURCES --&gt;</code></td><td>The research behind the deck: fidelity checks, misconceptions, slide errors.</td></tr>
-      <tr><td><code>&lt;!-- QUIZ-MAP --&gt;</code></td><td>Each quiz item: kind, answer, source page, topic.</td></tr>
-      <tr><td><code>&lt;!-- INDEPENDENT-CHECK --&gt;</code></td><td>Each pass of the separate checker agent and what it found, until it found nothing.</td></tr>
+      <tr><td><code>&lt;!-- FACT-LEDGER --&gt;</code> · <code>&lt;!-- COVERAGE-MAP --&gt;</code></td><td>Every fact of the lecture (or every concept of a lesson) with where the deck teaches it.</td></tr>
+      <tr><td><code>&lt;!-- SOURCES --&gt;</code></td><td>The research behind the deck.</td></tr>
+      <tr><td><code>&lt;!-- QUIZ-MAP --&gt;</code> · <code>&lt;!-- INDEPENDENT-CHECK --&gt;</code></td><td>Each quiz item with its answer and source; each pass of the separate checker agent.</td></tr>
+      <tr><td><code>&lt;!-- ROADMAP-SPEC --&gt;</code> · <code>&lt;!-- LEARNER-NOTES --&gt;</code></td><td>A learning journey in chat: the roadmap and what your answers showed, carried from lesson to lesson.</td></tr>
     </tbody>
   </table></div>
 
-  <div class="note blue"><span class="nt">The rulebooks' code: deck-tools</span>Every run reads both rulebooks in full, so their code lives in <code>deck-tools</code> instead: <code>plain_check.py</code>, <code>quiz_walk.py</code>, the checker's brief, and <code>snippets/</code> (topic bar, glossary, phone layer, quiz markup/CSS/script). Setup copies the scripts into place. Both rulebooks have a <strong>size cap</strong> (110,000 and 32,000 characters) that <code>deck-tools/size_check.py</code> checks, and their version history lives in <code>rulebooks-changelog.md</code>. Since 1.9/1.3 a run reads about 104,000 + 29,000 characters instead of 140,126 + 65,805.<br><br><strong>Tools they use:</strong> Python 3 for <code>validate.py</code> and <code>plain_check.py</code> (it needs <code>pip install wordfreq</code> and downloads the free CEFR-J word list on first run). Optional: <code>pdftotext</code> and <code>tesseract</code> for counting the source's words, and Playwright for the quiz's browser walk. If code can't run, Claude says so in the report instead of inventing numbers.</div>
+  <div class="note blue"><span class="nt">The rulebooks' kit: deck-tools</span>Every run reads its rulebooks in full, so their code lives in <code>rulebooks/deck-tools/</code> instead: the language checker <code>plain_check.py</code> (any level, A2–C1), <code>quiz_walk.py</code>, the checker's brief, and <code>snippets/</code> (topic bar, glossary, phone layer, quiz markup/CSS/script), plus build and screenshot helpers. Each rulebook has a <strong>size cap</strong> (slides 110,000 characters, lessons 75,000, questions 32,000, notes 30,000) that <code>size_check.py</code> checks, and their history lives in <code>rulebooks-changelog.md</code>.<br><br><strong>Tools they use:</strong> Python 3 for <code>validate.py</code> and <code>plain_check.py</code> (it uses <code>wordfreq</code> and downloads the free CEFR-J word list on first run; <code>setup_tools.sh</code> does both). Optional: <code>pdftotext</code> and <code>tesseract</code> for counting the source's words, and Playwright for the quiz's browser walk. All of these are defaults: a better tool is welcome, and the report says what changed. If code can't run, Claude says so instead of inventing numbers.</div>
 </section>
 
 <!-- ============ EXAMPLE ============ -->
@@ -925,11 +955,13 @@ Follow slides-rulebook.md for the attached lecture, and end the deck with a fina
   <span class="d">scripts/</span>
     validate.py                    <span class="m"># checks a finished deck</span>
     use_cases.py                   <span class="m"># keeps components.md and use-cases.md in sync</span>
-<span class="d">rulebooks/</span>
-  slides-rulebook.md               <span class="m"># lecture slides → standalone study deck</span>
-  questions-rulebook.md            <span class="m"># the self-marking final quiz</span>
-  rulebooks-changelog.md           <span class="m"># both rulebooks' version history (not read by runs)</span>
-  <span class="d">deck-tools/</span>                      <span class="m"># the rulebooks' code: checker, quiz walk, snippets/, setup, size_check</span>
+  <span class="d">rulebooks/</span>                     <span class="m"># read when a route needs them (since v1.4)</span>
+    slides-rulebook.md             <span class="m"># lecture route: a file → a complete study deck</span>
+    questions-rulebook.md          <span class="m"># the lecture route's self-marking final quiz</span>
+    lessons-rulebook.md            <span class="m"># lesson route: a topic → a researched lesson</span>
+    deck-notes-general.md          <span class="m"># experience from earlier decks (advice, not rules)</span>
+    rulebooks-changelog.md         <span class="m"># the rulebooks' history (not read by runs)</span>
+    <span class="d">deck-tools/</span>                    <span class="m"># checker (A2–C1), quiz walk, snippets/, setup, size_check</span>
 <span class="d">examples/</span>
   isy-05-cryptography.html         <span class="m"># a real deck built with the skill and both rulebooks</span>
 index.html, <span class="d">site/</span>                    <span class="m"># this documentation page (GitHub Pages)</span>
@@ -947,12 +979,13 @@ README.md · LICENSE</div>
   <details class="faq"><summary>Can I get a PowerPoint file?</summary><p>Not from this skill. It makes HTML decks. Use a PowerPoint (<code>.pptx</code>) skill if you need a native slide file.</p></details>
   <details class="faq"><summary>How do I share a deck?</summary><p>Send the <code>.html</code> file, or put it on any static host (GitHub Pages, Netlify, a school site). It opens on phones too.</p></details>
   <details class="faq"><summary>Can I change a deck after it's made?</summary><p>Yes: ask Claude ("switch to the Midnight blue board", "make slide 6 a comparison", "shorter"). By hand, edit only between the <code>BEGIN SLIDES</code> / <code>END SLIDES</code> markers, keep exactly one <code>slide active</code>, never touch the engine script, and run <code>validate.py</code>.</p></details>
-  <details class="faq"><summary>Which languages are supported?</summary><p>Arabic (right to left) and English (left to right), with fonts and layout tuned for each. Bilingual lessons use one as the base and mix in the other.</p></details>
+  <details class="faq"><summary>Which languages are supported?</summary><p>Arabic (right to left) and English (left to right), with fonts and layout tuned for each; English decks at any level from A2 to C1. Bilingual lessons use one as the base and mix in the other.</p></details>
   <details class="faq"><summary>Where are Playroom, Nocturne, Terra and Classic?</summary><p>Retired in v1.3. Sketchbook is the only look now. Their useful mechanics (tray, footnotes, duo panes, token journey, spotlight, smudge panels…) were redrawn in Sketchbook as components §32.</p></details>
   <details class="faq"><summary>Arrow keys flip slides while I type in the answer box.</summary><p>That deck has an old engine. Current decks ignore navigation keys inside text fields, and <code>validate.py</code> flags any deck without that guard. Copy a fresh engine from <code>assets/template.html</code>.</p></details>
   <details class="faq"><summary>The validator says "more than 20 slides". Is that an error?</summary><p>No, it's a note (⚠), not a problem (✗). It warns that a normal deck may be over the 30-minute budget. Rulebook lecture decks are expected to trigger it.</p></details>
   <details class="faq"><summary>Can I add my own chalkboard board?</summary><p>Yes, as a change to the skill. <code>style-system.md §5</code> lists the tuning rules every board must meet (lightness, chalk colour, contrast, pen saturation) and every file that lists the boards.</p></details>
-  <details class="faq"><summary>Do I have to use the rulebooks?</summary><p>No. They are only for turning lecture slides into study decks. For everything else, the skill alone is enough.</p></details>
+  <details class="faq"><summary>Do I have to attach the rulebooks or notes?</summary><p>No. They ship inside the skill and are used automatically: an attached file takes the lecture route, a topic without a file takes the lesson route. You attach only the file to explain and, for a later deck, the previous deck. No Markdown file goes back and forth.</p></details>
+  <details class="faq"><summary>What's the shortest request?</summary><p><code>use /lesson-deck-builder to explain the attached file</code>, with the file attached. The first deck of a course asks the canvas, the board and the English level; later decks remember them.</p></details>
 </section>
 
 <!-- ============ CREDITS ============ -->
@@ -968,7 +1001,9 @@ README.md · LICENSE</div>
   <div class="tbl"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Highlights</th></tr></thead>
     <tbody>
-      <tr><td><strong>Skill v1.3</strong></td><td>2026-10-09</td><td>Sketchbook only; canvas gate with paper and six chalkboard boards; template rebuilt; retired styles' mechanics ported to §32.</td></tr>
+      <tr><td><strong>Skill v1.4</strong></td><td>2026-10-23</td><td>One-line requests; routes (lecture, lesson, presentation); rulebooks, notes and tools bundled; English level A2–C1; course memory inside the decks; goals first.</td></tr>
+      <tr><td><strong>Slides 2.0 · Lessons 2.0 · Questions 1.4</strong></td><td>2026-10-23</td><td>Bundled in the skill; one-line start; English level A2–C1; no notes files; shared <code>deck-tools</code> 1.7.</td></tr>
+      <tr><td>Skill v1.3</td><td>2026-10-09</td><td>Sketchbook only; canvas gate with paper and six chalkboard boards; template rebuilt; retired styles' mechanics ported to §32.</td></tr>
       <tr><td>Skill v1.2.1</td><td>2026-10-07</td><td>Chalk grain removed; chalkboard text renders clean.</td></tr>
       <tr><td>Skill v1.2</td><td>2026-10-06</td><td>Use-case system; engine v2 (builds, capture guard, events); components §22–§31; validator upgrades.</td></tr>
       <tr><td><strong>Slides rulebook 1.9 · Questions rulebook 1.3</strong></td><td>2026-10-17</td><td>Structure only, no rule changed: code moved to <code>deck-tools</code> 1.6, history to the rulebooks changelog, size caps with <code>size_check.py</code>.</td></tr>
@@ -977,7 +1012,7 @@ README.md · LICENSE</div>
       <tr><td>Questions rulebook 1.2.1</td><td>2026-10-10</td><td>Goals over procedures; "Departures" line in the report.</td></tr>
     </tbody>
   </table></div>
-  <p>Full details: the skill's <a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/CHANGELOG.md">CHANGELOG.md</a> and the <a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/rulebooks/rulebooks-changelog.md">rulebooks changelog</a>.</p>
+  <p>Full details: the skill's <a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/CHANGELOG.md">CHANGELOG.md</a> and the <a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/rulebooks/rulebooks-changelog.md">rulebooks changelog</a>.</p>
 
   <h3>Contributing</h3>
   <p>Issues and pull requests are welcome. If you change the skill: keep <code>SKILL.md</code> and the references consistent, run <code>scripts/use_cases.py</code> after touching component lists or use cases, run <code>validate.py</code> on the template and exemplars, and add a <code>CHANGELOG.md</code> entry.</p>

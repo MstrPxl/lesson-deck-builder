@@ -1,6 +1,6 @@
 ---
 name: "lesson-deck-builder"
-description: 'Build a polished slide-style HTML presentation (deck) as one self-contained .html file — a browser-rendered explainer with a full slide engine (keyboard/swipe nav, progress bar, reveals) and a visual card library. Use WHENEVER the user wants a presentation, deck, "slides", a visual walkthrough, an interactive explainer, a lesson, or a shareable HTML deck on ANY topic — even phrased loosely ("make slides about X") — and to start or continue a learning journey/repo (repo mode scaffolds lessons/, docs/; chat mode makes single-deck lessons). New journeys open with a required topic-discovery conversation. Before generating you MUST ask "Arabic or English?" and the canvas: Sketchbook paper or chalkboard — and on the chalkboard, which of six boards (default Slate re-inked; see references/style-system.md). Teaching decks use a challenge-first arc and an adaptive question set. NOT for native .pptx (use the pptx skill) or the locked deck-infographics system.'
+description: 'Build a polished, hand-drawn slide-style HTML lesson or presentation as one self-contained .html file (slide engine, paper or six chalkboard boards, Arabic or English, visual card library, validator). Use WHENEVER the user wants a deck, slides, a lesson, an explainer or a visual walkthrough on any topic, or says "explain the attached file", and for a learning journey or its next lesson. It routes itself: an attached lecture or document (PDF or PPTX) follows the bundled slides rulebook and ends with a self-marking quiz; a teaching request without one follows the bundled lessons rulebook; pitches and showcases use the base workflow. Earlier decks attached as HTML carry the course''s choices and memory; nothing else is attached. Once per course or journey it asks the canvas (paper, or chalkboard and its board) and, for English decks, the reading level (A2-C1); it asks Arabic or English unless the route fixes it. NOT for native .pptx (use the pptx skill) or the locked deck-infographics system.'
 ---
 
 # Lesson-Deck-Builder
@@ -13,6 +13,20 @@ subject. The slide engine, theming, component library, and a
 validator are all bundled; assembling a deck is mostly **planning the narrative
 and filling slides**, not writing CSS or JS from scratch.
 
+## How to read this skill (goals first)
+- **Fixed:** the goals (a deck that teaches or informs, correct, readable at the
+  reader's level), the user's choices (canvas, board, language, English level,
+  length), and the technical contracts that keep a deck working (the engine
+  script, `validate.py`, one self-contained file, no storage APIs).
+- **Defaults, not limits:** the workflow, the numbers, the component
+  suggestions, the tool tips, the rulebooks' procedures and the general notes
+  were written and tested for the models and tools of their date. When you can
+  meet the goals better (a better reading tool, a clearer structure, a stronger
+  or faster check, a component the catalogue lacks), do it, and name what you
+  changed and why in the closing report ("Departures"). Never trade away a goal
+  or a user choice for speed.
+- **Ask only what is the user's to decide;** decide the rest and report it.
+
 ## What this skill produces
 A self-contained HTML deck: a hand-drawn Sketchbook canvas (bright ruled paper,
 or a chalkboard in one of six boards), hand-lettered Arabic/Latin typography,
@@ -20,7 +34,8 @@ one slide per screen, arrow/keyboard/swipe navigation, a progress
 bar, slide counter, dots, and content built from a reusable card vocabulary
 (window mockups, chat, feature grids, comparison tiers, flows, code windows,
 icons, etc.). It renders in **Arabic (RTL)** or **English (LTR)** — the user
-picks, and the layout, fonts, and navigation adapt to that choice.
+picks, and the layout, fonts, and navigation adapt to that choice. English decks
+are written at the reader's level, from A2 to C1 (step 2b).
 
 ## Two kinds of deck — decide once, early
 - **Teaching deck** — the goal is that the reader *can do or understand
@@ -63,6 +78,14 @@ about a deck built to explain a concept, treat it as a teaching deck.
 - `scripts/use_cases.py` — maintenance check for the skill itself: keeps the
   components' Suggested-for lists and `use-cases.md` in sync (`--write`
   refreshes the reverse index). Run it after editing either file.
+- `rulebooks/` — the route rulebooks and their kit, read when a route needs
+  them (step 0b): `slides-rulebook.md` (lecture route),
+  `questions-rulebook.md` (its final quiz), `lessons-rulebook.md` (lesson
+  route), `deck-notes-general.md` (experience from earlier decks, not rules),
+  `deck-tools/` (language checker, quiz walk, code snippets, build and
+  screenshot helpers; `snippets/README.md` maps them; run `setup_tools.sh` once
+  per session from your working folder) and `rulebooks-changelog.md` (history,
+  not needed for a run).
 
 ---
 
@@ -98,11 +121,47 @@ this is before anything else:
   machinery (roadmap, NOTES.md, answers archive) is repo-native — offer it as
   "this works best from a folder with Claude Code" if the user asks for a
   series, and only if they still want it in chat, use the fallback: the
-  ROADMAP-SPEC carried forward as an HTML comment in each lesson file, and
-  NOTES.md delivered as a file after each answer paste for the user to save
-  and re-provide next time.
+  roadmap spec and the learner notes travel as HTML comments inside each
+  lesson file (`ROADMAP-SPEC` and `LEARNER-NOTES`, the same content as
+  `docs/ROADMAP.md` and `docs/NOTES.md`). The user re-attaches only the latest
+  lesson; never ask them to save or re-send Markdown files.
+
+### 0b — Route the request (one line is enough)
+The user may send as little as "use /lesson-deck-builder to explain the
+attached file". Choose the route from what is attached and asked:
+
+| Route | When | Follow |
+|---|---|---|
+| **Lecture** | a file to explain is attached: lecture slides or a document, as PDF or PPTX | `rulebooks/slides-rulebook.md`, ending with the final quiz of `rulebooks/questions-rulebook.md` |
+| **Lesson** | a teaching request without such a file: a topic, "the next lesson", a learning journey | `rulebooks/lessons-rulebook.md`, with this skill's roadmap and notes machinery |
+| **Presentation** | a deck that informs or persuades (pitch, product intro, showcase, report) | this file alone |
+
+- **The user's words beat the files:** "a short pitch from this PDF" is a
+  presentation. When the route is unclear, one tappable question settles it.
+- **Everything else ships with the skill:** the rulebooks, the general notes
+  (`rulebooks/deck-notes-general.md`) and the tools (`rulebooks/deck-tools/`).
+  Use the tools where they help.
+- **What the user attaches:** the file to explain and, for a later deck of a
+  course or journey, the previous deck (HTML). Its record (`COURSE` or
+  `DECK-SETTINGS`) holds the standing choices and the course's memory, and the
+  deck is the shell. No earlier deck attached means a first deck: ask the
+  canvas, the board and the English level before building. Older decks are not
+  attached; ask for one only when you need a figure or a glossary wording from
+  it.
+- **No Markdown goes back and forth.** Never ask the user to attach or save
+  notes, rulebooks or tool archives, and don't send them. What a run learns
+  goes into the deck's record (facts about this course or journey) or on the
+  report's "Proposed for the skill" line (anything that would help every deck).
+  The skill's own files change only in a maintenance session.
+- **Precedence on a rulebook route:** the user's words, then the deck's
+  record, then the rulebook, then this file where the rulebook is silent (each
+  rulebook's §2 lists what it overrides).
 
 ### 1 — The topic conversation (required before anything is built)
+On the **lecture route** the attached file is the topic: skip this step (the
+slides rulebook's W5 asks only what needs deciding). On the **lesson route** it
+runs as below until the topic is known; then the lessons rulebook takes over.
+
 Every **new learning journey** starts with a short discovery conversation
 whose only goal is to confirm, together, the right topic — because a
 mis-aimed topic silently corrupts every deck built after it. No deck, no
@@ -151,10 +210,12 @@ question, always in this shape:
    **Red graphite** (charcoal with an oxblood tint). Preview: the top-bar dots
    of `assets/style-samples/sketchbook-chalkboard.html`.
 3. Build nothing until the user picks; their choice is final even against the
-   suggestion.
+   suggestion. For an English deck, ask the English level (2b) in the same
+   message.
 Never skip the menu, never present only the suggestion, and never choose on
-the user's behalf. In a lesson series, ask once per journey and record the
-choice (canvas + board); re-ask only if the user wants a change. Then read
+the user's behalf. In a lesson series or a course, ask once and record the
+choice (canvas + board) in the deck's record; re-ask only if the user wants a
+change. Then read
 `references/style-system.md` and skim the exemplars before planning slides.
 Playroom, Nocturne, Terra and Classic were retired in v1.3: if a user asks for
 one, say so, offer the canvas gate, and mention that their mechanics live on
@@ -163,8 +224,9 @@ in `components.md §32`.
 ### 2 — Ask the language (required, before any planning)
 Before planning or generating anything, ask the user which language they want the
 deck in: **Arabic or English**. This is mandatory for every presentation/lesson —
-do not assume or default. The only exception is when the user has already stated
-the language in the request (e.g. "make an English deck about…"). Prefer a single
+do not assume or default. The exceptions: the user already stated the language
+(e.g. "make an English deck about…"), or the route fixes it (both rulebooks
+build English decks). Prefer a single
 tappable question ("Arabic / English"). The chosen language drives the whole
 setup:
 - **Arabic** → `dir="rtl" lang="ar"`, the Sketchbook Arabic pairing (Playpen
@@ -178,6 +240,28 @@ handling). The engine's keyboard/swipe logic flips automatically from `dir` — 
 JS edits needed. For bilingual teaching decks (e.g. an English lesson explained in
 Arabic), pick the base language for `dir`/fonts, then mix the second language
 inside the content as needed — reduce the L1 (support) language as the level rises.
+
+### 2b — Ask the English level (English decks)
+Ask the reader's English level once per course or journey, in the same message
+as the canvas, and record it in the deck's record: **A2 · B1 · B2 · C1**, the
+suggested one first (lecture route B1, lesson route B2, presentations B2), each
+with a few words of meaning. Skip it when the record or the user's words give
+it. Arabic decks don't ask it. It is the reader's English, not their knowledge
+of the subject (that is the intake's audience level).
+
+| Level | Reader | Words | Sentences: cap · usual |
+|---|---|---|---|
+| A2 | basic | everyday words; anything harder is a taught term | 15 · 8–12 |
+| B1 | independent, early | common words; a B1 word when no simpler one fits | 20 · 10–14 |
+| B2 | independent | common words; B2 words freely | 25 · 12–18 |
+| C1 | proficient | precise and formal words where they are the right ones; no idioms | 30 · 15–20 |
+
+At every level: at least 98% of running words known (taught terms and field
+words count), one idea per sentence, every term taught before it is used.
+`rulebooks/deck-tools/plain_check.py --max-level <level>` measures it, and its
+sentence cap follows the level. The 98% target and the 20/25-word caps come
+from research and a standard (the rulebooks' evidence tables); the A2 and C1
+caps and the usual ranges are design choices.
 
 ### 3 — Scope & mode (broad subjects only)
 Judge the **scope** of the confirmed topic before intake. In **chat mode** the
@@ -273,9 +357,9 @@ Extra intake, real research, and two output files. Order matters:
    1. **Load the current roadmap.** Repo mode: `docs/ROADMAP.md` is the single
       source of truth. Chat fallback: the newest lesson file's ROADMAP-SPEC
       comment, then the roadmap deck.
-   2. **Read NOTES.md** — repo mode: `docs/NOTES.md`; chat fallback: ask the
-      user for the file before building, reconstructing from available answer
-      blocks only as a last resort. If a freshly pasted answer block is in the
+   2. **Read the learner notes** — repo mode: `docs/NOTES.md`; chat
+      fallback: the newest lesson's `LEARNER-NOTES` comment (ask for that
+      lesson if it isn't attached). If a freshly pasted answer block is in the
       conversation, process it first: in repo mode save it verbatim to
       `answers/lesson-NN.txt`, then fold it into the notes.
    3. **Re-check the roadmap's freshness** against real-world frameworks and
@@ -306,8 +390,9 @@ options) over open prose:
 
 - **Topic & angle** — what is the deck about, and what should the reader walk
   away knowing?
-- **Audience level** — complete beginner, generally informed, or expert? Default
-  to "explain so a newcomer gains real understanding."
+- **Audience level** (knowledge of the subject; the English level is step 2b)
+  — complete beginner, generally informed, or expert? Default to "explain so a
+  newcomer gains real understanding."
 - **Length** — reading-time budget (≈10 / 20 / 30 min). Default ~20 min.
 (The look is already settled by the canvas gate, step 1b.)
 
@@ -410,7 +495,9 @@ planned slides, assembled from `components.md`. While building:
   back any changed `docs/` files, and commit if the repo uses git.
   **Chat mode:** save the final file to the outputs directory and present it.
 - Keep the closing chat message short: what was made, how to navigate, and an
-  offer to adjust canvas/board/length/slides. Don't over-explain.
+  offer to adjust canvas/board/length/slides. Don't over-explain. On a rulebook
+  route the closing message is that rulebook's report, with its "Departures"
+  and "Proposed for the skill" lines.
 
 ---
 
@@ -470,9 +557,12 @@ lesson knows what to build on.
   engine script and `validate.py` fails any deck missing it.
 
 **When the reader pastes the answer block into chat:**
-1. **Update NOTES.md** (see "The cumulative notes file") — extract
-   observations, evidence-tag them, and deliver the updated file. This is the
-   default action on every paste, even when no lesson is being built yet.
+1. **Update the learner notes** (see "The cumulative notes file") — extract
+   observations and evidence-tag them. Repo mode: write `docs/NOTES.md` now,
+   even when no lesson is being built yet. Chat mode: fold them into the
+   `LEARNER-NOTES` comment of the next lesson you build; if the paste comes
+   without a request for one, say that the next lesson will carry it (the user
+   pastes the answers with the previous lesson attached).
 2. **Answer the reader's answers**: for each miss, give the mechanism-level
    explanation immediately in chat (data, never judgment).
 
@@ -508,9 +598,8 @@ lesson knows what to build on.
 Roadmap mode maintains a third artifact beside the roadmap deck and the
 lessons: **NOTES.md**, Claude-written, cumulative, and read **before building
 any lesson**. In repo mode it lives at `docs/NOTES.md` and is read and written
-directly; in a chat-mode series, deliver the updated file after each answer
-paste so the reader saves it alongside the decks and provides it at the next
-build.
+directly; in a chat-mode series the same content lives in each lesson's
+`LEARNER-NOTES` comment and travels with the deck.
 
 Structure — keep it small and current:
 - **Header** — subject, roadmap version it refers to, last-updated date.
@@ -553,6 +642,8 @@ little text, louder message — apply to EVERY deck. The essentials:
   internal scroll as a fallback, but design so scrolling isn't needed).
 
 ## Hard rules (avoid these failure modes)
+These are the contracts and the user's choices; everything else is a default
+("How to read this skill").
 - Do **not** let hidden depth reflow the scene: hover/tap content must use one
   of the four legal mechanics (reserved flow · fixed tray · overlay ·
   final-geometry) from `style-system.md`. If an expansion changes an
@@ -582,7 +673,8 @@ little text, louder message — apply to EVERY deck. The essentials:
   build every slide from its "rank 1" component — rankings are suggestions.
 - Do **not** leave more than one slide with `active`, or a duplicated `style=`
   attribute on any element (the validator catches both).
-- Do **not** exceed the reading-time budget by padding slides.
+- Do **not** exceed the reading-time budget by padding slides (the rulebook
+  routes size decks their own way).
 - Do **not** use `localStorage`/`sessionStorage` — keep all state in memory.
 - Do **not** build a teaching deck without the opening-challenge /
   challenge-revisited pair and the question set; do **not** bolt them onto a
@@ -593,8 +685,11 @@ little text, louder message — apply to EVERY deck. The essentials:
   affirmative reply to a proposal — and never skip or compress a step on
   inferred mastery. Research-driven freshness updates are the only
   Claude-applied roadmap changes.
-- Do **not** build a roadmap-mode lesson without reading NOTES.md first (ask
-  for the file if it isn't available).
+- Do **not** build a roadmap-mode lesson without reading the learner notes
+  first (repo: `docs/NOTES.md`; chat: the previous lesson's `LEARNER-NOTES`).
+- Do **not** ask the user to attach, save or re-send Markdown files (notes,
+  rulebooks, tool archives): they ship with the skill, and memory travels in
+  the decks.
 - Do **not** build any deck, roadmap, or scaffold for a new journey before the
   topic conversation ends in an explicit confirmation.
 - Do **not** touch, overwrite, or reorganize repo files that are not the

@@ -1,10 +1,17 @@
 # Rulebooks changelog
 
-The version history of `slides-rulebook.md` and `questions-rulebook.md`. It moved out of the rulebooks in slides-rulebook 1.9 and questions-rulebook 1.3, so that a run no longer reads it. **Not needed for a run:** read it to see why a rule looks the way it does. Newest first. Earlier entries keep their wording, including appendix names from before the code moved to `deck-tools`.
+The version history of `slides-rulebook.md`, `questions-rulebook.md` and `lessons-rulebook.md`. It moved out of the rulebooks in slides-rulebook 1.9 and questions-rulebook 1.3, so that a run no longer reads it. **Not needed for a run:** read it to see why a rule looks the way it does. Newest first. Earlier entries keep their wording, including appendix names from before the code moved to `deck-tools`.
 
 ---
 
 ## slides-rulebook.md
+
+**Changes in 2.0 (23 October 2026): one-line start, bundled files, English level A2–C1, course memory in the deck.**
+- **The file ships inside the skill** (`rulebooks/`, lesson-deck-builder v1.4) with the questions and lessons rulebooks, the general notes and `deck-tools`. The skill routes an attached lecture here by itself, so the user sends one line ("use /lesson-deck-builder to explain the attached file") with the lecture and, from the second deck on, the previous deck. "Starting a run" lists the inputs instead of the attachments.
+- **No Markdown goes back and forth.** The course notes file is retired: its facts (the lecturer's habits, reusable figures, what comes next) move into the COURSE record, which now carries the course's memory (W11). General lessons go on the report's new "Proposed for the skill" line and change the skill's files only in a maintenance session. W11 no longer sends notes or tools back.
+- **English level A2–C1** (G2, L1, L2, L3, L5, TE3, W6, §11): asked at the first deck with the canvas gate (B1 suggested) and recorded as `english level:`. Words and sentence caps follow the level (SKILL.md step 2b); `plain_check.py --max-level`. Records made before 2.0 mean B1.
+- **Fewer tool prescriptions:** W1 reads files with the best reader available; W1b's `pdftotext` recipe is "one tested way"; "goals over procedures" names the tools as defaults.
+- Older decks are not attached: ask for one only when a figure or a glossary wording from it is needed (§0).
 
 **Changes in 1.9 (17 October 2026): structure only, no rule changed.**
 - **The code moved to `deck-tools` 1.6:** `plain_check.py` (Appendix A); the topic bar, glossary, figure-label, phone-layer and phone-variant snippets (Appendix B, now in `deck-tools/snippets/`); the independent checker's brief (Appendix C, now `deck-tools/checker-brief.txt`). The appendices keep their explanations and name each file. `deck-tools.zip` is now always attached.
@@ -95,6 +102,9 @@ The version history of `slides-rulebook.md` and `questions-rulebook.md`. It move
 
 ## questions-rulebook.md
 
+**Changes in 1.4 (23 October 2026).**
+- Ships inside the skill (`rulebooks/`). Every lecture deck ends with this quiz without being asked; "add a final quiz to the attached deck" is a one-line request. Nothing else is attached.
+
 **Changes in 1.3 (17 October 2026): structure only, no rule changed.**
 - **The code moved to `deck-tools` 1.6:** the markup templates (Appendix A, now `deck-tools/snippets/quiz-markup.html`, one part per kind), the quiz CSS and script (Appendices B–C, now `snippets/quiz.css` and `snippets/quiz.js`) and the browser walk (Appendix D, now `deck-tools/quiz_walk.py`). The QUIZ-MAP record format stays in Appendix A.
 - **The version history moved here.**
@@ -109,3 +119,19 @@ The version history of `slides-rulebook.md` and `questions-rulebook.md`. It move
 - **Label the figure is now a proven kind (K9)**, built in Applied OS deck 2 and reused in decks 3–4. Its markup, CSS, script and walk branch are in Appendices A–D, so a new course needs no earlier deck to build it.
 - **Phone first (QL7, §6, §7):** quiz slides are checked at phone size first, with touch.
 - `slides-rulebook.md` v1.5's checker keeps whole quiz slides (`data-budget="skip"`) outside the word count, feedback included.
+
+---
+
+## lessons-rulebook.md
+
+**Changes in 2.0 (23 October 2026): bundled, one-line start, English level A2–C1, goals over procedures, no notes files.**
+- **Ships inside the skill** (`rulebooks/`, lesson-deck-builder v1.4). The skill routes any teaching request without a lecture file here. "Starting a run" takes one line; in chat mode only the previous lesson is attached.
+- **English level A2–C1** (G2, L1, L2, L3, L5, TE3, §11): asked at the first lesson with the canvas gate (B2 suggested), recorded as `level:` in DECK-SETTINGS.
+- **Goals over procedures** (§0, new) and a "Departures" line in the report; the research-agent rule is now a default with its reason.
+- **No notes files:** the field notes became the bundled general notes (`deck-notes-general.md`). W12 puts subject facts (including reusable figures, a new DECK-SETTINGS line) into the record and general lessons on the report's new "Proposed for the skill" line.
+- **The code moved to the shared `deck-tools`:** `plain_check.py` is one checker for every route (`--max-level A2–C1`, `--cs-grad` for the computer-science graduate's field words); Appendix B points to the shared snippets, so lessons now get the newer figure-label floors (11–12 px instead of 9 px) and the slides decks' topic-bar comments. Size cap 75,000 characters (it was 89,062; now about 69,500).
+
+**Changes in 1.1** (lesson-deck-builder v1.3: Sketchbook is the only style; the chalkboard has six boards):
+- The skill's style gate is now the **canvas gate**: paper or chalkboard, then the board (default **Slate re-inked**). The DECK-SETTINGS record gains a `board:` field.
+- **Pre-v1.3 shells** (decks with the old `#2B322D` slate and no `data-canvas`) get the template's token section once, then stay unchanged (H1b).
+- Section references follow the skill's new numbering (`style-system.md §7` for bridge tokens). Appendix B drops the "other families" notes.
