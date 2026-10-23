@@ -127,6 +127,10 @@ The version history of `slides-rulebook.md`, `questions-rulebook.md` and `lesson
 
 ## lessons-rulebook.md
 
+**Changes in 2.1 (23 October 2026): phone first.**
+- **New goal G6, phone first,** with the lecture route's phone rules: the slides rulebook's §8 "Phone first" (M1–M8), its Q7 phone checks and its phone layer and phone-variant figures (Appendix B4–B5) are now required reading (§0) and apply to lessons exactly as written. One source for both routes: this file points to them instead of copying them.
+- Precedence, §2 (new "Phone" row), W5 (phone shape per slide), W9 (phone layer, CSS phone first), V14, Q5, Q7 (now the slides rulebook's phone-first check), §10 (a "Phone" report line) and §11 (a "Phone first" setting, on by default).
+
 **Changes in 2.0 (23 October 2026): bundled, one-line start, English level A2–C1, goals over procedures, no notes files.**
 - **Ships inside the skill** (`rulebooks/`, lesson-deck-builder v1.4). The skill routes any teaching request without a lecture file here. "Starting a run" takes one line; in chat mode only the previous lesson is attached.
 - **English level A2–C1** (G2, L1, L2, L3, L5, TE3, §11): asked at the first lesson with the canvas gate (B2 suggested), recorded as `level:` in DECK-SETTINGS.

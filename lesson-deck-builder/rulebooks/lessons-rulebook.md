@@ -1,8 +1,8 @@
 # Lessons Rulebook
 
-**Version 2.0 · 23 October 2026 · written against `lesson-deck-builder` v1.4 · derived from `slides-rulebook.md` v1.4.3; shares its code with slides-rulebook 2.0**
+**Version 2.1 · 23 October 2026 · written against `lesson-deck-builder` v1.4 · derived from `slides-rulebook.md` v1.4.3; shares its code with slides-rulebook 2.0**
 
-> **New in 2.0:** this file ships inside the skill (`rulebooks/`), and the skill routes any teaching request without a lecture file here, so a run starts from one line. Nothing is attached but the previous lesson (HTML), and no notes file goes back and forth (W12). The English level is the user's choice, A2–C1 (default B2). Goals over procedures (§0). The code is the shared `deck-tools`. Full history: `rulebooks-changelog.md`.
+> **New in 2.1:** phone first (G6), with the lecture route's phone rules read from `slides-rulebook.md` (§0 read order). **2.0:** this file ships inside the skill (`rulebooks/`), and the skill routes any teaching request without a lecture file here, so a run starts from one line. Nothing is attached but the previous lesson (HTML), and no notes file goes back and forth (W12). The English level is the user's choice, A2–C1 (default B2). Goals over procedures (§0). The code is the shared `deck-tools`. Full history: `rulebooks-changelog.md`.
 
 This file tells you how to build **one lesson deck** for a personal learning repo: a lesson the learner (the user) studies on their own, about a topic chosen outside this file. Each lesson is:
 - **researched** on the web, thoroughly but within a cap;
@@ -21,8 +21,9 @@ The file is subject-neutral. It ships with the skill (`rulebooks/`) and works in
 - **Read order, before you plan anything:**
   1. this whole file;
   2. the general notes (`deck-notes-general.md`, beside this file): experience, not rules; read the parts that help;
-  3. the repo's own instruction files, if any (they decide topics and research, see below);
-  4. the lesson-deck-builder `SKILL.md` and the references it tells you to read, including `use-cases.md` and `components.md`. When there is a shell ("Starting a run"), the skill's `template.html` and example decks are optional.
+  3. **the phone rules, from `slides-rulebook.md` beside this file:** §8 "Phone first" (M1–M8), Q7 "Visual check (phone first)" and Appendix B4–B5. They apply to lessons exactly as written (G6); this file does not repeat them;
+  4. the repo's own instruction files, if any (they decide topics and research, see below);
+  5. the lesson-deck-builder `SKILL.md` and the references it tells you to read, including `use-cases.md` and `components.md`. When there is a shell ("Starting a run"), the skill's `template.html` and example decks are optional.
 - **This file adds to the skill.** Where §2 says so, it overrides the skill. Where this file says nothing, follow the skill.
 - **Who decides what:**
 
@@ -116,7 +117,7 @@ reusable figures: lesson 2 · slide 7 · the retrieval pipeline
 
 ---
 
-## 1. The five goals and how each one is measured
+## 1. The six goals and how each one is measured
 
 | Goal | What it means here | How it is checked |
 |---|---|---|
@@ -125,12 +126,13 @@ reusable figures: lesson 2 · slide 7 · the retrieval pipeline
 | **G3 — Independent topics, no unexplained words** | Any topic (N1) can be understood without the other topics. On any slide, every term is explained, visibly or by its glossary card. "No jargon" means **no unexplained word**, not "no technical word". | `plain_check.py` gloss, acronym and back-reference checks; cold read (Q4) |
 | **G4 — The best ways to teach** | The Concept Pattern (§6) and the teaching rules TE1–TE10. | Checklist Q5 |
 | **G5 — The house style, at the chosen length** | The lesson looks and reads like the reference decks (H1–H5) and fits the length the user chose (§11). | Visual check (Q7); length check (Q6) |
+| **G6 — Phone first** | Every slide reads and works well on a phone, held upright, and still as well on a laptop as before. | The slides rulebook's phone checks (its M1–M8, in Q7): at 390 × 844 first, then 360, 320 and sideways, then laptop |
 
 ### Precedence when rules conflict
 
 1. **Correctness, and the skill's technical hard rules** (untouched engine script, validator passes, one `<script>`, no storage APIs).
 2. **The core concepts, taught fully** (G1). Never drop or shrink a core concept to meet a length or a simplicity target.
-3. **Understandability** (G2, G3).
+3. **Understandability** (G2, G3), on a phone as on a laptop (G6).
 4. **The chosen length** (G5).
 5. **Supporting concepts and the optional teaching steps** (§6).
 6. **Style** (the skill's reading-time budget, Law 5 "little text").
@@ -169,6 +171,7 @@ The lesson is not a summary of what you read. It is a better teaching of the sam
 | **Per-lesson research** | Required, at the depth of W2, unless the repo's instruction files say stored research is fresh. |
 | **Question set and the adaptive loop** | The skill's, including its personalization from the learner notes. Items also follow TE7. |
 | **Navigation** | The topic bar (N1) replaces the slide dots. |
+| **Phone** | Phone first (G6): the slides rulebook's M1–M8, its phone layer (Appendix B4, `deck-tools/snippets/phone-layer.*`) and its phone-variant figures (B5). Design and check at phone size first; the laptop view stays as it was. |
 | **Writing state back** | Repo mode: the skill's job (roadmap, notes, answers, commits). Chat mode: the skill's learner notes travel in the lesson's `LEARNER-NOTES` comment. This file adds only the records inside the deck (W12). |
 
 ---
@@ -225,7 +228,7 @@ misconceptions: <URL> (learners think RAG retrains the model)
   - The map slide names the same topics as the topic bar.
 - **Slides.** Within the length preset (§11). Arc slides count toward it.
 - **Words.** About **50–80 words per content slide, labels included** *(target)*; soft cap 110.
-- **Per slide, write down:** its job, its component, its word cap, and the units it covers.
+- **Per slide, write down:** its job, its component, its word cap, the units it covers, and its phone shape (slides-rulebook M2–M4) when it differs from the laptop shape.
 - **Fitting the length:**
   1. All core units first.
   2. Then supporting units, by importance.
@@ -254,7 +257,7 @@ Never ask what the record or the prompt already answers. Otherwise, don't stop: 
 
 **W9 — Build** the deck with the skill (engine v2, Sketchbook, the record's canvas and board on `<html>`; the template already defines the bridge tokens). Start from the shell; otherwise from the skill's template. Then:
 - For each slide, take its job and choose a component from that job's reverse index in `use-cases.md`, from the whole catalog (H2). Vary components across the deck.
-- Add the topic bar (N1) and the glossary (T5b), from the shell or `deck-tools/snippets/` (Appendix B).
+- Add the topic bar (N1) and the glossary (T5b), from the shell or `deck-tools/snippets/` (Appendix B), and the phone layer (slides-rulebook B4). Write each slide's new CSS phone first (M1), and check the phone view as you go, not only at the end.
 - Add the `COVERAGE-MAP`, `SOURCES` and `DECK-SETTINGS` comments (F1, W2, "Starting a run").
 
 **W10 — Check** (§9): `validate.py`, `plain_check.py`, coverage map, facts, length, cold read, visual check, checklist. Fix and re-run until clean, or until every remaining flag has a written reason.
@@ -626,7 +629,7 @@ Keep the linked colours `--k-a`, `--k-b`, `--k-c` for linked figures (V8), not f
 **V14 — Legible at every width.**
 - Figure labels scale with their figure: size them in container query units with a minimum size (Appendix B). Display faces like Caveat become hard to read below about 1rem on a laptop.
 - Labels on patterned fills get a backing chip.
-- Check a sample of slides at phone width (Q7).
+- Phone sizes follow the slides rulebook's M4; every slide is checked at phone width (Q7).
 
 ### Navigation
 
@@ -689,13 +692,13 @@ The user wants every lesson to look and read like their **reference decks**: the
 - [ ] Topic bar present; topics named as on the map slide; no 1-slide topic (N1).
 - [ ] Glossary slide present; every acronym and cross-topic term is in it (T5b, T9).
 - [ ] Canvas and board match the DECK-SETTINGS record (`data-canvas`, `data-board` on `<html>`); the shell's code is unchanged, apart from a one-time H1b update (H1).
+- [ ] Phone first: the slides rulebook's M1–M8 pass in Q7; the phone layer is present.
 - [ ] `COVERAGE-MAP`, `SOURCES` and `DECK-SETTINGS` comments present.
 
 **Q6 — Length.** The slide count fits the preset (§11), and visible words per content slide average about 50–80.
 
-**Q7 — Visual check.**
-- Look at every slide **fully built** at laptop size (about 1280 × 800), and at a sample of slides at phone width (about 390 px).
-- Check that labels don't overlap lines or each other, every arrow has its head (V2), nothing overflows sideways, and the topic bar marks the right topic.
+**Q7 — Visual check (phone first).** Run the slides rulebook's Q7 as written: every slide fully built at 390 × 844 with touch; the 360, 320 and sideways overflow checks; slides over 1.5 screens; a touch-swipe walk where every build lands in view; main controls at least 44 px; then every slide at laptop size (about 1280 × 800), looking as it would without the phone layer.
+- At both sizes, check that labels don't overlap lines or each other, every arrow has its head (V2), and the topic bar marks the right topic.
 - Step through every build once with the keyboard. Click each quiz once.
 
 **Q8 — Facts.** Every load-bearing claim has a source (F2); every changeable fact has a date (F3); every disagreement is shown (F4); all code ran, and all worked numbers were computed (F6, F7).
@@ -712,6 +715,7 @@ Research: <n> sources (<k> official or textbook) · stored research reused: <yes
 Checker: word coverage <c>% at <level>; kept flags: <word or rule — reason>.
 Code: <ran / not run — why>.
 Shell: <file, or "skill template"> · reference decks: <names or "none">.
+Phone: checked at 390×844 (all slides), 360, 320, sideways; slides over 1.5 screens: <list or "none">; laptop unchanged ✓.
 Settings changed: <list or "none">. Field words added: <list or "none"> (L1).
 Skill mismatches: <parts of this file that did not match the skill, or "none">.
 Departures: <procedures of this file done another way, and why, or "none">.
@@ -732,6 +736,7 @@ Proposed for the skill: <lessons for every subject (W12), or "none">.
 | "Go deeper" slide (F8) | **On** | **Off:** sources stay in the `SOURCES` comment only. |
 | Glossary (T5b) | **On** | **Off:** a visible or anchored gloss on every slide that uses a term; costs about 5 words per term per slide. |
 | Navigation (N1) | **Topic bar** | **Dots:** the skill's default navigation. |
+| Phone first (G6) | **On** | **Off:** laptop-first, with a sample of slides at phone width (not recommended; the user's reference decks are phone first). |
 | Canvas and board | **From the DECK-SETTINGS record** | Paper, or any of the six chalkboard boards, through the skill's canvas gate. Changing the board only recolours (one attribute); changing to paper breaks the match with the chalkboard reference decks (H1). |
 | Arabic support | **Off** | **On:** each definition and glossary entry adds the Arabic term in one line [GL]. |
 
@@ -826,6 +831,8 @@ On its first run, it downloads the CEFR-J word list from GitHub and saves it nex
 ---
 
 ## Appendix B — Topic bar (N1) and deck glossary (T5b)
+
+The phone layer and phone-variant figures are the slides rulebook's Appendix B4–B5 (`deck-tools/snippets/phone-layer.*`, `phone-variant.*`); lessons use them unchanged.
 
 Both work on both canvases and every board: they read the bridge tokens (`style-system.md §7`) and the canvas tokens the template defines. Both go **after** the engine, inside the deck's single `<script>`. Neither edits the engine.
 

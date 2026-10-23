@@ -79,7 +79,7 @@ about a deck built to explain a concept, treat it as a teaching deck.
   components' Suggested-for lists and `use-cases.md` in sync (`--write`
   refreshes the reverse index). Run it after editing either file.
 - `rulebooks/` — the route rulebooks and their kit, read when a route needs
-  them (step 0b): `slides-rulebook.md` (lecture route),
+  them (step 0b): `slides-rulebook.md` (lecture route; its phone rules also serve the lesson route),
   `questions-rulebook.md` (its final quiz), `lessons-rulebook.md` (lesson
   route), `deck-notes-general.md` (experience from earlier decks, not rules),
   `deck-tools/` (language checker, quiz walk, code snippets, build and

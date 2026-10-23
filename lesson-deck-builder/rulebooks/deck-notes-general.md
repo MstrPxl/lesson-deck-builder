@@ -1,6 +1,6 @@
 # Slides → lesson deck: general notes
 
-**Version 23 Oct 2026** · for `slides-rulebook.md` 2.0.1, `lessons-rulebook.md` 2.0, `questions-rulebook.md` 1.4, `deck-tools` 1.7, `lesson-deck-builder` v1.4 · drawn from Applied OS decks 1–4, 210 ISY decks 1–5 and DB decks 1–4.
+**Version 23 Oct 2026** · for `slides-rulebook.md` 2.0.1, `lessons-rulebook.md` 2.1, `questions-rulebook.md` 1.4, `deck-tools` 1.7, `lesson-deck-builder` v1.4 · drawn from Applied OS decks 1–4, 210 ISY decks 1–5 and DB decks 1–4.
 
 ---
 

@@ -1,5 +1,5 @@
 deck-tools 1.7 · 23 Oct 2026
-written for slides-rulebook v2.0.1, questions-rulebook v1.4, lessons-rulebook v2.0, lesson-deck-builder v1.4 (engine v2)
+written for slides-rulebook v2.0.1, questions-rulebook v1.4, lessons-rulebook v2.1, lesson-deck-builder v1.4 (engine v2)
 
 What the tools assume (if any of these changed, the tools need updating, not the deck):
 - engine globals: slides, go(k, true), next(), idx, buildStep, buildMax, total
