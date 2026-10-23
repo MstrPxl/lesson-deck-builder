@@ -66,7 +66,7 @@
   <!-- ============ HERO ============ -->
   <section class="hero" aria-labelledby="hero-title">
     <div>
-      <span class="eyebrow">A Claude skill · v1.4</span>
+      <span class="eyebrow">A Claude skill · v1.4.1</span>
       <h1 id="hero-title">Lesson-<span class="u">Deck<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 13 C 50 6, 120 5, 197 11" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></span>-Builder</h1>
       <p class="tagline">Ask Claude for a lesson on <em>any</em> topic and get back <strong>one HTML file</strong>: a calm, hand-drawn slide deck that teaches, opens in any browser, and works on a phone.</p>
       <ul class="chips">
@@ -798,7 +798,7 @@ python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the rever
     <thead><tr><th>Attach</th><th>When</th></tr></thead>
     <tbody>
       <tr><td>The file to explain (PDF or PPTX)</td><td>Lecture route; one deck per file</td></tr>
-      <tr><td>The previous deck (HTML)</td><td>From the second deck of a course or journey on. Its hidden record holds your choices (canvas, board, English level) and the course's memory, and its code is reused.</td></tr>
+      <tr><td>The previous deck (HTML)</td><td>From the second deck of a course or journey on, <strong>together with the new chapter's file</strong>. Its hidden record holds your choices (canvas, board, English level) and the course's memory, and its code is reused. A course deck attached without the new chapter's PDF: Claude asks for the PDF before doing anything.</td></tr>
       <tr><td>An older deck</td><td>Only when Claude asks for one, to reuse a figure or a glossary wording</td></tr>
       <tr><td>Rulebooks, notes, tools</td><td><strong>Never.</strong> They ship inside the skill.</td></tr>
     </tbody>
@@ -1001,6 +1001,7 @@ README.md · LICENSE</div>
   <div class="tbl"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Highlights</th></tr></thead>
     <tbody>
+      <tr><td><strong>Skill v1.4.1 · Slides 2.0.1</strong></td><td>2026-10-23</td><td>A course deck attached without the new chapter's PDF: Claude asks for the PDF first.</td></tr>
       <tr><td><strong>Skill v1.4</strong></td><td>2026-10-23</td><td>One-line requests; routes (lecture, lesson, presentation); rulebooks, notes and tools bundled; English level A2–C1; course memory inside the decks; goals first.</td></tr>
       <tr><td><strong>Slides 2.0 · Lessons 2.0 · Questions 1.4</strong></td><td>2026-10-23</td><td>Bundled in the skill; one-line start; English level A2–C1; no notes files; shared <code>deck-tools</code> 1.7.</td></tr>
       <tr><td>Skill v1.3</td><td>2026-10-09</td><td>Sketchbook only; canvas gate with paper and six chalkboard boards; template rebuilt; retired styles' mechanics ported to §32.</td></tr>

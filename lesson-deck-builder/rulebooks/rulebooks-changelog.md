@@ -6,6 +6,9 @@ The version history of `slides-rulebook.md`, `questions-rulebook.md` and `lesson
 
 ## slides-rulebook.md
 
+**Changes in 2.0.1 (23 October 2026).**
+- **A course deck without its new lecture:** when only a deck of the course is attached, ask for the new chapter's PDF (or PPTX) before planning or building, instead of falling back to the lesson route ("Which case is this?", SKILL.md step 0b). Requests to change the attached deck itself are not affected.
+
 **Changes in 2.0 (23 October 2026): one-line start, bundled files, English level A2–C1, course memory in the deck.**
 - **The file ships inside the skill** (`rulebooks/`, lesson-deck-builder v1.4) with the questions and lessons rulebooks, the general notes and `deck-tools`. The skill routes an attached lecture here by itself, so the user sends one line ("use /lesson-deck-builder to explain the attached file") with the lecture and, from the second deck on, the previous deck. "Starting a run" lists the inputs instead of the attachments.
 - **No Markdown goes back and forth.** The course notes file is retired: its facts (the lecturer's habits, reusable figures, what comes next) move into the COURSE record, which now carries the course's memory (W11). General lessons go on the report's new "Proposed for the skill" line and change the skill's files only in a maintenance session. W11 no longer sends notes or tools back.

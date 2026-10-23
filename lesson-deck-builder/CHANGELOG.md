@@ -123,3 +123,9 @@ numbers, tools, rulebook procedures and notes are tested defaults that a better 
 **Versions.** slides-rulebook 2.0, questions-rulebook 1.4, lessons-rulebook 2.0 (from 1.1), deck-tools 1.7. Details in
 `rulebooks/rulebooks-changelog.md`.
 
+## v1.4.1 — ask for the missing lecture — 2026-10-23
+
+- **A course deck without its new lecture** (SKILL.md step 0b, slides-rulebook 2.0.1): when a deck with a `COURSE` record is
+  attached but no new file to explain, Claude asks for the new chapter's PDF (or PPTX) before planning or building, instead
+  of falling back to the lesson route. Not when the user asks to change the attached deck itself, and not for a lesson
+  journey's deck (`DECK-SETTINGS`), which needs no file.

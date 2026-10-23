@@ -50,7 +50,7 @@ Python 3 is recommended so Claude can run the checks. Decks load their fonts fro
 use /lesson-deck-builder to explain the attached file
 ```
 
-The first deck of a course asks the canvas (paper or chalkboard, then the board) and the English level. For the next lecture, attach the new file **and the previous deck**: its hidden record remembers your choices and the course. Nothing else is ever attached, and no Markdown file goes back and forth.
+The first deck of a course asks the canvas (paper or chalkboard, then the board) and the English level. For the next lecture, attach the new chapter's file **and the previous deck**: its hidden record remembers your choices and the course. If you forget the new file, Claude asks for it before doing anything. Nothing else is ever attached, and no Markdown file goes back and forth.
 
 **Learn a topic** — no file:
 

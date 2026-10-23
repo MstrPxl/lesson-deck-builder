@@ -148,6 +148,12 @@ attached file". Choose the route from what is attached and asked:
   canvas, the board and the English level before building. Older decks are not
   attached; ask for one only when you need a figure or a glossary wording from
   it.
+- **A course deck without its new lecture:** when a deck with a `COURSE`
+  record is attached but no new file to explain, ask for the new chapter's PDF
+  (or PPTX) before doing anything else: no planning, no building, and no
+  switch to the lesson route. Not when the user asks to change the attached
+  deck itself (fix it, add a quiz, switch the board), and not for a deck with
+  `DECK-SETTINGS` (a lesson journey needs no file).
 - **No Markdown goes back and forth.** Never ask the user to attach or save
   notes, rulebooks or tool archives, and don't send them. What a run learns
   goes into the deck's record (facts about this course or journey) or on the

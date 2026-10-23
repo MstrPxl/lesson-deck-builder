@@ -1,8 +1,8 @@
 # Slides Rulebook
 
-**Version 2.0 · 23 October 2026 · written against `lesson-deck-builder` v1.4 (Sketchbook: paper, or chalkboard in six boards)**
+**Version 2.0.1 · 23 October 2026 · written against `lesson-deck-builder` v1.4 (Sketchbook: paper, or chalkboard in six boards)**
 
-> **New in 2.0:** this file ships inside the skill (`rulebooks/`), and the skill routes an attached lecture here by itself, so a run starts from one line ("use /lesson-deck-builder to explain the attached file"). Nothing else is attached but the previous deck, and no Markdown file goes back: the course's memory lives in the COURSE record (§0, W11). English decks can be written at A2–C1 (G2). Full history: `rulebooks-changelog.md`.
+> **New in 2.0.1:** a deck of the course attached without the new lecture → ask for the lecture first (§0, "Which case is this?"). **2.0:** this file ships inside the skill (`rulebooks/`), and the skill routes an attached lecture here by itself, so a run starts from one line ("use /lesson-deck-builder to explain the attached file"). Nothing else is attached but the previous deck, and no Markdown file goes back: the course's memory lives in the COURSE record (§0, W11). English decks can be written at A2–C1 (G2). Full history: `rulebooks-changelog.md`.
 
 This file tells you how to turn a set of university lecture slides into one lesson-deck-builder HTML deck that a student can study **instead of** the slides:
 - complete;
@@ -68,6 +68,7 @@ with the lecture (PDF or PPTX) attached and, from the second deck of a course on
 
 **Which case is this?** The attachments decide.
 
+- **No lecture, only a deck of the course.** Ask for the new chapter's PDF (or PPTX) before anything else: don't plan, build or switch routes (SKILL.md, step 0b). A request to change the attached deck itself (fix it, add a quiz, switch the board) is not a new deck.
 - **A. First deck of a course.** No earlier deck of this course is attached.
   - Ask the course questions once, in the W5 message: the **canvas gate** (canvas, then board), the **English level** (SKILL.md step 2b; suggest B1), the exam focus, and any §11 setting the slides make relevant.
   - **The canvas gate is always asked at the first deck, and nothing is built until the user answers** (W5). Use the skill's shape: suggest one canvas with a one-line reason and list both (Paper · Chalkboard); when the user picks the chalkboard, list all six boards with their few-word identities, suggested one first, and offer the skill's board preview (`assets/style-samples/sketchbook-chalkboard.html`, whose top-bar dots switch boards) as a file the user can open. Never pick on the user's behalf. Only a canvas and board named in the prompt skip the question.
