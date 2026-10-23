@@ -69,7 +69,7 @@ Claude confirms the topic, asks the canvas, the language and (for English) the l
 | Route | When | Rulebook |
 |---|---|---|
 | Lecture | a PDF or PPTX attached to explain | [`slides-rulebook.md`](lesson-deck-builder/rulebooks/slides-rulebook.md): complete, **easier to digest than the source in at most twice its words**, at the course's English level (default B1), standalone topics, phone first; ending with [`questions-rulebook.md`](lesson-deck-builder/rulebooks/questions-rulebook.md)'s self-marking quiz |
-| Lesson | a teaching request, no file | [`lessons-rulebook.md`](lesson-deck-builder/rulebooks/lessons-rulebook.md): researched, correct and current, at the chosen level (default B2) and length |
+| Lesson | a teaching request, no file | [`lessons-rulebook.md`](lesson-deck-builder/rulebooks/lessons-rulebook.md): researched, correct and current, at the chosen level (default B2) and length, phone first with the lecture route's phone rules |
 | Presentation | a pitch, intro or showcase | the skill's base workflow |
 
 Beside them: `deck-notes-general.md` (experience from earlier decks, advice not rules), `deck-tools/` (the language checker for A2–C1, quiz walk, code snippets, helpers) and `rulebooks-changelog.md`. Each run's report lists anything worth improving on a "Proposed for the skill" line, for a later maintenance session.

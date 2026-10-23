@@ -129,3 +129,10 @@ numbers, tools, rulebook procedures and notes are tested defaults that a better 
   attached but no new file to explain, Claude asks for the new chapter's PDF (or PPTX) before planning or building, instead
   of falling back to the lesson route. Not when the user asks to change the attached deck itself, and not for a lesson
   journey's deck (`DECK-SETTINGS`), which needs no file.
+
+## v1.4.2 — the lesson route is phone first — 2026-10-23
+
+- **lessons-rulebook 2.1:** new goal G6, phone first, with the lecture route's own phone rules. The slides rulebook's §8
+  "Phone first" (M1–M8), its Q7 phone checks and its phone layer and phone-variant figures (Appendix B4–B5) are required
+  reading on the lesson route and apply as written, so both routes follow one set of rules. The presentation route is
+  unchanged.

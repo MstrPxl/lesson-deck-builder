@@ -66,7 +66,7 @@
   <!-- ============ HERO ============ -->
   <section class="hero" aria-labelledby="hero-title">
     <div>
-      <span class="eyebrow">A Claude skill · v1.4.1</span>
+      <span class="eyebrow">A Claude skill · v1.4.2</span>
       <h1 id="hero-title">Lesson-<span class="u">Deck<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 13 C 50 6, 120 5, 197 11" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></span>-Builder</h1>
       <p class="tagline">Ask Claude for a lesson on <em>any</em> topic and get back <strong>one HTML file</strong>: a calm, hand-drawn slide deck that teaches, opens in any browser, and works on a phone.</p>
       <ul class="chips">
@@ -819,9 +819,9 @@ python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the rever
       <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/rulebooks/questions-rulebook.md">Read it ↗</a></p>
     </div>
     <div class="card">
-      <span class="tag">lessons-rulebook.md · v2.0</span>
+      <span class="tag">lessons-rulebook.md · v2.1</span>
       <h3>Lessons Rulebook</h3>
-      <p>One <strong>researched lesson</strong> on a topic: correct and current, at the chosen <strong>English level</strong> (A2–C1, default B2), within a <strong>length preset</strong>, built like your reference decks, with a "Go deeper" slide of the best next sources.</p>
+      <p>One <strong>researched lesson</strong> on a topic: correct and current, at the chosen <strong>English level</strong> (A2–C1, default B2), within a <strong>length preset</strong>, <strong>phone first</strong> like the lecture decks, built like your reference decks, with a "Go deeper" slide of the best next sources.</p>
       <p><a href="https://github.com/MstrPxl/lesson-deck-builder/blob/main/lesson-deck-builder/rulebooks/lessons-rulebook.md">Read it ↗</a></p>
     </div>
   </div>
@@ -877,6 +877,7 @@ python lesson-deck-builder/scripts/use_cases.py --write   # regenerate the rever
       <li><strong>Goals G1–G5</strong>: correct and complete for the scope, clear English at the chosen level, independent topics, the best ways to teach, the house style at the chosen length.</li>
       <li><strong>Research</strong>: about 10–15 strong sources on a source ladder (official docs first), two sources for every load-bearing claim, dates on anything that changes.</li>
       <li><strong>Length presets</strong>: short, medium, long or "topic"; core concepts are never cut to fit.</li>
+      <li><strong>Phone first</strong>: the slides rulebook's own phone rules (M1–M8), phone layer and phone checks, read from that file so both routes stay identical.</li>
       <li><strong>Records</strong>: <code>DECK-SETTINGS</code>, a coverage map, and the sources.</li>
     </ul></div>
   </div>
@@ -1001,7 +1002,8 @@ README.md · LICENSE</div>
   <div class="tbl"><table>
     <thead><tr><th>Version</th><th>Date</th><th>Highlights</th></tr></thead>
     <tbody>
-      <tr><td><strong>Skill v1.4.1 · Slides 2.0.1</strong></td><td>2026-10-23</td><td>A course deck attached without the new chapter's PDF: Claude asks for the PDF first.</td></tr>
+      <tr><td><strong>Skill v1.4.2 · Lessons 2.1</strong></td><td>2026-10-23</td><td>The lesson route is phone first, with the lecture route's own phone rules, layer and checks.</td></tr>
+      <tr><td>Skill v1.4.1 · Slides 2.0.1</td><td>2026-10-23</td><td>A course deck attached without the new chapter's PDF: Claude asks for the PDF first.</td></tr>
       <tr><td><strong>Skill v1.4</strong></td><td>2026-10-23</td><td>One-line requests; routes (lecture, lesson, presentation); rulebooks, notes and tools bundled; English level A2–C1; course memory inside the decks; goals first.</td></tr>
       <tr><td><strong>Slides 2.0 · Lessons 2.0 · Questions 1.4</strong></td><td>2026-10-23</td><td>Bundled in the skill; one-line start; English level A2–C1; no notes files; shared <code>deck-tools</code> 1.7.</td></tr>
       <tr><td>Skill v1.3</td><td>2026-10-09</td><td>Sketchbook only; canvas gate with paper and six chalkboard boards; template rebuilt; retired styles' mechanics ported to §32.</td></tr>
